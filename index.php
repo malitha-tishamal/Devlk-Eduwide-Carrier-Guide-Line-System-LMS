@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,6 +11,27 @@
     <meta content="" name="keywords">
 
     <?php include_once ("includes/css-links-inc.php"); ?>
+
+    <style>
+        /* Custom styles for success and error messages */
+        .alert-success {
+            background-color: green;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .alert-danger {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
 
 </head>
 
@@ -35,12 +57,27 @@
                                         <!-- <p class="text-center small">Enter your username & password to login</p> -->
                                     </div>
 
-                                    <form action="" method="POST" class="row g-3 needs-validation" novalidate>
+
+                                    <!-- Display messages here -->
+                                    <?php if (isset($_SESSION['error_message'])): ?>
+                                        <div class="alert alert-danger" id="alert-message">
+                                            <?php echo $_SESSION['error_message']; ?>
+                                        </div>
+                                        <?php unset($_SESSION['error_message']); // Clear the message after displaying ?>
+                                    <?php elseif (isset($_SESSION['success_message'])): ?>
+                                        <div class="alert alert-success" id="alert-message">
+                                            <?php echo $_SESSION['success_message']; ?>
+                                        </div>
+                                        <?php unset($_SESSION['success_message']); // Clear the message after displaying ?>
+                                    <?php endif; ?>
+
+
+                                    <form action="login-process.php" method="POST" class="row g-3 needs-validation" novalidate>
                                         <div class="col-12">
                                             <label for="yourUsername" class="form-label">Username</label>
                                             <div class="input-group has-validation">
                                                 <span class="input-group-text" id="inputGroupPrepend">@</span>
-                                                <input type="text" name="username" class="form-control" id="yourUsername" required>
+                                                <input type="text" name="email" class="form-control" id="yourUsername" required>
                                                 <div class="invalid-feedback">Please enter your username.</div>
                                             </div>
                                         </div>
@@ -56,13 +93,18 @@
                                           </div>
                                         </div>
 
-                                        <div class="col-12">
+                                        <!--div class="col-12">
                                           <p class="small mb-0" style="font-size:14px;"><a href="forgotten-password.php">Forgotten password</a>
-                                        </div>
+                                        </div-->
 
                                         <div class="col-12">
                                             <input type="submit" class="btn btn-primary w-100" id="submit" name="submit" value="Login">
                                         </div>
+
+                                         <div class="col-12">
+                                          <p class="small mb-0" style="font-size:14px;">Don't have account? <a href="pages-signup.php">Create an account</a></p>
+                                        </div>
+
                                     </form>
                                 </div>
                             </div>
@@ -79,6 +121,18 @@
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
     <?php include_once ("includes/js-links-inc.php") ?>
+
+    <script>
+        // Set a timeout to hide the message after 10 seconds
+        window.onload = function() {
+            setTimeout(function() {
+                var alertMessage = document.getElementById('alert-message');
+                if (alertMessage) {
+                    alertMessage.style.display = 'none';
+                }
+            }, 10000); // Hide after 10 seconds
+        };
+    </script>
 
 </body>
 

@@ -19,7 +19,7 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
         <div class="d-flex align-items-center justify-content-between">
             <a href="index.html" class="logo d-flex align-items-center">
-                <img src="assets\images\logos\favicon.jpg " width="35px">
+                <img src="assets\images\logos\favicon.png " width="35px">
                 <span class="d-none d-lg-block">EduWide</span>
             </a>
         </div><!-- End Logo -->

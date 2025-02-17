@@ -3,7 +3,7 @@
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="" class="logo d-flex align-items-center">
-            <img src="assets/images/logos/mediq-logo.png" alt="">
+            <img src="assets/images/logos/eduwide-logo.png" alt="">
             <span class="d-none d-lg-block">MediQ</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
