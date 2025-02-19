@@ -9,7 +9,7 @@ session_start();
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Create Admin Account - MediQ</title>
+    <title>Create Admin Account - Eduwide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <link rel="icon" href="../assets/images/logos/favicon.png">
@@ -108,15 +108,19 @@ session_start();
                                         </div>
 
                                         <div class="col-12">
-                                         <label for="subject" class="form-label">Course</label>
+                                         <label for="subject" class="form-label">Subject</label>
                                             <select class="form-control text-center" name="course">
-                                                <option selected disabled>--Select Subject--</option>
-                                                <option class="form-control" value="">Java</option>
-                                                <option value="">Python</option>
-                                                <option value="">Web Design</option>
+                                                <option selected disabled>--Technology Subject--</option>
+                                                    <option class="form-control" value="">Engineering Technology</option>
+                                                    <option value="">Science Technology</option>
+                                                    <option value="">Information Technology</option>
+                                                <option selected disabled>--Maths Subject--</option>
+                                                    <option class="form-control" value="">Maths</option>
+                                                    <option value="">Physics</option>
+                                                    <option value="">Chemistey</option>
                                             </select>                                            
                                             <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Select Course the name
+                                                Please Select Subject the name
                                             </div>
                                         </div>
 
