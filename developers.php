@@ -34,7 +34,8 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\malitha3.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malitha Tishmal</h5>
-                    <p>Full Stack Developer</p>
+                    <p>Full Stack Developer
+                        <br>System Administrator</p>
                     <div class="team-icons">
                         <a href="https://malitha-tishamal.github.io/blog" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="https://github.com/malitha-tishamal" target="_blank"><i class="bi bi-github"></i></a>
@@ -50,7 +51,8 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\sandeepa.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malith Sandeepa</h5>
-                    <p>Frontend Developer</p>
+                    <p>Frontend Developer
+                        <br>System Administrator</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="https://github.com/KVMSANDEEPA" target="_blank"><i class="bi bi-github"></i></a>
@@ -66,13 +68,14 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
                     <h5 class="fw-bold">Matheesha Nihari</h5>
-                    <p>Frontend Developer</p>
+                    <p>Frontend Developer
+                        <br>Technical Writer</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href="https://github.com/KVMSANDEEPA" target="_blank"><i class="bi bi-github"></i></a>
-                        <a href="www.linkedin.com/in/malith-sandeepa" target="_blank"><i class="bi bi-linkedin"></i></a>
-                        <a href="https://www.facebook.com/profile.php?id=100071177107363" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="mailto:malithsandeepa1081@gmail.com" ><i class="bi bi-envelope"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-github"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -82,13 +85,14 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\dewmini.jpg" alt="Team Member">
                     <h5 class="fw-bold">Hima Devindi</h5>
-                    <p>Frontend Developer</p>
+                    <p>Frontend Developer
+                    <br>Quality Assuarance</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href="https://github.com/Tharu003" target="_blank"><i class="bi bi-github"></i></a>
-                        <a href="https://www.linkedin.com/in/nishara-de-silva-992409329/" target="_blank"><i class="bi bi-linkedin"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-github"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
                         <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="mailto:tharushinishara2003@gmail.com" ><i class="bi bi-envelope"></i></a>
+                        <a href="" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -97,13 +101,13 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\amandi.jpg" alt="Team Member">
                     <h5 class="fw-bold">Amandi Kaushalya</h5>
-                    <p>Frontend Developer</p>
+                    <p>Business Analyst</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href="https://github.com/Tharu003" target="_blank"><i class="bi bi-github"></i></a>
-                        <a href="https://www.linkedin.com/in/nishara-de-silva-992409329/" target="_blank"><i class="bi bi-linkedin"></i></a>
+                        <a href= ><i class="bi bi-github"></i></a>
+                        <a href=""><i class="bi bi-linkedin"></i></a>
                         <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="mailto:tharushinishara2003@gmail.com" ><i class="bi bi-envelope"></i></a>
+                        <a href="" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -112,8 +116,8 @@
 
     <!-- Footer -->
     <div class="dev-footer">
-        <p>&copy; Copyright <strong><span>Devlk</span></strong> All Rights Reserved</p>
-        <p>Developed by <a href="developers.php">Devlk</a></p>
+        <p>&copy; Copyright <strong><span>Devlk</span></strong> All Rights Reserved</br>
+       Developed by <a href="developers.php">Devlk</a></p>
     </div>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

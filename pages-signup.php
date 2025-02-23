@@ -9,12 +9,11 @@ session_start();
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Create Admin Account - MediQ</title>
+    <title>Create Account - Eduwide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-    <link rel="icon" href="../assets/images/logos/favicon.png">
-
-    <?php include_once ("../includes/css-links-inc.php"); ?>
+    <link rel="icon" href="assets/images/logos/favicon.png">
+    <?php include_once ("includes/css-links-inc.php"); ?>
         <style>
         /* Styling for the popup */
         .popup-message {
@@ -78,8 +77,8 @@ session_start();
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
                             <div class="d-flex justify-content-center py-4">
-                                <a href="" class="logo d-flex align-items-center w-auto">
-                                    <img src="../assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
+                                <a href="#" class="logo d-flex align-items-center w-auto">
+                                    <img src="assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
                                     <!-- <span class="d-none d-lg-block">MediQ</span> -->
                                 </a>
                             </div><!-- End Logo -->
@@ -87,7 +86,7 @@ session_start();
                             <div class="card mb-2">
                                 <div class="card-body">
                                     <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Create Admin Account</h5>
+                                        <h5 class="card-title text-center pb-0 fs-4">Create Account</h5>
                                         <!-- <p class="text-center small">Enter your username & password to login</p> -->
                                     </div>
 
@@ -113,6 +112,22 @@ session_start();
                                           <input type="email" class="form-control" id="email" name="email" required>
                                             <div class="invalid-feedback" style="font-size:14px" id="">
                                                 Please enter the email address
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                          <label for="address" class="form-label">Adress</label>
+                                          <input type="text" class="form-control" id="adress" name="adress" required>
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
+                                                Please enter the address
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                          <label for="id" class="form-label">ID</label>
+                                          <input type="text" class="form-control" id="id" name="id" placeholder="T001/Maths/STU/001" required>
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
+                                                Please enter the ID address
                                             </div>
                                         </div>
 
@@ -154,15 +169,15 @@ session_start();
                                         </div>
 
                                         <div class="col-12">
-                                          <p class="small mb-0">Create User account? <a href="teacher-signup.php">Click</a></p>
-                                          <p class="small mb-0">Create Teachers account? <a href="../teachers/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Teacher account? <a href="teachers/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
                                           <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
                                         </div>
                                       </form>
                                 </div>
                             </div>
 
-                            <?php include_once ("../includes/footer3.php") ?>
+                            <?php include_once ("includes/footer2.php") ?>
 
                         </div>
                     </div>
@@ -221,7 +236,7 @@ session_start();
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-    <?php include_once ("../includes/js-links-inc.php") ?>
+    <?php include_once ("includes/js-links-inc.php") ?>
 
 </body>
 

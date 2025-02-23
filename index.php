@@ -6,10 +6,10 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Login - MediQ</title>
+    <title>Login - Eduwide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-
+    <link rel="icon" href="assets/images/logos/favicon.png">
     <?php include_once ("includes/css-links-inc.php"); ?>
 
     <style>
@@ -44,7 +44,7 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
                             <div class="d-flex justify-content-center py-4">
-                                <a href="index.html" class="logo d-flex align-items-center w-auto">
+                                <a href="#" class="logo d-flex align-items-center w-auto">
                                     <img src="assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
                                     <!-- <span class="d-none d-lg-block">MediQ</span> -->
                                 </a>
