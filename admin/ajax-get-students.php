@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/db-conn.php';
+require_once '../includes/db-conn.php'; //db conn
 
 if (isset($_POST['year'])) {
     $year = $_POST['year'];
