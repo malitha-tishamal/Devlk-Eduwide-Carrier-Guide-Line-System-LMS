@@ -175,16 +175,16 @@
                 </ul>
 
             </li> -->
-            <?php
+            <!--?php
                 // Use default profile picture if none is set
                 $profilePic = isset($user['profile_picture']) && $user['profile_picture'] ? $user['profile_picture'] : 'default.png';
             ?>
             <li class="nav-item dropdown pe-3">
 
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                   <img id="profilePicture" src="<?php echo $profilePic; ?>" alt="Profile Picture" class="rounded-circle" style="width: 40px !important; height: 40px !important; object-fit: cover;">
+                   <img id="profilePicture" src="uploads/profile_pictures/<?php echo htmlspecialchars($profilePic); ?>" alt="Profile Picture" class="rounded-circle" style="width: 40px !important; height: 40px !important; object-fit: cover;">
                     <span class="d-none d-md-block dropdown-toggle ps-2"><?php echo htmlspecialchars($user['username']); ?></span>
-                </a>
+                </a-->
                 <!-- End Profile Iamge Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">

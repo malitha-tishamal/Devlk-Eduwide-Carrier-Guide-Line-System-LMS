@@ -21,6 +21,7 @@
 
 <!-- Favicon and Apple Touch Icon -->
 <link rel="icon" href="assets/images/logos/favicon.png">
+<link rel="icon" href="../assets/images/logos/favicon.png">
 <link href="<?php echo $base_url; ?>assets/images/logos/favicon.png" rel="icon">
 <link href="<?php echo $base_url; ?>assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 

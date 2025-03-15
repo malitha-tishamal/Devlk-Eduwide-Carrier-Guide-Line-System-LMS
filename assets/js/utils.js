@@ -20,3 +20,4 @@ function togglePasswordVisibility(inputId, iconClass) {
 	icon.classList.toggle('bxs-hide');
 	icon.classList.toggle('bxs-show');
 }
+

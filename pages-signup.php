@@ -9,10 +9,10 @@ session_start();
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Create Account - Eduwide</title>
+    <title>Create Active Students Account - EduWide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-    <link rel="icon" href="assets/images/logos/favicon.png">
+
     <?php include_once ("includes/css-links-inc.php"); ?>
         <style>
         /* Styling for the popup */
@@ -53,14 +53,7 @@ session_start();
                 if (popupAlert) {
                     popupAlert.style.display = 'none';
                 }
-            }, 10000);
-
-            // If success message, redirect to index.php after 10 seconds
-            <?php if ($_SESSION['status'] == 'success'): ?>
-                setTimeout(function() {
-                    window.location.href = 'index.php'; // Redirect after 10 seconds
-                }, 10000); // Delay 10 seconds before redirecting
-            <?php endif; ?>
+            }, 1000);
         </script>
 
         <?php
@@ -77,7 +70,7 @@ session_start();
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
                             <div class="d-flex justify-content-center py-4">
-                                <a href="#" class="logo d-flex align-items-center w-auto">
+                                <a href="" class="logo d-flex align-items-center w-auto">
                                     <img src="assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
                                     <!-- <span class="d-none d-lg-block">MediQ</span> -->
                                 </a>
@@ -86,50 +79,79 @@ session_start();
                             <div class="card mb-2">
                                 <div class="card-body">
                                     <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Create Account</h5>
+                                        <h5 class="card-title text-center pb-0 fs-4">Create Active Student Account</h5>
                                         <!-- <p class="text-center small">Enter your username & password to login</p> -->
                                     </div>
 
                                     <form action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
-                                        <div class="col-12">
-                                         <label for="nicNumber" class="form-label">NIC Number</label>
-                                              <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase(); validateNic(this);" required>
-                                            <div class="invalid-feedback" style="font-size:14px;" id="nicErrorMessage">
-                                                Please enter the NIC number
-                                            </div>
-                                        </div>
 
                                         <div class="col-12">
                                          <label for="name" class="form-label">Name</label>
                                             <input type="text" class="form-control" id="name" name="username" required>
                                             <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please enter the name
+                                                Please Enter the name
                                             </div>
                                         </div>
+
+                                        <div class="col-12">
+                                         <label for="reg_id" class="form-label">Registration ID</label>
+                                            <input type="text" class="form-control" id="reg_id" name="reg_id" placeholder="e.g : GAL/IT/20xx/xxxx" required>
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
+                                                Please Enter your Registration ID
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                         <label for="nicNumber" class="form-label">NIC Number</label>
+                                              <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase(); validateNic(this);" required>
+                                            <div class="invalid-feedback" style="font-size:14px;" id="nicErrorMessage">
+                                                Please Enter the NIC number
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label for="year" class="form-label">Select Study Year</label>
+                                            <select class="form-control" id="year" name="study_year" required>
+                                                <option value="" disabled selected>-- Select Year --</option>
+                                            </select>
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please Select Your Academic Year
+                                            </div>
+                                        </div>
+
+                                        <script>
+                                            // Get the current year
+                                            let currentYear = new Date().getFullYear();
+                                            let startYear = 2022;
+                                            let endYear = currentYear + 2; // Two years ahead
+
+                                            let yearSelect = document.getElementById("year");
+
+                                            // Populate the dropdown with years
+                                            for (let year = startYear; year <= endYear; year++) {
+                                                let option = document.createElement("option");
+                                                option.value = year;
+                                                option.textContent = year;
+                                                yearSelect.appendChild(option);
+                                            }
+                                        </script>
+
 
                                         <div class="col-12">
                                           <label for="email" class="form-label">Email</label>
                                           <input type="email" class="form-control" id="email" name="email" required>
                                             <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please enter the email address
+                                                Please Enter the email address
                                             </div>
                                         </div>
 
-                                        <div class="col-12">
-                                          <label for="address" class="form-label">Adress</label>
-                                          <input type="text" class="form-control" id="adress" name="adress" required>
+                                        <!--div class="col-12">
+                                          <label for="photo" class="form-label">Profile Picture</label>
+                                          <input type="file" class="form-control form-control-sm" id="pro_photo" name="pro_photo">
                                             <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please enter the address
+                                                Please Upload Profile Picture
                                             </div>
-                                        </div>
-
-                                        <div class="col-12">
-                                          <label for="id" class="form-label">ID</label>
-                                          <input type="text" class="form-control" id="id" name="id" placeholder="T001/Maths/STU/001" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please enter the ID address
-                                            </div>
-                                        </div>
+                                        </div-->
 
 
                                         <div class="col-12">
@@ -169,15 +191,16 @@ session_start();
                                         </div>
 
                                         <div class="col-12">
-                                          <p class="small mb-0">Create Teacher account? <a href="teachers/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
+                                          <p class="small mb-0">Create Former Students account? <a href="oddstudents/pages-signup.php">Click</a></p>
+                                           <p class="small mb-0">Create Lecture account? <a href="Lectures/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Already have an account? <a href="index.php">Log in</a></p>
                                         </div>
                                       </form>
                                 </div>
                             </div>
 
-                            <?php include_once ("includes/footer2.php") ?>
+                            <?php include_once ("includes/footer3.php") ?>
 
                         </div>
                     </div>
@@ -215,15 +238,8 @@ session_start();
                         // Hide the alert after 10 seconds
                         setTimeout(function() {
                             popupAlert.fadeOut();
-                        }, 10000);
+                        }, 1000);
 
-                        // If success, redirect after message disappears
-                        if (response.status === "success") {
-                            setTimeout(function() {
-                                window.location.href = "index.php"; // Change this to your target redirect URL
-                            }, 10000); // Same 10 seconds delay before redirect
-                        }
-                    },
                     error: function(xhr, status, error) {
                         alert("AJAX Error: " + xhr.responseText); // Handle AJAX error
                     }

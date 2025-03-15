@@ -9,11 +9,14 @@ session_start();
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Create Teacher Account - Eduwide</title>
+    <title>Create Learning Lecture Account - EduWide</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
     <link rel="icon" href="../assets/images/logos/favicon.png">
-    <?php include_once("../includes/css-links-inc.php"); ?>
 
-    <style>
+    <?php include_once ("../includes/css-links-inc.php"); ?>
+        <style>
+        /* Styling for the popup */
         .popup-message {
             position: fixed;
             top: 20px;
@@ -24,7 +27,7 @@ session_start();
             color: white;
             font-weight: bold;
             border-radius: 5px;
-            display: none;
+            display: none; /* Hidden by default */
             z-index: 9999;
         }
 
@@ -35,27 +38,28 @@ session_start();
 </head>
 
 <body>
-
+    <!-- Displaying the message from the session -->
     <?php if (isset($_SESSION['status'])): ?>
         <div class="popup-message <?php echo ($_SESSION['status'] == 'success') ? '' : 'error-popup'; ?>" id="popup-alert">
             <?php echo $_SESSION['message']; ?>
         </div>
 
         <script>
+            // Display the popup message
             document.getElementById('popup-alert').style.display = 'block';
 
+            // Automatically hide the popup after 10 seconds
             setTimeout(function() {
-                document.getElementById('popup-alert').style.display = 'none';
-            }, 10000);
+                const popupAlert = document.getElementById('popup-alert');
+                if (popupAlert) {
+                    popupAlert.style.display = 'none';
+                }
+            }, 1000);
 
-            <?php if ($_SESSION['status'] == 'success'): ?>
-                setTimeout(function() {
-                    window.location.href = 'index.php';
-                }, 10000);
-            <?php endif; ?>
         </script>
 
         <?php
+        // Clear session variables after showing the message
         unset($_SESSION['status']);
         unset($_SESSION['message']);
         ?>
@@ -68,123 +72,111 @@ session_start();
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
                             <div class="d-flex justify-content-center py-4">
-                                <a href="#" class="logo d-flex align-items-center w-auto">
+                                <a href="" class="logo d-flex align-items-center w-auto">
                                     <img src="../assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
+                                    <!-- <span class="d-none d-lg-block">MediQ</span> -->
                                 </a>
-                            </div>
+                            </div><!-- End Logo -->
 
                             <div class="card mb-2">
                                 <div class="card-body">
                                     <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Create Teacher Account</h5>
+                                        <h5 class="card-title text-center pb-0 fs-4">Create Lectures Account</h5>
+                                        <!-- <p class="text-center small">Enter your username & password to login</p> -->
                                     </div>
 
                                     <form action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
 
                                         <div class="col-12">
-                                            <label for="nicNumber" class="form-label">NIC Number</label>
-                                            <input type="text" class="form-control" id="nicNumber" name="nic" placeholder=""
-                                                oninput="this.value = this.value.toUpperCase(); generateIdFromNIC(this);" required>
-                                            <div class="invalid-feedback" style="font-size:14px;">
-                                                Please enter the NIC number
-                                            </div>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label for="name" class="form-label">Name</label>
+                                         <label for="name" class="form-label">Name</label>
                                             <input type="text" class="form-control" id="name" name="username" required>
-                                            <div class="invalid-feedback" style="font-size:14px;">
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
                                                 Please enter the name
                                             </div>
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="subject" class="form-label">Subject</label>
-                                            <select class="form-control text-center" name="course">
-                                                <option selected disabled>--Technology Subject--</option>
-                                                <option value="">Engineering Technology</option>
-                                                <option value="">Science Technology</option>
-                                                <option value="">Information Technology</option>
-                                                <option selected disabled>--Maths Subject--</option>
-                                                <option value="">Maths</option>
-                                                <option value="">Physics</option>
-                                                <option value="">Chemistry</option>
-                                            </select>
-                                            <div class="invalid-feedback" style="font-size:14px;">
-                                                Please Select Subject
+                                         <label for="nicNumber" class="form-label">NIC Number</label>
+                                              <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase(); validateNic(this);" required>
+                                            <div class="invalid-feedback" style="font-size:14px;" id="nicErrorMessage">
+                                                Please enter the NIC number
                                             </div>
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" required>
-                                            <div class="invalid-feedback" style="font-size:14px;">
+                                          <label for="email" class="form-label">Email</label>
+                                          <input type="email" class="form-control" id="email" name="email" required>
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
                                                 Please enter the email address
                                             </div>
                                         </div>
 
+                                        <!--div class="col-12">
+                                          <label for="photo" class="form-label">Profile Picture</label>
+                                          <input type="file" class="form-control form-control-sm" id="pro_photo" name="pro_photo">
+                                            <div class="invalid-feedback" style="font-size:14px" id="">
+                                                Please Upload Profile Picture
+                                            </div>
+                                        </div-->
+
+
                                         <div class="col-12">
-                                            <label for="mobileNumber" class="form-label">Mobile Number</label>
-                                            <div class="input-group">
+                                          <label for="mobileNumber" class="form-label">Mobile Number</label>
+                                              <div class="input-group">
                                                 <span class="input-group-text">+94</span>
-                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" required>
-                                                <div class="invalid-feedback" style="font-size:14px;">
+                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" oninput="validateMobile(this)" required>
+                                                <div class="invalid-feedback" style="font-size:14px;" id="numberErrorMessage">
                                                     Please enter the mobile number
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="id" class="form-label">Your ID</label>
-                                            <input type="text" class="form-control" id="id" name="id" readonly placeholder="Autogenerate Code is Your ID">
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label for="password" class="form-label">Password</label>
+                                          <label for="password" class="form-label">Password</label>
                                             <div class="input-group">
                                                 <input type="password" class="form-control" id="password" name="password" required>
-                                                <div class="invalid-feedback" style="font-size:14px;">
+                                                <span class="input-group-text" id="inputGroupPrepend">
+                                                    <i class="password-toggle-icon1 bx bxs-show" onclick="togglePasswordVisibility('password', 'password-toggle-icon1')"></i>
+                                                </span>
+                                                <div class="invalid-feedback" style="font-size:14px;" id="">
                                                     Please enter password
                                                 </div>
                                             </div>
                                         </div>
 
+                                        <!--div class="col-12">
+                                          <div class="form-check">
+                                            <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
+                                            <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
+                                            <div class="invalid-feedback">You must agree before submitting.</div>
+                                          </div>
+                                        </div-->
                                         <div class="col-12">
-                                            <button class="btn btn-primary w-100" type="submit">Create Account</button>
+                                          <button class="btn btn-primary w-100" type="submit"
+                                           data-bs-toggle="modal" data-bs-target="#confirmSubmitModal">Create Account</button>
                                         </div>
 
                                         <div class="col-12">
-                                            <p class="small mb-0">Create User account? <a href="../pages-signup.php">Click</a></p>
-                                            <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
-                                            <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
+                                          <p class="small mb-0">Create Students account? <a href="../pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Former Students account? <a href="../oddstudents/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
                                         </div>
-
-                                    </form>
+                                      </form>
                                 </div>
                             </div>
 
-                            <?php include_once("../includes/footer3.php") ?>
+                            <?php include_once ("../includes/footer3.php") ?>
 
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-    </main>
+    </main><!-- End #main -->
 
-    <script>
-        function generateIdFromNIC(nicInput) {
-            let nic = nicInput.value.trim();
-            let idField = document.getElementById("id");
-
-            if (nic.length >= 3) {
-                let lastThreeDigits = nic.slice(-3);
-                idField.value = "EDU" + lastThreeDigits;
-            } else {
-                idField.value = "";
-            }
-        }
-    </script>
+ 
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             // On form submit
@@ -212,15 +204,8 @@ session_start();
                         // Hide the alert after 10 seconds
                         setTimeout(function() {
                             popupAlert.fadeOut();
-                        }, 10000);
+                        }, 1000);
 
-                        // If success, redirect after message disappears
-                        if (response.status === "success") {
-                            setTimeout(function() {
-                                window.location.href = "index.php"; // Change this to your target redirect URL
-                            }, 10000); // Same 10 seconds delay before redirect
-                        }
-                    },
                     error: function(xhr, status, error) {
                         alert("AJAX Error: " + xhr.responseText); // Handle AJAX error
                     }
@@ -229,7 +214,12 @@ session_start();
         });
     </script>
 
-    <?php include_once("../includes/js-links-inc.php") ?>
+
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <?php include_once ("../includes/js-links-inc.php") ?>
 
 </body>
+
 </html>

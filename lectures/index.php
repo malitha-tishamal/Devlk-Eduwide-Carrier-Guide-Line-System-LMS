@@ -3,14 +3,14 @@ session_start();
 require_once '../includes/db-conn.php';
 
 // Redirect if not logged in
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['lecturer_id'])) {
     header("Location: ../index.php");
     exit();
 }
 
 // Fetch user details
-$user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$user_id = $_SESSION['lecturer_id'];
+$sql = "SELECT username, email, nic,mobile FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -20,7 +20,7 @@ $stmt->close();
 
 // Fetch users from the database
 // SQL query to get data
-$sql = "SELECT * FROM admins";
+$sql = "SELECT * FROM lectures";
 $result = $conn->query($sql);
 ?>
 
@@ -40,7 +40,7 @@ $result = $conn->query($sql);
 
     <?php include_once("../includes/header.php") ?>
 
-    <?php include_once("../includes/sadmin-sidebar.php") ?>
+    <?php include_once("../includes/lectures-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -69,40 +69,9 @@ $result = $conn->query($sql);
     </main>
 
     <?php include_once("../includes/footer.php") ?>
+    <?php include_once ("../includes/js-links-inc.php") ?>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-    <?php include_once("../includes/js-links-inc.php") ?>
-    <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', function () {
-        const approveButtons = document.querySelectorAll('.approve-btn');
-        const disableButtons = document.querySelectorAll('.disable-btn');
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-
-        approveButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-admins.php?approve_id=${userId}`;
-            });
-        });
-
-        disableButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-admins.php?disable_id=${userId}`;
-            });
-        });
-
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                if (confirm("Are you sure you want to delete this user?")) {
-                    window.location.href = `process-admins.php?delete_id=${userId}`;
-                }
-            });
-        });
-      });
-    </script>
 
 </body>
 
