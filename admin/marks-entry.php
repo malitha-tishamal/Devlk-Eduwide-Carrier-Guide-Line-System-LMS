@@ -54,11 +54,56 @@ if (isset($_GET['subject_id'])) {
             padding: 5px;
         }
     </style>
+     <style>
+        /* Styling for the popup */
+        .popup-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+            z-index: 9999;
+        }
+
+        .error-popup {
+            background-color: #dc3545;
+        }
+    </style>
 </head>
 
 <body>
     <?php include_once("../includes/header.php") ?>
     <?php include_once("../includes/sadmin-sidebar.php") ?>
+
+    <?php if (isset($_SESSION['status'])): ?>
+        <div class="popup-message <?php echo ($_SESSION['status'] == 'success') ? '' : 'error-popup'; ?>" id="popup-alert">
+            <?php echo $_SESSION['message']; ?>
+        </div>
+
+        <script>
+            // Display the popup message
+            document.getElementById('popup-alert').style.display = 'block';
+
+            // Automatically hide the popup after 10 seconds
+            setTimeout(function() {
+                const popupAlert = document.getElementById('popup-alert');
+                if (popupAlert) {
+                    popupAlert.style.display = 'none';
+                }
+            }, 1000);
+        </script>
+
+        <?php
+        // Clear session variables after showing the message
+        unset($_SESSION['status']);
+        unset($_SESSION['message']);
+        ?>
+    <?php endif; ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -79,10 +124,10 @@ if (isset($_GET['subject_id'])) {
                         <div class="card-body">
                             <form action="process-marks-entry.php" method="POST">
                                 <!-- Batch Year Dropdown -->
-                                <div class="d-flex">
                                     <div class="form-group mb-3 mt-3">
+                                    <input type="hidden" name="subject_id" value="<?php echo $subject_id; ?>">
                                     <label for="year">Select Batch Year</label>
-                                    <select class="form-select" id="year" name="year" required>
+                                    <select class="form-select w-25" id="year" name="year" required>
                                         <option value="">Select Batch Year</option>
                                         <?php
                                         // Fetch distinct batch years from students table
@@ -99,24 +144,19 @@ if (isset($_GET['subject_id'])) {
                                         ?>
                                     </select>
                                 </div>
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 
                                 <div class="form-group mb-3" id="profilePictureDiv" style="display: none;">
-                                    <label for="profilePicture">Profile Picture</label>
+                                    <label for="profilePicture">Student Picture</label>
                                     <div id="profilePictureContainer">
                                         <!-- Profile Picture will be inserted here -->
                                     </div>
-                                </div>
-                                    
                                 </div>
 
                                 <!-- Student ID Dropdown -->
                                 <div class="form-group mb-3">
                                     <label for="studentId">Select Student ID</label>
                                     <select class="form-select w-50" id="studentId" name="studentId" required>
-                                        <option value="">Select Student...</option>
+                                        <option value="">... Select Student ID...</option>
                                     </select>
                                 </div>
 
@@ -124,6 +164,10 @@ if (isset($_GET['subject_id'])) {
                                 <div class="form-group mb-3 mt-3">
                                     <label for="subject">Subject</label>
                                     <input type="text" class="form-control w-50" id="subject" name="subject" value="<?php echo htmlspecialchars($subject['name']); ?>" readonly>
+                                </div>
+                                <div class="form-group mb-3 mt-3">
+                                    <label for="subject">Semester</label>
+                                    <input type="text" class="form-control w-50" id="semester" name="semestersubject" value="<?php echo htmlspecialchars($subject['semester']); ?>" readonly>
                                 </div>
 
                                 <!-- Practical Marks -->
@@ -298,9 +342,44 @@ if (isset($_GET['subject_id'])) {
                 }
             });
         });
-
-
           </script>
+
+          <script>
+            $(document).ready(function() {
+                // On form submit
+                $("#signup-form").submit(function(event) {
+                    event.preventDefault(); // Prevent form submission
+
+                    $.ajax({
+                        url: "process.marks-entry.php", // Send form data to register.php
+                        type: "POST",
+                        data: $(this).serialize(), // Serialize the form data
+                        dataType: "json", // Expect JSON response
+                        success: function(response) {
+                            let popupAlert = $("#popup-alert");
+
+                            // Set the message class and text based on the response status
+                            if (response.status === "success") {
+                                popupAlert.removeClass("alert-error").addClass("alert-success").html(response.message);
+                            } else {
+                                popupAlert.removeClass("alert-success").addClass("alert-error").html(response.message);
+                            }
+
+                            // Show the alert
+                            popupAlert.show();
+
+                            // Hide the alert after 10 seconds
+                            setTimeout(function() {
+                                popupAlert.fadeOut();
+                            }, 1000);
+                        },
+                        error: function(xhr, status, error) {
+                            alert("AJAX Error: " + xhr.responseText); // Handle AJAX error
+                        }
+                    });
+                });
+            });
+        </script>
         </section>
     </main>
 

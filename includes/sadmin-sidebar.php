@@ -100,7 +100,7 @@
 
         <li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#admins-nav" role="button">
-                <i class="bi bi-bookmark-dash"></i> <span>Marks</span> <i class="bi bi-chevron-down ms-auto"></i>
+                <i class="bi bi-bookmark-dash"></i> <span>Marks Enter</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="admins-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                 <li>
@@ -124,6 +124,12 @@
                     </a>
                 </li>
             </ul>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-marks.php.php">
+                <i class="bi bi-bar-chart"></i> <span>Marks Analayze</span>
+            </a>
         </li>
 
         <li class="nav-item">
