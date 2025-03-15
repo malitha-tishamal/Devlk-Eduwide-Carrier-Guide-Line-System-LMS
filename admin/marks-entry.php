@@ -124,7 +124,7 @@ if (isset($_GET['subject_id'])) {
                         <div class="card-body">
                             <form action="process-marks-entry.php" method="POST">
                                 <!-- Batch Year Dropdown -->
-                                    <div class="form-group mb-3 mt-3">
+                                <div class="form-group mb-3 mt-3">
                                     <input type="hidden" name="subject_id" value="<?php echo $subject_id; ?>">
                                     <label for="year">Select Batch Year</label>
                                     <select class="form-select w-25" id="year" name="year" required>
