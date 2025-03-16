@@ -41,6 +41,23 @@
                         <i class="bi bi-circle"></i> <span>Manage Lectures</span>
                     </a>
                 </li>
+                <li>
+                    <a href="pages-assign-subject.php">
+                        <i class="bi bi-circle"></i> <span>Assign Subjects</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="pages-assign-subjects.php">
+                        <i class="bi bi-circle"></i> <span>Assign Details</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="pages-assignments-manage.php">
+                        <i class="bi bi-circle"></i> <span>Manage Assign Details</span>
+                    </a>
+                </li>
             </ul>
         </li>
 

@@ -63,24 +63,6 @@
                 </div>
             </div>
 
-            <!-- Team Member 3 -->
-            <div class="col-md-3">
-                <div class="team-card text-center">
-                    <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
-                    <h5 class="fw-bold">Matheesha Nihari</h5>
-                    <p>Frontend Developer
-                        <br>Technical Writer</p>
-                    <div class="team-icons">
-                        <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-github"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="" ><i class="bi bi-envelope"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Team Member 4 -->
             <div class="col-md-3">
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\dewmini.jpg" alt="Team Member">
@@ -92,6 +74,22 @@
                         <a href="" target="_blank"><i class="bi bi-github"></i></a>
                         <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
                         <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="" ><i class="bi bi-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="team-card text-center">
+                    <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
+                    <h5 class="fw-bold">Matheesha Nihari</h5>
+                    <p>Frontend Developer
+                        <br>Technical Writer</p>
+                    <div class="team-icons">
+                        <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-github"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
+                        <a href="" target="_blank"><i class="bi bi-facebook"></i></a>
                         <a href="" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
