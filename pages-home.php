@@ -1,16 +1,16 @@
 <?php
 session_start();
-require_once '../includes/db-conn.php';
+require_once 'includes/db-conn.php';
 
 // Redirect if not logged in
-if (!isset($_SESSION['former_student_id'])) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['student_id'])) {
+    header("Location: index.php");
     exit();
 }
 
 // Fetch user details
-$user_id = $_SESSION['former_student_id'];
-$sql = "SELECT * FROM former_students WHERE id = ?";
+$user_id = $_SESSION['student_id'];
+$sql = "SELECT * FROM students WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -28,14 +28,14 @@ $stmt->close();
 
     <title>Home - EduWide</title>
 
-    <?php include_once("../includes/css-links-inc.php"); ?>
+    <?php include_once("includes/css-links-inc.php"); ?>
 </head>
 
 <body>
 
-    <?php include_once("../includes/header.php") ?>
+    <?php include_once("includes/header.php") ?>
 
-    <?php include_once("../includes/formers-sidebar.php") ?>
+    <?php include_once("includes/students-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -63,8 +63,8 @@ $stmt->close();
         </section>
     </main>
 
-    <?php include_once("../includes/footer.php") ?>
-    <?php include_once ("../includes/js-links-inc.php") ?>
+    <?php include_once("includes/footer4.php") ?>
+    <?php include_once ("includes/js-links-inc.php") ?>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 

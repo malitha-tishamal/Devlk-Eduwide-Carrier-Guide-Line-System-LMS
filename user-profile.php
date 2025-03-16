@@ -1,16 +1,16 @@
 <?php
 session_start();
-require_once '../includes/db-conn.php';
+require_once 'includes/db-conn.php';
 
 // Redirect if not logged in
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['student_id'])) {
     header("Location: ../index.php");
     exit();
 }
 
 // Fetch user details
-$user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$user_id = $_SESSION['student_id'];
+$sql = "SELECT * FROM students WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -26,10 +26,10 @@ $stmt->close();
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Users Profile - Eduwide</title>
+    <title>User Profile - Eduwide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
-    <?php include_once ("../includes/css-links-inc.php"); ?>
+    <?php include_once ("includes/css-links-inc.php"); ?>
     <style>
         /* Styling for the popup */
         .popup-message {
@@ -87,8 +87,8 @@ $stmt->close();
         ?>
     <?php endif; ?>
 
-    <?php include_once ("../includes/header.php") ?>
-    <?php include_once ("../includes/sadmin-sidebar.php") ?>
+    <?php include_once ("includes/header.php") ?>
+    <?php include_once ("includes/students-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -121,9 +121,8 @@ $stmt->close();
                                         <div class="col-lg-3 col-md-4 label">Profile Picture</div>
                                         <div class="col-lg-9 col-md-8">
                                             <?php 
-
                                             // Display profile picture with timestamp to force refresh
-                                            echo "<img src='uploads/profile_pictures/$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 100px; height: 100px; border-radius:50%;'>";
+                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 100px; height: 100px; border-radius:50%;'>";
                                             ?>
                                             
                                             <form action="update-profile-picture.php" method="POST" enctype="multipart/form-data">
@@ -135,34 +134,104 @@ $stmt->close();
                                             </form>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">Full Name</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['name']); ?></div>
+                                    <div class="container">
+                                        <form action="update-profile.php" method="POST">
+                                            <!-- Full Name -->
+                                            <div class="row">
+                                                <div class="col-lg-3 col-md-4 label">Full Name</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="username" class="form-control w-75" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-lg-3 col-md-4 label">Register ID</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="reg_id" class="form-control w-75" value="<?php echo htmlspecialchars($user['reg_id']); ?>" readonly>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-lg-3 col-md-4 label">Study Year</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="study_year" class="form-control w-75" value="<?php echo htmlspecialchars($user['study_year']); ?>" readonly>
+                                                </div>
+                                            </div>
+
+                                            <!-- Email -->
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">Email</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="email" name="email" class="form-control w-75" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                                                </div>
+                                            </div>
+
+                                            <!-- NIC -->
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">NIC</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="nic" class="form-control w-75" value="<?php echo htmlspecialchars($user['nic']); ?>" required>
+                                                </div>
+                                            </div>
+
+                                            <!-- Mobile Number -->
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">Mobile Number</div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>" required>
+                                                </div>
+                                            </div>
+
+                                            <!-- Submit Button -->
+                                            <div class="row mt-4">
+                                                <div class="col-lg-12 text-center">
+                                                    <input type="submit" name="submit" value="Update Profile Data" class="btn btn-primary btn-sm">
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">Register ID</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['reg_id']); ?></div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">NIC</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['nic']); ?></div>
+                                    <div class="container">
+                                        <form action="update-socialmedia.php" method="POST">
+                                            <div class="row">
+                                                <div class="col-lg-3 col-md-4 label">LinkedIn <i class="bi bi-linkedin"></i></div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="linkedin" class="form-control w-75" placeholder="e.g. : https://www.linkedin.com/username" value="<?php echo htmlspecialchars($user['linkedin']); ?>">
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">Personal Blog <i class="bi bi-globe"></i></div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <div class="d-flex">
+                                                        <input type="test" name="blog" class="form-control w-75" placeholder="e.g.: https://www.domain.com" value="<?php echo htmlspecialchars($user['blog']); ?>">
+                                                    </div>
+                                                </div>
+                                            </div>                                       
+
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">Github <i class="bi bi-github"></i></div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="github" class="form-control w-75" placeholder="e.g. : https://www.githb.io/username" value="<?php echo htmlspecialchars($user['github']); ?>">
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-3">
+                                                <div class="col-lg-3 col-md-4 label">Facebook <i class="bi bi-facebook"></i></div>
+                                                <div class="col-lg-9 col-md-8">
+                                                    <input type="text" name="facebook" class="form-control w-75" placeholder="e.g. : https://www.facebook.com/username" value="<?php echo htmlspecialchars($user['facebook']); ?>">
+                                                </div>
+                                            </div>
+
+                                            <!-- Submit Button -->
+                                            <div class="row mt-4">
+                                                <div class="col-lg-12 text-center">
+                                                    <input type="submit" name="submit" value="Update Social Media" class="btn btn-primary btn-sm">
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">Email</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['email']); ?></div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">NIC</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['nic']); ?></div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 label">Mobile Number</div>
-                                        <div class="col-lg-9 col-md-8"><?php echo htmlspecialchars($user['mobile']); ?></div>
-                                    </div>
                                 </div>
 
                                 <!-- Change Password Form -->
@@ -222,9 +291,9 @@ $stmt->close();
         </section>
     </main>
 
-    <?php include_once ("../includes/footer2.php") ?>
+    <?php include_once ("includes/footer4.php") ?>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-    <?php include_once ("../includes/js-links-inc.php") ?>
+    <?php include_once ("includes/js-links-inc.php") ?>
     <script>
         $(document).ready(function() {
             // On form submit

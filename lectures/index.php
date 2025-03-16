@@ -10,18 +10,13 @@ if (!isset($_SESSION['lecturer_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT username, email, nic,mobile FROM lectures WHERE id = ?";
+$sql = "SELECT * FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
-
-// Fetch users from the database
-// SQL query to get data
-$sql = "SELECT * FROM lectures";
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>

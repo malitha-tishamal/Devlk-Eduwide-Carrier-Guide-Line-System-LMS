@@ -63,35 +63,6 @@ $result = $conn->query($query);
             vertical-align: middle;
         }
 
-        .btn-warning {
-            background-color: #ffb74d;
-            border-color: #ff9800;
-        }
-
-        .btn-warning:hover {
-            background-color: #ff9800;
-            border-color: #fb8c00;
-        }
-
-        .btn-danger {
-            background-color: #f44336;
-            border-color: #d32f2f;
-        }
-
-        .btn-danger:hover {
-            background-color: #d32f2f;
-            border-color: #c62828;
-        }
-
-        .btn-info {
-            background-color: #03a9f4;
-            border-color: #0288d1;
-        }
-
-        .btn-info:hover {
-            background-color: #0288d1;
-            border-color: #0277b3;
-        }
     </style>
 </head>
 <body>
@@ -119,7 +90,7 @@ $result = $conn->query($query);
                             <div class="container mt-2 mb-2">
                                 
                                 <?php if ($result->num_rows > 0): ?>
-                                    <table class="table table-bordered">
+                                    <table class="table datatable">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th>Lecturer</th>

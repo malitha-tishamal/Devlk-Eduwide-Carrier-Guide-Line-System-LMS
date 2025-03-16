@@ -63,7 +63,7 @@ if (isset($_POST['submit'])) {
                     if ($user['status'] == 'approved') {
                         $_SESSION['former_student_id'] = $user['id'];
                         $_SESSION['success_message'] = "Welcome Former Student!";
-                        header("Location: oddstudent/index.php");
+                        header("Location: oddstudents/index.php");
                         exit();
                     } else {
                         $_SESSION['error_message'] = "Your former student account has not been approved yet.";
