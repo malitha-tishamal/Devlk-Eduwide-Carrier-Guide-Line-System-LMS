@@ -7,10 +7,9 @@ if (!isset($_SESSION['lecturer_id'])) {
     header("Location: ../index.php");
     exit();
 }
-
 // Fetch user details
 $user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT username, email, nic,mobile FROM lectures WHERE id = ?";
+$sql = "SELECT * FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();

@@ -10,7 +10,7 @@ if (!isset($_SESSION['lecturer_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT username, email, nic,mobile FROM lectures WHERE id = ?";
+$sql = "SELECT * FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -18,9 +18,29 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Fetch users from the database
-// SQL query to get data
-$sql = "SELECT * FROM students";
+// Fetch filtering parameters from GET request
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+
+// Build the SQL query with filters
+$sql = "SELECT * FROM students WHERE 1";
+
+// Apply search filter if provided
+if ($search !== '') {
+    $sql .= " AND (username LIKE '%$search%' OR reg_id LIKE '%$search%')";
+}
+
+// Apply study year filter if provided
+if ($study_year !== '') {
+    $sql .= " AND study_year = '$study_year'";
+}
+
+// Apply status filter if provided
+if ($status !== '') {
+    $sql .= " AND status = '$status'";
+}
+
 $result = $conn->query($sql);
 ?>
 
@@ -30,7 +50,6 @@ $result = $conn->query($sql);
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
     <title>Active Students Manage - EduWide</title>
 
     <?php include_once("../includes/css-links-inc.php"); ?>
@@ -39,8 +58,7 @@ $result = $conn->query($sql);
 <body>
 
     <?php include_once("../includes/header.php") ?>
-
-    <?php include_once("../includes/lectures-sidebar.php") ?>
+    <?php include_once("../includes/sadmin-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -62,6 +80,41 @@ $result = $conn->query($sql);
                             <h5 class="card-title">Active Students Management</h5>
                             <p>Manage Active Students here.</p>
 
+                            <!-- Search Bar and Filters -->
+                            <form method="GET" action="">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <input type="text" name="search" class="form-control" placeholder="Search by Name or Reg ID" value="<?php echo htmlspecialchars($search); ?>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select name="study_year" class="form-select">
+                                            <option value="">All Years</option>
+                                            <?php
+                                            // Get the current year
+                                            $current_year = date("Y");
+                                            // Loop through the years from 2020 to the next two years after the current year
+                                            for ($year = 2022; $year <= $current_year + 2; $year++) {
+                                                $selected = ($study_year == "Year $year") ? 'selected' : '';  // Check if this year is selected
+                                                echo "<option value='$year' $selected>Year $year</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <select name="status" class="form-select">
+                                            <option value="">All Status</option>
+                                            <option value="active" <?php echo ($status == "active" ? 'selected' : ''); ?>>Active</option>
+                                            <option value="pending" <?php echo ($status == "pending" ? 'selected' : ''); ?>>Pending</option>
+                                            <option value="disabled" <?php echo ($status == "disabled" ? 'selected' : ''); ?>>Disabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
+
                             <!-- Table with user data -->
                             <table class="table datatable">
                                 <thead class="align-middle text-center">
@@ -80,9 +133,8 @@ $result = $conn->query($sql);
                                         <th></th>
                                         <th>Edit</th>
                                     </tr>
-
                                     <tr>
-                                        <th colspan="9" class="text-center"></th> <!-- Empty columns for alignment -->
+                                        <th colspan="9" class="text-center"></th>
                                         <th class="text-center">Approve</th>
                                         <th class="text-center">Disable</th>
                                         <th class="text-center">Delete</th>
@@ -105,7 +157,6 @@ $result = $conn->query($sql);
                                             // Status Column with Color
                                             echo "<td>";
                                             $status = strtolower($row['status']); // Convert to lowercase for case insensitivity
-
                                             if ($status === 'active' || $status === 'approved') {
                                                 echo "<span class='btn btn-success btn-sm w-100 text-center'>Approved</span>";
                                             } elseif ($status === 'disabled') {
@@ -150,10 +201,8 @@ $result = $conn->query($sql);
         </section>
     </main>
 
-    <?php include_once("../includes/footer.php") ?>
-
+    <?php include_once("../includes/footer2.php") ?>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
     <?php include_once("../includes/js-links-inc.php") ?>
     <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function () {

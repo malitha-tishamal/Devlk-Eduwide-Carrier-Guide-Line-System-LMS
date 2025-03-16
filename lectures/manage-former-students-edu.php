@@ -8,9 +8,8 @@ if (!isset($_SESSION['lecturer_id'])) {
     exit();
 }
 
-// Fetch user details
 $user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT username, email, nic,mobile FROM lectures WHERE id = ?";
+$sql = "SELECT * FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -18,10 +17,31 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Fetch users from the database
-// SQL query to get data
-$sql = "SELECT * FROM former_students WHERE nowstatus = 'study'";
-$result = $conn->query($sql);
+// Fetch filtering parameters from GET request
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
+$status = isset($_GET['status']) ? $_GET['status'] : '';
+
+// Build the SQL query with filters
+$sql2 = "SELECT * FROM former_students WHERE nowstatus = 'study'";
+
+// Apply search filter if provided
+if ($search !== '') {
+    $sql2 .= " AND (username LIKE '%$search%' OR reg_id LIKE '%$search%')";
+}
+
+// Apply study year filter if provided
+if ($study_year !== '') {
+    $sql2 .= " AND study_year = '$study_year'";
+}
+
+// Apply status filter if provided
+if ($status !== '') {
+    $sql2 .= " AND status = '$status'";
+}
+
+// Execute the query with the applied filters
+$result = $conn->query($sql2);
 ?>
 
 <!DOCTYPE html>
@@ -30,16 +50,12 @@ $result = $conn->query($sql);
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
     <title>Former Students Manage - EduWide</title>
-
     <?php include_once("../includes/css-links-inc.php"); ?>
 </head>
 
 <body>
-
     <?php include_once("../includes/header.php") ?>
-
     <?php include_once("../includes/lectures-sidebar.php") ?>
 
     <main id="main" class="main">
@@ -62,6 +78,39 @@ $result = $conn->query($sql);
                             <h5 class="card-title">Former Still Study Students Management</h5>
                             <p>Manage Former Students (Still Study) here.</p>
 
+                            <!-- Search Bar and Filters -->
+                            <form method="GET" action="">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <input type="text" name="search" class="form-control" placeholder="Search by Name or Reg ID" value="<?php echo htmlspecialchars($search); ?>">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select name="study_year" class="form-select">
+                                            <option value="">All Years</option>
+                                            <?php
+                                            $current_year = date("Y");
+                                            for ($year = 2000; $year <= $current_year + 2; $year++) {
+                                                $selected = ($study_year == "Year $year") ? 'selected' : '';
+                                                echo "<option value='$year' $selected>Year $year</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <select name="status" class="form-select">
+                                            <option value="">All Status</option>
+                                            <option value="active" <?php echo ($status == "active" ? 'selected' : ''); ?>>Active</option>
+                                            <option value="pending" <?php echo ($status == "pending" ? 'selected' : ''); ?>>Pending</option>
+                                            <option value="disabled" <?php echo ($status == "disabled" ? 'selected' : ''); ?>>Disabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
+
                             <!-- Table with user data -->
                             <table class="table datatable">
                                 <thead class="align-middle text-center">
@@ -81,9 +130,8 @@ $result = $conn->query($sql);
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
-
                                     <tr>
-                                        <th colspan="13" class="text-center"></th> <!-- Empty columns for alignment -->
+                                        <th colspan="13" class="text-center"></th>
                                         <th class="text-center">Approve</th>
                                         <th class="text-center">Disable</th>
                                         <th class="text-center">Delete</th>
@@ -109,8 +157,7 @@ $result = $conn->query($sql);
 
                                             // Status Column with Color
                                             echo "<td>";
-                                            $status = strtolower($row['status']); // Convert to lowercase for case insensitivity
-
+                                            $status = strtolower($row['status']);
                                             if ($status === 'active' || $status === 'approved') {
                                                 echo "<span class='btn btn-success btn-sm w-100 text-center'>Approved</span>";
                                             } elseif ($status === 'disabled') {
@@ -122,7 +169,7 @@ $result = $conn->query($sql);
                                             }
                                             echo "</td>";
 
-                                            // Action Buttons in their respective columns
+                                            // Action Buttons
                                             echo "<td class='text-center'>
                                                     <button class='btn btn-success btn-sm w-100 approve-btn' data-id='" . $row['id'] . "'>Approve</button>
                                                   </td>";
@@ -139,7 +186,6 @@ $result = $conn->query($sql);
                                     }
                                     ?>
                                 </tbody>
-
                             </table>
                             <!-- End Table with user data -->
 
