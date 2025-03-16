@@ -10,7 +10,7 @@ Clone this to:
 
 Dtabase Setup
 You need to make a database name like mediq_db for open this project in your localhost.
-Localhost Database Name = mediq_db
+Localhost Database Name = eduwide
 
 
 Attention to these things
