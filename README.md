@@ -9,7 +9,7 @@ Clone this to:
    for Wamp Users -> C:\wamp\www
 
 Dtabase Setup
-You need to make a database name like mediq_db for open this project in your localhost.
+You need to make a database name like 'eduwide' for open this project in your localhost.
 Localhost Database Name = eduwide
 
 
