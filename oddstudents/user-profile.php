@@ -15,10 +15,13 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$user = $result->fetch_assoc(); // This will fetch the user details
 $stmt->close();
 
+// Now you can get the 'nowstatus' value from the $user array
+$nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fetched 'nowstatus'
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -48,6 +51,25 @@ $stmt->close();
 
         .error-popup {
             background-color: #dc3545;
+        }
+    </style>
+    <style>
+        .highlighted-edu {
+            background-color: #d3e8f5; 
+            border: 2px solid #007bff; 
+            box-shadow: 2px 4px #d3e8f5;
+        }
+
+        .highlighted-work {
+            background-color: #f0f8ff; 
+            border: 2px solid #28a745; 
+            box-shadow: 2px 4px #f0f8ff;
+        }
+
+        .form-section {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9; 
         }
     </style>
 </head>
@@ -170,7 +192,7 @@ $stmt->close();
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">NIC</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="nic" class="form-control w-75" value="<?php echo htmlspecialchars($user['nic']); ?>" required>
+                                                    <input type="text" name="nic" class="form-control w-75" value="<?php echo htmlspecialchars($user['nic']); ?>" >
                                                 </div>
                                             </div>
 
@@ -178,61 +200,109 @@ $stmt->close();
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">Mobile Number</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>" required>
+                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>">
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Now Full Time Status (edu   or  work)</div>
+                                                <div class="col-lg-3 col-md-4 label">Now Full Time Status (edu or work)</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['nowstatus']); ?>" required>
+                                                    <input type="radio" name="nowstatus" value="edu" id="edu" <?php echo ($nowstatus == 'edu') ? 'checked' : ''; ?>>&nbsp;&nbsp;Edu
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'work') ? 'checked' : ''; ?>> &nbsp;&nbsp;Work
                                                 </div>
                                             </div>
+
                                             <div class="card-title">Are You Full Time Edu Fill This</div>
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">University</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['university']); ?>" required>
+                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['university']); ?>" >
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">Course Name</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['course_name']); ?>" required>
+                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['course_name']); ?>" >
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">Country</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['country']); ?>" required>
+                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['country']); ?>" >
                                                 </div>
                                             </div>
-                                            <div class="card-title">Are You Full Time Work Fill This</div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Company</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['company_name']); ?>" required>
+                                            <!-- Edu Section -->
+                                            <div id="edu-section" class="form-section <?php echo ($nowstatus == 'edu') ? 'highlighted-edu' : ''; ?>">
+                                                <div class="card-title">Are You Full Time Edu Fill This</div>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">University</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="university" class="form-control w-75" value="<?php echo htmlspecialchars($user['university']); ?>" >
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Mobile Number</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>" required>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">Course Name</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="course_name" class="form-control w-75" value="<?php echo htmlspecialchars($user['course_name']); ?>" >
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Job Position</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['position']); ?>" required>
-                                                </div>
-                                            </div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Job Type</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['job_type']); ?>" required>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">Country</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="country" class="form-control w-75" value="<?php echo htmlspecialchars($user['country']); ?>" >
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Submit Button -->
+                                            <!-- Work Section -->
+                                            <div id="work-section" class="form-section <?php echo ($nowstatus == 'work') ? 'highlighted-work' : ''; ?>">
+                                                <div class="card-title">Are You Full Time Work Fill This</div>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">Company</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="company_name" class="form-control w-75" value="<?php echo htmlspecialchars($user['company_name']); ?>" >
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">Job Position</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="position" class="form-control w-75" value="<?php echo htmlspecialchars($user['position']); ?>" >
+                                                    </div>
+                                                </div>
+                                                <div class="row mt-3">
+                                                    <div class="col-lg-3 col-md-4 label">Job Type</div>
+                                                    <div class="col-lg-9 col-md-8">
+                                                        <input type="text" name="job_type" class="form-control w-75" value="<?php echo htmlspecialchars($user['job_type']); ?>" >
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                document.querySelectorAll('input[name="nowstatus"]').forEach(function (radio) {
+                                                    radio.addEventListener('change', function() {
+                                                        var status = this.value;
+
+                                                        if (status == 'edu') {
+                                                            document.getElementById('edu-section').classList.add('highlighted-edu');
+                                                            document.getElementById('work-section').classList.remove('highlighted-work');
+                                                        } else if (status == 'work') {
+                                                            document.getElementById('work-section').classList.add('highlighted-work');
+                                                            document.getElementById('edu-section').classList.remove('highlighted-edu');
+                                                        }
+                                                    });
+                                                });
+
+                                                window.onload = function() {
+                                                    var selectedStatus = document.querySelector('input[name="nowstatus"]:checked').value;
+                                                    if (selectedStatus == 'edu') {
+                                                        document.getElementById('edu-section').classList.add('highlighted-edu');
+                                                        document.getElementById('work-section').classList.remove('highlighted-work');
+                                                    } else if (selectedStatus == 'work') {
+                                                        document.getElementById('work-section').classList.add('highlighted-work');
+                                                        document.getElementById('edu-section').classList.remove('highlighted-edu');
+                                                    }
+                                                }
+                                            </script>
                                             <div class="row mt-4">
                                                 <div class="col-lg-12 text-center">
                                                     <input type="submit" name="submit" value="Update Profile Data" class="btn btn-primary btn-sm">
