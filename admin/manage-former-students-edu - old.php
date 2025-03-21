@@ -3,13 +3,14 @@ session_start();
 require_once '../includes/db-conn.php';
 
 // Redirect if not logged in
-if (!isset($_SESSION['lecturer_id'])) {
+if (!isset($_SESSION['admin_id'])) {
     header("Location: ../index.php");
     exit();
 }
 
-$user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT * FROM lectures WHERE id = ?";
+// Fetch user details
+$user_id = $_SESSION['admin_id'];
+$sql = "SELECT username, email, nic, mobile, profile_picture FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -23,7 +24,7 @@ $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
 // Build the SQL query with filters
-$sql2 = "SELECT * FROM former_students";
+$sql2 = "SELECT * FROM former_students WHERE nowstatus = 'study'";
 
 // Apply search filter if provided
 if ($search !== '') {
@@ -56,7 +57,7 @@ $result = $conn->query($sql2);
 
 <body>
     <?php include_once("../includes/header.php") ?>
-    <?php include_once("../includes/lectures-sidebar.php") ?>
+    <?php include_once("../includes/sadmin-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -124,11 +125,14 @@ $result = $conn->query($sql2);
                                         <th>Email</th>
                                         <th>Mobile</th>
                                         <th>Now Status</th>
+                                        <th>University</th>
+                                        <th>Course Name</th>
+                                        <th>Country</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="10" class="text-center"></th>
+                                        <th colspan="13" class="text-center"></th>
                                         <th class="text-center">Approve</th>
                                         <th class="text-center">Disable</th>
                                         <th class="text-center">Delete</th>
@@ -148,6 +152,9 @@ $result = $conn->query($sql2);
                                             echo "<td>" . $row['email'] . "</td>";
                                             echo "<td>" . $row['mobile'] . "</td>";
                                             echo "<td>" . $row['nowstatus'] . "</td>";
+                                            echo "<td>" . $row['university'] . "</td>";
+                                            echo "<td>" . $row['course_name'] . "</td>";
+                                            echo "<td>" . $row['country'] . "</td>";
 
                                             // Status Column with Color
                                             echo "<td>";

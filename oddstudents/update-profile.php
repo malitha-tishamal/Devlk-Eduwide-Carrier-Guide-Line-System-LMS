@@ -1,65 +1,66 @@
 <?php
-
-require_once '../includes/db-conn.php'; 
-
+require_once '../includes/db-conn.php';
 session_start();
 
-
+// Check if the user is logged in
 if (!isset($_SESSION['former_student_id'])) {
-    header("Location: ../index.php"); 
+    header("Location: ../index.php");
     exit();
 }
 
-// Fetch user data from session or database
-$former_student_id = $_SESSION['former_student_id'];
-$query = "SELECT * FROM former_students WHERE former_student_id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $former_student_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $former_student_id = $_SESSION['former_student_id'];
 
+    // Get input values and sanitize
+    $username   = trim($_POST['username']);
+    $email      = trim($_POST['email']);
+    $nic        = trim($_POST['nic']);
+    $mobile     = trim($_POST['mobile']);
+    $nowstatus  = trim($_POST['nowstatus']);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $username = htmlspecialchars($_POST['username']);
-    $email = htmlspecialchars($_POST['email']);
-    $nic = htmlspecialchars($_POST['nic']);
-    $mobile = htmlspecialchars($_POST['mobile']);
-    $nowstatus = $_POST['nowstatus'];
-    
-
-    $university = $_POST['university'] ?? '';
-    $course_name = $_POST['course_name'] ?? '';
-    $country = $_POST['country'] ?? '';
-
-    $company_name = $_POST['company_name'] ?? '';
-    $position = $_POST['position'] ?? '';
-    $job_type = $_POST['job_type'] ?? '';
-
-    if ($nowstatus == 'edu') {
-        $updateQuery = "UPDATE former_students SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?, university = ?, course_name = ?, country = ? WHERE former_student_id = ?";
-        $stmt = $conn->prepare($updateQuery);
-        $stmt->bind_param("ssssssssi", $username, $email, $nic, $mobile, $nowstatus, $university, $course_name, $country, $former_student_id);
-    } else {
-        $updateQuery = "UPDATE former_students SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?, company_name = ?, position = ?, job_type = ? WHERE former_student_id = ?";
-        $stmt = $conn->prepare($updateQuery);
-        $stmt->bind_param("ssssssssi", $username, $email, $nic, $mobile, $nowstatus, $company_name, $position, $job_type, $former_student_id);
+    // Optional: Basic validation
+    if (empty($username) || empty($email)) {
+        $_SESSION['status'] = 'error';
+        $_SESSION['message'] = 'Name and Email are required.';
+        header("Location: user-profile.php");
+        exit();
     }
+
+    // Prepare the update statement
+    $query = "UPDATE former_students 
+              SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?
+              WHERE former_student_id = ?";
+
+    $stmt = $conn->prepare($query);
+
+    if (!$stmt) {
+        $_SESSION['status'] = 'error';
+        $_SESSION['message'] = 'Prepare failed: ' . $conn->error;
+        header("Location: user-profile.php");
+        exit();
+    }
+
+    $stmt->bind_param("sssssi", $username, $email, $nic, $mobile, $nowstatus, $former_student_id);
 
     if ($stmt->execute()) {
         $_SESSION['status'] = 'success';
-        $_SESSION['message'] = "Profile updated successfully!";
-        header("Location: user-profile.php");
-        exit();
+        $_SESSION['message'] = 'Profile updated successfully.';
     } else {
         $_SESSION['status'] = 'error';
-        $_SESSION['message'] = "Error updating profile: " . $stmt->error;
-        header("Location: user-profile.php");
-        exit();
+        $_SESSION['message'] = 'Failed to update profile. Try again.';
     }
+
+    $stmt->close();
+    $conn->close();
+
+    // Redirect back to profile page
+    header("Location: user-profile.php");
+    exit();
+} else {
+    // Invalid access
+    $_SESSION['status'] = 'error';
+    $_SESSION['message'] = 'Invalid request method.';
+    header("Location: user-profile.php");
+    exit();
 }
-
-
-$conn->close();
 ?>

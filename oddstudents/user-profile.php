@@ -133,6 +133,9 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
                                 </li>
                                 <li class="nav-item">
+                                    <button class="nav-link path" data-bs-toggle="tab" data-bs-target="#profile-path">Your Path</button>
+                                </li>
+                                <li class="nav-item">
                                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
                                 </li>
                             </ul>
@@ -204,105 +207,19 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Now Full Time Status (edu or work)</div>
+                                                <div class="col-lg-3 col-md-4 label">Now Full Time Status )</div>
                                                 <div class="col-lg-9 col-md-8">
                                                     <input type="radio" name="nowstatus" value="edu" id="edu" <?php echo ($nowstatus == 'edu') ? 'checked' : ''; ?>>&nbsp;&nbsp;Edu
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                     <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'work') ? 'checked' : ''; ?>> &nbsp;&nbsp;Work
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'intern') ? 'checked' : ''; ?>> &nbsp;&nbsp;Intern
+
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'free') ? 'checked' : ''; ?>> &nbsp;&nbsp;Free
                                                 </div>
                                             </div>
 
-                                            <div class="card-title">Are You Full Time Edu Fill This</div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">University</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['university']); ?>" >
-                                                </div>
-                                            </div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Course Name</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['course_name']); ?>" >
-                                                </div>
-                                            </div>
-                                            <div class="row mt-3">
-                                                <div class="col-lg-3 col-md-4 label">Country</div>
-                                                <div class="col-lg-9 col-md-8">
-                                                    <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['country']); ?>" >
-                                                </div>
-                                            </div>
-                                            <!-- Edu Section -->
-                                            <div id="edu-section" class="form-section <?php echo ($nowstatus == 'edu') ? 'highlighted-edu' : ''; ?>">
-                                                <div class="card-title">Are You Full Time Edu Fill This</div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">University</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="university" class="form-control w-75" value="<?php echo htmlspecialchars($user['university']); ?>" >
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">Course Name</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="course_name" class="form-control w-75" value="<?php echo htmlspecialchars($user['course_name']); ?>" >
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">Country</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="country" class="form-control w-75" value="<?php echo htmlspecialchars($user['country']); ?>" >
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Work Section -->
-                                            <div id="work-section" class="form-section <?php echo ($nowstatus == 'work') ? 'highlighted-work' : ''; ?>">
-                                                <div class="card-title">Are You Full Time Work Fill This</div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">Company</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="company_name" class="form-control w-75" value="<?php echo htmlspecialchars($user['company_name']); ?>" >
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">Job Position</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="position" class="form-control w-75" value="<?php echo htmlspecialchars($user['position']); ?>" >
-                                                    </div>
-                                                </div>
-                                                <div class="row mt-3">
-                                                    <div class="col-lg-3 col-md-4 label">Job Type</div>
-                                                    <div class="col-lg-9 col-md-8">
-                                                        <input type="text" name="job_type" class="form-control w-75" value="<?php echo htmlspecialchars($user['job_type']); ?>" >
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <script>
-                                                document.querySelectorAll('input[name="nowstatus"]').forEach(function (radio) {
-                                                    radio.addEventListener('change', function() {
-                                                        var status = this.value;
-
-                                                        if (status == 'edu') {
-                                                            document.getElementById('edu-section').classList.add('highlighted-edu');
-                                                            document.getElementById('work-section').classList.remove('highlighted-work');
-                                                        } else if (status == 'work') {
-                                                            document.getElementById('work-section').classList.add('highlighted-work');
-                                                            document.getElementById('edu-section').classList.remove('highlighted-edu');
-                                                        }
-                                                    });
-                                                });
-
-                                                window.onload = function() {
-                                                    var selectedStatus = document.querySelector('input[name="nowstatus"]:checked').value;
-                                                    if (selectedStatus == 'edu') {
-                                                        document.getElementById('edu-section').classList.add('highlighted-edu');
-                                                        document.getElementById('work-section').classList.remove('highlighted-work');
-                                                    } else if (selectedStatus == 'work') {
-                                                        document.getElementById('work-section').classList.add('highlighted-work');
-                                                        document.getElementById('edu-section').classList.remove('highlighted-edu');
-                                                    }
-                                                }
-                                            </script>
                                             <div class="row mt-4">
                                                 <div class="col-lg-12 text-center">
                                                     <input type="submit" name="submit" value="Update Profile Data" class="btn btn-primary btn-sm">
@@ -351,7 +268,6 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                             </div>
                                         </form>
                                     </div>
-
                                 </div>
 
                                 <!-- Change Password Form -->

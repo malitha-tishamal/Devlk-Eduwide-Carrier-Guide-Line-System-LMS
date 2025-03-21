@@ -24,7 +24,7 @@ $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
 // Build the SQL query with filters
-$sql2 = "SELECT * FROM former_students WHERE nowstatus = 'study'";
+$sql2 = "SELECT * FROM former_students";
 
 // Apply search filter if provided
 if ($search !== '') {
@@ -125,14 +125,12 @@ $result = $conn->query($sql2);
                                         <th>Email</th>
                                         <th>Mobile</th>
                                         <th>Now Status</th>
-                                        <th>University</th>
-                                        <th>Course Name</th>
-                                        <th>Country</th>
-                                        <th>Status</th>
+                                        <th></th>
+                                        <th></th>
                                         <th>Action</th>
                                     </tr>
                                     <tr>
-                                        <th colspan="13" class="text-center"></th>
+                                        <th colspan="10" class="text-center"></th>
                                         <th class="text-center">Approve</th>
                                         <th class="text-center">Disable</th>
                                         <th class="text-center">Delete</th>
@@ -152,9 +150,6 @@ $result = $conn->query($sql2);
                                             echo "<td>" . $row['email'] . "</td>";
                                             echo "<td>" . $row['mobile'] . "</td>";
                                             echo "<td>" . $row['nowstatus'] . "</td>";
-                                            echo "<td>" . $row['university'] . "</td>";
-                                            echo "<td>" . $row['course_name'] . "</td>";
-                                            echo "<td>" . $row['country'] . "</td>";
 
                                             // Status Column with Color
                                             echo "<td>";

@@ -210,84 +210,17 @@ $stmt->close();
                                         <input type="radio" name="nowstatus" value="study" id="studyRadio" required> <label for="studyRadio">Still Study</label>
                                             &nbsp;&nbsp;&nbsp;&nbsp;
                                             <input type="radio" name="nowstatus" value="work" id="workRadio" required> <label for="workRadio">Work</label>
+
+                                             &nbsp;&nbsp;&nbsp;&nbsp;
+                                            <input type="radio" name="nowstatus" value="intern" id="workRadio" required> <label for="workRadio">Intern</label>
+
+                                             &nbsp;&nbsp;&nbsp;&nbsp;
+                                            <input type="radio" name="nowstatus" value="free" id="workRadio" required> <label for="workRadio">Free</label>
                                         <div class="invalid-feedback" style="font-size:14px" id="">
                                             Please enter the name
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Study Fields -->
-                                    <div id="studyFields" class="d-none">
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">University</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="university">
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">Course Name</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="course_name">
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">Country</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="country">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Work Fields -->
-                                    <div id="workFields" class="d-none">
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">Company Name</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="company_name">
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">Job Position</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="position">
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <label class="col-lg-3 col-md-4 col-sm-4 col-form-label">Job Type</label>
-                                            <div class="col-lg-9 col-md-8 col-sm-8">
-                                                <input type="text" class="form-control" name="job_type">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                <script>
-                                    document.addEventListener("DOMContentLoaded", function () {
-                                    let studyRadio = document.getElementById("studyRadio");
-                                    let workRadio = document.getElementById("workRadio");
-                                    let studyFields = document.getElementById("studyFields");
-                                    let workFields = document.getElementById("workFields");
-
-                                    function toggleFields() {
-                                        if (studyRadio.checked) {
-                                            studyFields.classList.remove("d-none");
-                                            workFields.classList.add("d-none");
-                                        } else if (workRadio.checked) {
-                                            workFields.classList.remove("d-none");
-                                            studyFields.classList.add("d-none");
-                                        }
-                                    }
-
-                                    // Set "Work" as the default selected option
-                                    workRadio.checked = true;
-
-                                    // Run the function on page load to show the correct default view
-                                    toggleFields();
-
-                                    // Attach event listeners
-                                    studyRadio.addEventListener("change", toggleFields);
-                                    workRadio.addEventListener("change", toggleFields);
-                                });
-                                </script>
                                  
                                 <div class="row mb-4">
                                     <label for="password" class="col-lg-3 col-md-4 col-sm-4 col-form-label">Password</label>

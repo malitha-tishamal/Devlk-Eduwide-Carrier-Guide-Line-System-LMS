@@ -170,13 +170,69 @@ session_start();
                                             <input type="radio" name="nowstatus" value="study" id="studyRadio" required> <label for="studyRadio">Still Study</label>
                                             &nbsp;&nbsp;&nbsp;&nbsp;
                                             <input type="radio" name="nowstatus" value="work" id="workRadio" required> <label for="workRadio">Work</label>
-
-                                            &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <input type="radio" name="nowstatus" value="intern" id="workRadio" required> <label for="workRadio">Intern</label>
-
-                                            &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <input type="radio" name="nowstatus" value="free" id="workRadio" required> <label for="workRadio">Free</label>
                                         </div>
+
+                                        <!-- Study Fields (University, Course, Country) >
+                                        <div id="studyFields" class="d-none">
+                                            <div class="col-12">
+                                                <label class="form-label">University</label>
+                                                <input type="text" class="form-control" name="university">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Course Name</label>
+                                                <input type="text" class="form-control" name="course_name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Country</label>
+                                                <input type="text" class="form-control" name="country">
+                                            </div>
+                                        </div-->
+
+                                        <!-- Work Fields (Company Name, Position, Job Type) >
+                                        <div id="workFields" class="d-none">
+                                            <div class="col-12">
+                                                <label class="form-label">Company Name</label>
+                                                <input type="text" class="form-control" name="company_name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Job Position</label>
+                                                <input type="text" class="form-control" name="position">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Job Type</label>
+                                                <input type="text" class="form-control" name="job_type">
+                                            </div>
+                                        </div>
+
+                                        <script>
+                                            document.addEventListener("DOMContentLoaded", function () {
+                                            let studyRadio = document.getElementById("studyRadio");
+                                            let workRadio = document.getElementById("workRadio");
+                                            let studyFields = document.getElementById("studyFields");
+                                            let workFields = document.getElementById("workFields");
+
+                                            function toggleFields() {
+                                                if (studyRadio.checked) {
+                                                    studyFields.classList.remove("d-none");
+                                                    workFields.classList.add("d-none");
+                                                } else if (workRadio.checked) {
+                                                    workFields.classList.remove("d-none");
+                                                    studyFields.classList.add("d-none");
+                                                }
+                                            }
+
+                                            // Set "Work" as the default selected option
+                                            workRadio.checked = true;
+
+                                            // Run the function on page load to show the correct default view
+                                            toggleFields();
+
+                                            // Attach event listeners
+                                            studyRadio.addEventListener("change", toggleFields);
+                                            workRadio.addEventListener("change", toggleFields);
+                                        });
+                                        </script-->
+
 
                                         <div class="col-12">
                                           <label for="password" class="form-label">Password</label>
@@ -206,7 +262,7 @@ session_start();
                                         <div class="col-12">
                                           <p class="small mb-0">Create Students account? <a href="../pages-signup.php">Click</a></p>
                                            <p class="small mb-0">Create Lecture account? <a href="Lectures/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
+                                          <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
                                           <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
                                         </div>
                                       </form>

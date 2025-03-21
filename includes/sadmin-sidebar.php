@@ -91,14 +91,14 @@
                 </li>
                 <li>
                     <a href="manage-former-students-edu.php">
-                        <i class="bi bi-circle"></i> <span>Manage Fulltime Edu</span>
+                        <i class="bi bi-circle"></i> <span>Manage Former Students</span>
                     </a>
                 </li>
-                <li>
+                <!--li>
                     <a href="manage-former-students-work.php">
                         <i class="bi bi-circle"></i> <span>Manage Fulltime Work</span>
                     </a>
-                </li>
+                </li-->
             </ul>
         </li>
 

@@ -9,10 +9,10 @@
         // Check if it's localhost or production
         if ($host == 'localhost') {
             // Localhost path with project folder
-            return $protocol . $host . '/mediq/';
+            return $protocol . $host . '/Devlk-Team-lms-Eduwide/';
         } else {
             // Production base URL
-            return $protocol . $host . '/';
+            return $protocol . $host . '/Devlk-Team-lms-Eduwide/';
         }
     }
 
@@ -20,8 +20,6 @@
 ?>
 
 <!-- Favicon and Apple Touch Icon -->
-<link rel="icon" href="assets/images/logos/favicon.png">
-<link rel="icon" href="../assets/images/logos/favicon.png">
 <link href="<?php echo $base_url; ?>assets/images/logos/favicon.png" rel="icon">
 <link href="<?php echo $base_url; ?>assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
