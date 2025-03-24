@@ -8,7 +8,7 @@ if (!isset($_SESSION['former_student_id'])) {
     exit();
 }
 
-$admin_id = $_SESSION['former_student_id'];  // Assuming the session stores admin's ID for updating their profile
+$user_id = $_SESSION['former_student_id'];  // Assuming the session stores admin's ID for updating their profile
 
 // Handle password change
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     // Fetch current admin's data from database
     $sql = "SELECT * FROM former_students WHERE id = ?";
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $admin_id);
+        $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $admin = $result->fetch_assoc();
@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             // Update the password in the admins table (assuming admin's password is being updated)
             $update_sql = "UPDATE former_students SET password = ? WHERE id = ?";
             if ($update_stmt = $conn->prepare($update_sql)) {
-                $update_stmt->bind_param("si", $hashed_new_password, $admin_id);
+                $update_stmt->bind_param("si", $hashed_new_password, $user_id);
                 if ($update_stmt->execute()) {
                     // Success message
                     $_SESSION['status'] = 'success';

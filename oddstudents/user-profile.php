@@ -33,6 +33,7 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
     <meta content="" name="description">
     <meta content="" name="keywords">
     <?php include_once ("../includes/css-links-inc.php"); ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script> 
     <style>
         /* Styling for the popup */
         .popup-message {
@@ -131,9 +132,6 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                             <ul class="nav nav-tabs nav-tabs-bordered">
                                 <li class="nav-item">
                                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link path" data-bs-toggle="tab" data-bs-target="#profile-path">Your Path</button>
                                 </li>
                                 <li class="nav-item">
                                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
