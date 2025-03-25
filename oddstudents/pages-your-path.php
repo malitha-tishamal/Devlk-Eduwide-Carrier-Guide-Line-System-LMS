@@ -217,12 +217,10 @@ $stmt->close();
                                         </div>
                                     </div>
                                     <script type="text/javascript">
-                                        // Fetch work experience data when the page loads
                                         document.addEventListener("DOMContentLoaded", function() {
                                             fetchWorkExperience();  // Fetch work experience data
                                         });
 
-                                        // Function to fetch work experience data from the server
                                         function fetchWorkExperience() {
                                             fetch('fetch_experience.php')  // Send GET request to PHP script
                                                 .then(response => response.json())  // Parse the response as JSON
