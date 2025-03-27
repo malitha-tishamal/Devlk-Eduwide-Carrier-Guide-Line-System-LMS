@@ -34,7 +34,8 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\malitha3.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malitha Tishmal</h5>
-                    <p>Full Stack Developer
+                    <p><b>Full Stack Developer</b>
+                        <br>Quality Assuarance
                         <br>System Administrator</p>
                     <div class="team-icons">
                         <a href="https://malitha-tishamal.github.io/blog" target="_blank"><i class="bi bi-globe"></i></a>
@@ -51,8 +52,9 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\sandeepa.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malith Sandeepa</h5>
-                    <p>Frontend Developer
-                        <br>System Administrator</p>
+                    <p><b>Frontend Developer</b>
+                        <br>System Administrator<br>
+                        &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="https://github.com/KVMSANDEEPA" target="_blank"><i class="bi bi-github"></i></a>
@@ -65,32 +67,33 @@
 
             <div class="col-md-3">
                 <div class="team-card text-center">
-                    <img src="assets\images\Developers\dewmini.jpg" alt="Team Member">
-                    <h5 class="fw-bold">Hima Devindi</h5>
-                    <p>Frontend Developer
-                    <br>Quality Assuarance</p>
+                    <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
+                    <h5 class="fw-bold">Matheesha Nihari</h5>
+                    <p><b>Frontend Developer</b>
+                        <br>Technical Writer<br>
+                        &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-github"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="" ><i class="bi bi-envelope"></i></a>
+                        <a href="https://github.com/Matheesha-Nihari" target="_blank"><i class="bi bi-github"></i></a>
+                        <a href="https://www.linkedin.com/in/matheesha-nihari-4a6913350/" target="_blank"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=100068534863775" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="mailto:matheenihari13@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="team-card text-center">
-                    <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
-                    <h5 class="fw-bold">Matheesha Nihari</h5>
-                    <p>Frontend Developer
-                        <br>Technical Writer</p>
+                    <img src="assets\images\Developers\dewmini.jpg" alt="Team Member">
+                    <h5 class="fw-bold">Hima Devindi</h5>
+                    <p><b>Frontend Developer</b>
+                    <p>&nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="" target="_blank"><i class="bi bi-github"></i></a>
                         <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
-                        <a href="" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="" ><i class="bi bi-envelope"></i></a>
+                        <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="mailto:matheenihari13@gmaiil.com" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -99,7 +102,9 @@
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\amandi.jpg" alt="Team Member">
                     <h5 class="fw-bold">Amandi Kaushalya</h5>
-                    <p>Business Analyst</p>
+                    <p><b>Business Analyst</b></p>
+                    <p>&nbsp;</p>
+                    <p>&nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href= ><i class="bi bi-github"></i></a>
