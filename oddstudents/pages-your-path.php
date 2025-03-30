@@ -74,6 +74,15 @@ $stmt->close();
             user-select: none; 
            
         }
+         .summary-card {
+          border-radius: 10px;
+          background-color: #fff;
+        }
+        .summary-icon {
+          background-color: #e6f0ff;
+          border-radius: 8px;
+          display: inline-block;
+    }
 
     </style>
 </head>
@@ -103,7 +112,7 @@ $stmt->close();
                                             About
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAboutModal">Edit</button>
                                         </h3>
-                                        <div id="about-text" class="shadow-sm p-3 mb-5 bg-white rounded w-75">
+                                        <div id="about-text" class="shadow p-3 mb-3 bg-white rounded w-75">
                                             <?= !empty($about_text) ? nl2br(htmlspecialchars($about_text)) : 'Click edit to add your About section.' ?>
                                         </div>
 
@@ -160,7 +169,44 @@ $stmt->close();
 
                                 </div>
 
+                                <div class="container">
+                                  <div class="summary-card shadow p-3 mb-3 bg-white rounded w-75"> 
+                                    <p class="text-muted mb-2">Private to you</p>
+                                    <div class="d-flex align-items-start">
+                                      <div class="summary-icon me-3">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="icon" width="32">
+                                      </div>
+                                      <div>
+                                        <h6 class="mb-1 fw-bold">Write a summary your personality or work experience</h6>
+                                        <!--p class="mb-2 text-muted">Members who include a summary receive up to 3.9 times as many profile views.</p-->
+                                        <!-- Button to Open Modal -->
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSummaryModal">Add a summary</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                              </div>
 
+                              <!-- Modal for Adding Summary -->
+                                  <div class="modal fade" id="addSummaryModal" tabindex="-1" aria-labelledby="addSummaryModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h5 class="modal-title" id="addSummaryModalLabel">Add Summary</h5>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          <p class="text-muted mb-2">
+                                            You can write about your years of experience, industry, or skills. People also talk about their achievements or previous job experiences.
+                                          </p>
+                                          <textarea class="form-control" rows="5" placeholder="Write your summary here..."></textarea>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                          <button type="button" class="btn btn-primary">Save</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                              </div>
 
                                     <div class="experience-section">
                                         <h3 class="section-header">Experience</h3>
