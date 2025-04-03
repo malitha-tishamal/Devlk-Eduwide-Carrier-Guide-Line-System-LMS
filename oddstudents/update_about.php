@@ -1,8 +1,7 @@
 <?php
 session_start();
-require_once "../includes/db-conn.php"; // Make sure this path is correct
+require_once "../includes/db-conn.php"; 
 
-// Check if user is logged in
 if (!isset($_SESSION['former_student_id'])) {
     http_response_code(401);
     echo "Unauthorized";
@@ -19,7 +18,7 @@ if (empty($about_text)) {
     exit;
 }
 
-// Insert or update the about section
+
 $sql = "INSERT INTO about (user_id, about_text)
         VALUES (?, ?)
         ON DUPLICATE KEY UPDATE about_text = ?";

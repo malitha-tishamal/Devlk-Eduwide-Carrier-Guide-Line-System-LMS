@@ -1,21 +1,35 @@
 <?php
 session_start();
 require_once '../includes/db-conn.php';
+
 if (!isset($_SESSION['former_student_id'])) {
     header("Location: ../index.php");
     exit();
 }
+
 $user_id = $_SESSION['former_student_id'];
+
 $sql2 = "SELECT * FROM former_students WHERE id = ?";
 $stmt = $conn->prepare($sql2);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$user = $result->fetch_assoc(); 
+
+$user_id = $_SESSION['former_student_id'];
+$summary = "";
+
+// Fetch summary from the separate table
+$sql = "SELECT summary FROM summaries WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($summary);
+$stmt->fetch();
 $stmt->close();
 
+// Fetch about_text
 $about_text = '';
-
 $sql = "SELECT about_text FROM about WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -24,6 +38,7 @@ $stmt->bind_result($about_text);
 $stmt->fetch();
 $stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,105 +123,132 @@ $stmt->close();
                         <div class="card-body">
                             <div>
                                 <div class="about-section">
-                                        <h3 class="section-header d-flex justify-content-between align-items-center">
-                                            About
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAboutModal">Edit</button>
-                                        </h3>
-                                        <div id="about-text" class="shadow p-3 mb-3 bg-white rounded w-75">
-                                            <?= !empty($about_text) ? nl2br(htmlspecialchars($about_text)) : 'Click edit to add your About section.' ?>
-                                        </div>
-
+                                    <h3 class="section-header d-flex justify-content-between align-items-center">
+                                        About
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAboutModal">Edit</button>
+                                    </h3>
+                                    <div id="about-text" class="shadow p-3 mb-3 bg-white rounded w-75">
+                                        <?= !empty($about_text) ? nl2br(htmlspecialchars($about_text)) : 'Click edit to add your About section.' ?>
                                     </div>
-                                    <div class="modal fade" id="editAboutModal" tabindex="-1" aria-labelledby="editAboutModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <form  class="modal-content" id="edit-about-form">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editAboutModalLabel">Edit About</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <textarea id="about-input" class="form-control w-75" rows="5"><?= !empty($about_text) ? nl2br(htmlspecialchars($about_text)) : 'Click edit to add your About section.' ?></textarea>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <script>
-                                          document.getElementById('edit-about-form').addEventListener('submit', function (e) {
-                                            e.preventDefault();
-                                            const updatedText = document.getElementById('about-input').value;
-
-                                            fetch('update_about.php', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                                body: `about=${encodeURIComponent(updatedText)}`
-                                            })
-                                            .then(response => {
-                                                if (!response.ok) throw new Error('Request failed');
-                                                return response.text();
-                                            })
-                                            .then(data => {
-                                                if (data === 'success' || data === '') {
-                                                    document.getElementById('about-text').innerText = updatedText;
-
-                                                    const modalEl = document.getElementById('editAboutModal');
-                                                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-                                                    modalInstance.hide();
-                                                    document.body.classList.remove('modal-open');
-                                                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                                                } else {
-                                                    alert("Error: " + data);
-                                                }
-                                            })
-                                            .catch(error => {
-                                                console.error("Error updating About:", error);
-                                                alert("Something went wrong while updating.");
-                                            });
-                                        });
-                                    </script>
-
                                 </div>
 
-                                <div class="container">
-                                  <div class="summary-card shadow p-3 mb-3 bg-white rounded w-75"> 
-                                    <p class="text-muted mb-2">Private to you</p>
-                                    <div class="d-flex align-items-start">
-                                      <div class="summary-icon me-3">
-                                        <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="icon" width="32">
-                                      </div>
-                                      <div>
-                                        <h6 class="mb-1 fw-bold">Write a summary your personality or work experience</h6>
-                                        <!--p class="mb-2 text-muted">Members who include a summary receive up to 3.9 times as many profile views.</p-->
-                                        <!-- Button to Open Modal -->
-                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSummaryModal">Add a summary</button>
-                                      </div>
-                                    </div>
-                                  </div>
-                              </div>
-
-                              <!-- Modal for Adding Summary -->
-                                  <div class="modal fade" id="addSummaryModal" tabindex="-1" aria-labelledby="addSummaryModalLabel" aria-hidden="true">
+                                <!-- About Modal -->
+                                <div class="modal fade" id="editAboutModal" tabindex="-1" aria-labelledby="editAboutModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
-                                      <div class="modal-content">
-                                        <div class="modal-header">
-                                          <h5 class="modal-title" id="addSummaryModalLabel">Add Summary</h5>
-                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                          <p class="text-muted mb-2">
-                                            You can write about your years of experience, industry, or skills. People also talk about their achievements or previous job experiences.
-                                          </p>
-                                          <textarea class="form-control" rows="5" placeholder="Write your summary here..."></textarea>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                          <button type="button" class="btn btn-primary">Save</button>
-                                        </div>
-                                      </div>
+                                        <form class="modal-content" id="edit-about-form">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editAboutModalLabel">Edit About</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <textarea id="about-input" class="form-control w-100" rows="5"><?= htmlspecialchars($about_text) ?></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                            </div>
+                                        </form>
                                     </div>
-                              </div>
+                                </div>
+
+                                <script>
+                                document.getElementById('edit-about-form').addEventListener('submit', function (e) {
+                                    e.preventDefault();
+                                    let updatedText = document.getElementById('about-input').value;
+
+                                    fetch('update_about.php', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                        body: 'about=' + encodeURIComponent(updatedText)
+                                    })
+                                    .then(response => response.text())
+                                    .then(data => {
+                                        if (data.trim() === 'success') {
+                                            document.getElementById('about-text').innerHTML = updatedText.replace(/\n/g, '<br>');
+
+                                            let modalEl = document.getElementById('editAboutModal');
+                                            let modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                            modalInstance.hide();
+                                        } else {
+                                           // alert("Error: " + data);
+                                            location.reload();
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error("Error updating About:", error);
+                                        alert("Something went wrong.");
+                                    });
+                                });
+                                </script>
+
+
+
+
+                                <!-- Summary Section -->
+                                <div class="container">
+                                    <div class="summary-card shadow p-3 mb-3 bg-white rounded w-75">
+                                        <!--p class="text-muted mb-2">Private to you</p-->
+                                        <div class="d-flex align-items-start">
+                                            <div class="summary-icon me-3">
+                                                <?php 
+                                            // Display profile picture with timestamp to force refresh
+                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 40px;'>";
+                                            ?>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">Write a summary about your personality or work experience</h6>
+                                                <p class="text-muted"><?= !empty($summary) ? htmlentities($summary) : 'No summary added yet.' ?></p>
+                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSummaryModal">
+                                                    <?= !empty($summary) ? 'Edit Summary' : 'Add Summary' ?>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Summary Modal -->
+                                <div class="modal fade" id="addSummaryModal" tabindex="-1" aria-labelledby="addSummaryModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <form id="summary-form">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Add Summary</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="text-muted mb-2">You can write about your experience, skills, or achievements.</p>
+                                                    <textarea class="form-control" name="summary" rows="5" required><?= htmlentities($summary) ?></textarea>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary" id="save-summary">Save</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <script>
+                                document.getElementById("summary-form").addEventListener("submit", function(event) {
+                                    event.preventDefault();
+                                    let summary = document.querySelector("textarea[name='summary']").value;
+
+                                    fetch("save_summary.php", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                        body: "summary=" + encodeURIComponent(summary)
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === "success") {
+                                            alert("Summary updated successfully!");
+                                            location.reload();
+                                        } else {
+                                            alert("Error: " + data.message);
+                                        }
+                                    })
+                                    .catch(error => console.error("Fetch error:", error));
+                                });
+                                </script>
+                                </div>
+
 
                                     <div class="experience-section">
                                         <h3 class="section-header">Experience</h3>
@@ -227,314 +269,311 @@ $stmt->close();
                                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#skillsModal">Add Skill</button>
                                     </div>                                
                                 </div>
+
+
                                     <div class="modal fade" id="experienceModal" tabindex="-1" aria-labelledby="experienceModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="experienceModalLabel">Add Work Experience</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          <div class="modal-dialog modal-lg">
+                                            <form class="modal-content" method="POST" action="save_experience.php" id="experience-form">
+                                              <div class="modal-header">
+                                                <h5 class="modal-title" id="experienceModalLabel">Add Experience</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                              </div>
+                                              <div class="modal-body row g-3">
+
+                                                <div class="col-md-6">
+                                                  <label for="title" class="form-label">Title*</label>
+                                                  <input type="text" class="form-control" id="title" name="title" required>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <form id="work-experience-form">
-                                                        <div class="mb-3">
-                                                            <label for="job-title" class="form-label">Job Title</label>
-                                                            <input type="text" class="form-control" id="job-title" placeholder="e.g., Software Engineer">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="company-name" class="form-label">Company</label>
-                                                            <input type="text" class="form-control" id="company-name" placeholder="e.g., Google">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="start-date" class="form-label">Start Date</label>
-                                                            <input type="date" class="form-control" id="start-date">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="end-date" class="form-label">End Date</label>
-                                                            <input type="date" class="form-control" id="end-date">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="job-description" class="form-label">Job Description</label>
-                                                            <textarea class="form-control" id="job-description" rows="3" placeholder="Describe your job role"></textarea>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">Add Experience</button>
-                                                    </form>
+
+                                                <div class="col-md-6">
+                                                  <label for="employment_type" class="form-label">Employment type</label>
+                                                  <select class="form-select" id="employment_type" name="employment_type">
+                                                    <option value="">Please select</option>
+                                                    <option value="Full-time">Full-time</option>
+                                                    <option value="Part-time">Part-time</option>
+                                                    <option value="Internship">Internship</option>
+                                                    <option value="Freelance">Freelance</option>
+                                                    <option value="Self-employed">Self-employed</option>
+                                                  </select>
                                                 </div>
-                                            </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="company" class="form-label">Company or organization*</label>
+                                                  <input type="text" class="form-control" id="company" name="company" required>
+                                                </div>
+
+                                                <div class="col-md-12 form-check">
+                                                  <input class="form-check-input" type="checkbox" value="1" id="currentlyWorking" name="currently_working">
+                                                  <label class="form-check-label" for="currentlyWorking">
+                                                    I am currently working in this role
+                                                  </label>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                  <label for="start_month" class="form-label">Start Month*</label>
+                                                  <select class="form-select" id="start_month" name="start_month" required>
+                                                    <option value="">Month</option>
+                                                    <option>January</option><option>February</option><option>March</option>
+                                                    <option>April</option><option>May</option><option>June</option>
+                                                    <option>July</option><option>August</option><option>September</option>
+                                                    <option>October</option><option>November</option><option>December</option>
+                                                  </select>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                  <label for="start_year" class="form-label">Start Year*</label>
+                                                  <input type="number" class="form-control" id="start_year" name="start_year" required>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                  <label for="end_month" class="form-label">End Month</label>
+                                                  <select class="form-select" id="end_month" name="end_month">
+                                                    <option value="">Month</option>
+                                                    <option>January</option><option>February</option><option>March</option>
+                                                    <option>April</option><option>May</option><option>June</option>
+                                                    <option>July</option><option>August</option><option>September</option>
+                                                    <option>October</option><option>November</option><option>December</option>
+                                                  </select>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                  <label for="end_year" class="form-label">End Year</label>
+                                                  <input type="number" class="form-control" id="end_year" name="end_year">
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="location" class="form-label">Location</label>
+                                                  <input type="text" class="form-control" id="location" name="location" placeholder="Ex: London, United Kingdom">
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="location_type" class="form-label">Location type</label>
+                                                  <select class="form-select" id="location_type" name="location_type">
+                                                    <option value="">Please select</option>
+                                                    <option value="On-site">On-site</option>
+                                                    <option value="Hybrid">Hybrid</option>
+                                                    <option value="Remote">Remote</option>
+                                                  </select>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="description" class="form-label">Description</label>
+                                                  <textarea class="form-control" id="description" name="description" rows="3" maxlength="2000"
+                                                    placeholder="List your major duties and successes, highlighting specific projects"></textarea>
+                                                  <div class="form-text">0/2000</div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="profile_headline" class="form-label">Profile headline</label>
+                                                  <input type="text" class="form-control" id="profile_headline" name="profile_headline" placeholder="Ex: Student at SLIATE / Full Stack Developer">
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                  <label for="job_source" class="form-label">Where did you find this job?</label>
+                                                  <select class="form-select" id="job_source" name="job_source">
+                                                    <option value="">Please select</option>
+                                                    <option value="LinkedIn">LinkedIn</option>
+                                                    <option value="Company website">Company website</option>
+                                                    <option value="Referral">Referral</option>
+                                                    <option value="Other">Other</option>
+                                                  </select>
+                                                </div>
+
+                                                <!-- Skills -->
+                                                <div class="col-md-12">
+                                                  <label class="form-label">Skills</label>
+                                                  <div id="exp-skill-list" class="d-flex flex-wrap gap-2 mb-2"></div>
+
+                                                  <div class="input-group">
+                                                    <input type="text" class="form-control" id="exp-skill-input" placeholder="Add a skill">
+                                                    <button type="button" class="btn btn-outline-primary" id="add-exp-skill">+ Add Skill</button>
+                                                  </div>
+                                                  <div class="form-text">We recommend adding your top 5 used in this role.</div>
+                                                </div>
+
+                                              </div>
+                                              <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Save</button>
+                                              </div>
+                                            </form>
+                                          </div>
                                         </div>
-                                    </div>
-                                    <script type="text/javascript">
-                                        document.addEventListener("DOMContentLoaded", function() {
-                                            fetchWorkExperience();  // Fetch work experience data
-                                        });
 
-                                        function fetchWorkExperience() {
-                                            fetch('fetch_experience.php')  // Send GET request to PHP script
-                                                .then(response => response.json())  // Parse the response as JSON
-                                                .then(data => {
-                                                    if (data.length > 0) {
-                                                        const workExperienceList = document.getElementById('work-experience-list');
-                                                        workExperienceList.innerHTML = '';  // Clear previous items
+                                        <script>
+                                          const expSkillList = document.getElementById("exp-skill-list");
+                                          const expSkillInput = document.getElementById("exp-skill-input");
+                                          const addExpSkill = document.getElementById("add-exp-skill");
 
-                                                        // Loop through each experience and display it
-                                                        data.forEach(experience => {
-                                                            const startDate = new Date(experience.start_date);
-                                                            const endDate = experience.end_date ? new Date(experience.end_date) : null;
+                                          addExpSkill.addEventListener("click", function (e) {
+                                            e.preventDefault();
+                                            const skill = expSkillInput.value.trim();
+                                            if (skill !== "" && expSkillList.children.length < 5) {
+                                              const skillBadge = document.createElement("span");
+                                              skillBadge.className = "badge bg-secondary rounded-pill px-3 py-2";
+                                              skillBadge.innerHTML = `${skill} <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="Remove"></button>`;
+                                              expSkillList.appendChild(skillBadge);
+                                              expSkillInput.value = "";
 
-                                                            //  Time-based formatting for End Date
-                                                            const endDateHTML = endDate 
-                                                                ? `<p><strong>End Date:</strong> ${endDate.toLocaleDateString()}</p>` 
-                                                                : '';
-
-                                                            //  Duration calculation (highlighted part)
-                                                            const duration = calculateDuration(startDate, endDate);
-
-                                                            // HTML for one work experience
-                                                            const experienceHTML = `
-                                                                <li class="list-group-item">
-                                                                    <div>
-                                                                        <h5 class="card-title">${experience.job_title} at ${experience.company_name}</h5>
-                                                                        <p><strong>Start Date:</strong> ${startDate.toLocaleDateString()}</p>
-                                                                        ${endDateHTML}
-                                                                        
-                                                                        <!-- Show duration like "1y 3m" -->
-                                                                        <p><strong>Duration:</strong> ${duration}</p>
-                                                                        
-                                                                        <p><strong>Description:</strong> ${experience.job_description}</p>
-                                                                        <div class="d-flex">
-                                                                            <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                                                                            <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </li>
-                                                            `;
-
-                                                            // Add experience to list
-                                                            workExperienceList.innerHTML += experienceHTML;
-                                                        });
-
-                                                        // Re-initialize drag-sort
-                                                        initSortable();
-                                                    } else {
-                                                        console.log("No work experience found.");
-                                                    }
-                                                })
-                                                .catch(error => {
-                                                    console.error('Error fetching work experience:', error);
-                                                });
-                                        }
-
-                                        //  Function to calculate the duration between start and end dates
-                                        function calculateDuration(startDate, endDate) {
-                                            const now = new Date();  // Today's date
-                                            const end = endDate || now;  // Use endDate or current date if null
-
-                                            let years = end.getFullYear() - startDate.getFullYear();
-                                            let months = end.getMonth() - startDate.getMonth();
-
-                                            // Adjust if months are negative
-                                            if (months < 0) {
-                                                years--;
-                                                months += 12;
+                                              // Remove skill on click
+                                              skillBadge.querySelector("button").addEventListener("click", () => {
+                                                expSkillList.removeChild(skillBadge);
+                                              });
                                             }
+                                          });
+                                        </script>
 
-                                            return `${years}y ${months}m`;
-                                        }
-
-                                        // SortableJS initialization
-                                        function initSortable() {
-                                            const workExperienceList = document.getElementById('work-experience-list');
-                                            new Sortable(workExperienceList, {
-                                                animation: 150,
-                                                handle: '.card-title',  // Drag handle
-                                            });
-                                        }
-                                    </script>
-
-
-
-                                    <script type="text/javascript">
-                                        document.getElementById('work-experience-form').addEventListener('submit', function(event) {
-                                            event.preventDefault();
-
-                                            const jobTitle = document.getElementById('job-title').value;
-                                            const companyName = document.getElementById('company-name').value;
-                                            const startDate = new Date(document.getElementById('start-date').value);
-                                            const endDateInput = document.getElementById('end-date').value;
-                                            const endDate = endDateInput ? new Date(endDateInput) : null;
-                                            const jobDescription = document.getElementById('job-description').value;
-
-                                            function calculateDuration(start, end) {
-                                                const now = new Date();
-                                                const finalEnd = end ? end : now;
-
-                                                let years = finalEnd.getFullYear() - start.getFullYear();
-                                                let months = finalEnd.getMonth() - start.getMonth();
-
-                                                if (months < 0) {
-                                                    years--;
-                                                    months += 12;
-                                                }
-
-                                                return `${years}y ${months}m`;
-                                            }
-
-                                            const duration = calculateDuration(startDate, endDate);
-
-                                            const formData = new FormData();
-                                            formData.append('job-title', jobTitle);
-                                            formData.append('company-name', companyName);
-                                            formData.append('start-date', startDate.toISOString().split('T')[0]);
-                                            formData.append('end-date', endDate ? endDate.toISOString().split('T')[0] : '');
-                                            formData.append('job-description', jobDescription);
-                                            formData.append('duration', duration);
-
-                                            fetch('work_experience.php', {
-                                                method: 'POST',
-                                                body: formData,
-                                            })
-                                            .then(response => response.text())
-                                            .then(data => {
-                                                console.log(data);
-                                                alert('Work experience added successfully!');
-
-                                                const experienceHTML = `
-                                                    <li class="list-group-item">
-                                                        <div>
-                                                            <h5 class="card-title">${jobTitle} at ${companyName}</h5>
-                                                            <p><strong>Start Date:</strong> ${startDate.toLocaleDateString()}</p>
-                                                            ${endDate ? `<p><strong>End Date:</strong> ${endDate.toLocaleDateString()}</p>` : ''}
-                                                            <p><strong>Duration:</strong> ${duration}</p>
-                                                            <p><strong>Description:</strong> ${jobDescription}</p>
-                                                            <div class="d-flex">
-                                                                <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                                                                <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                `;
-
-                                                document.getElementById('work-experience-list').innerHTML += experienceHTML;
-                                                document.getElementById('work-experience-form').reset();
-                                            })
-                                            .catch(error => {
-                                                console.error('Error:', error);
-                                                alert('Error adding work experience. Please try again.');
-                                            });
-                                        });
-                                    </script>
 
 
 
 
                                         <div class="modal fade" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
+                                              <div class="modal-dialog modal-lg">
+                                                <form class="modal-content" id="education-form" method="POST" action="save_education.php">
+                                                  <div class="modal-header">
                                                     <h5 class="modal-title" id="educationModalLabel">Add Education</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form id="education-form">
-                                                        <div class="mb-3">
-                                                            <label for="degree" class="form-label">Degree</label>
-                                                            <input type="text" class="form-control" id="degree" placeholder="e.g., BSc in Computer Science">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="institution" class="form-label">Institution</label>
-                                                            <input type="text" class="form-control" id="institution" placeholder="e.g., University of Colombo">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="start-date" class="form-label">Start Date</label>
-                                                            <input type="date" class="form-control" id="start-date2">
-                                                            <span id="start-date-error" class="text-danger"></span> 
-                                                        </div>
+                                                  </div>
 
-                                                        <div class="mb-3">
-                                                            <label for="end-date" class="form-label">End Date</label>
-                                                            <input type="date" class="form-control" id="end-date2">
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">Add Education</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script type="text/javascript">
-                                        document.getElementById('education-form').addEventListener('submit', function(event) {
-                                        event.preventDefault();
-                                        const degree = document.getElementById('degree').value;
-                                        const institution = document.getElementById('institution').value;
-                                        const startDateInput = new Date(document.getElementById('start-date2').value);  // Start date
-                                        const endDateInput = document.getElementById('end-date2').value; //
-                                        const errorMessage = document.getElementById('start-date-error');
-                                        errorMessage.textContent = "";
-                                        console.log("Start Date Input Value: ", startDateInput);
-                                        if (!startDateInput) {
-                                            errorMessage.textContent = "Please provide a valid start date.";
-                                            errorMessage.classList.add('text-danger');
-                                            return;
-                                        }
-                                        const startDate = new Date(startDateInput); // Convert to Date 
-                                        console.log("Parsed Start Date: ", startDate);
-                                        if (isNaN(startDate.getTime())) {
-                                            errorMessage.textContent = "Please provide a valid start date.";
-                                            errorMessage.classList.add('text-danger');
-                                            return;
-                                        }
-                                        let endDate, duration, endDateHTML;
-                                        if (endDateInput) {
-                                            endDate = new Date(endDateInput);
-                                            if (isNaN(endDate.getTime())) {
-                                                errorMessage.textContent = "Please provide a valid end date.";
-                                                errorMessage.classList.add('text-danger');
-                                                return;
-                                            }
-                                            if (endDate < startDate) {
-                                                errorMessage.textContent = "End date cannot be earlier than the start date.";
-                                                errorMessage.classList.add('text-danger');
-                                                return;
-                                            }
-                                            endDateHTML = `<p><strong>End Date:</strong> ${endDate.toLocaleDateString()}</p>`;
-                                            duration = calculateDuration(startDate, endDate); // Calculate 
-                                        } else {
-                                            endDate = new Date();
-                                            endDateHTML = ""; // Don't display End Date if it's ongoing
-                                            duration = calculateDuration(startDate, endDate);
-                                        }
-                                        const educationHTML = `
-                                            <li class="list-group-item">
-                                                <div class="">
-                                                    <h5 class="card-title">${degree} at ${institution}</h5>
-                                                    <div class="card-body">
-                                                        <p><strong>Start Date:</strong> ${startDate.toLocaleDateString()}</p>
-                                                        ${endDateHTML} <!-- Conditionally show the End Date -->
-                                                        <p><strong>Duration:</strong> ${duration}</p>
-                                                        <div class='d-flex'>
-                                                            <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                                                            <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                                                        </div>
+                                                  <div class="modal-body row g-3">
+                                                    <!-- Basic Education Inputs -->
+                                                    <div class="col-md-6">
+                                                      <label for="school" class="form-label">School*</label>
+                                                      <input type="text" class="form-control" id="school" name="school" required>
                                                     </div>
-                                                </div>
-                                            </li>
-                                        `;
-                                        document.getElementById('education-list').innerHTML += educationHTML;
-                                        document.getElementById('education-form').reset();
+                                                    <div class="col-md-6">
+                                                      <label for="degree" class="form-label">Degree</label>
+                                                      <input type="text" class="form-control" id="degree" name="degree">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                      <label for="field" class="form-label">Field of Study</label>
+                                                      <input type="text" class="form-control" id="field" name="field">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                      <label for="start-month" class="form-label">Start Month</label>
+                                                      <select class="form-select" id="start-month" name="start_month">
+                                                        <option value="">--Month--</option>
+                                                        <option value="January">January</option>
+                                                        <option value="February">February</option>
+                                                        <option value="March">March</option>
+                                                        <option value="April">April</option>
+                                                        <option value="May">May</option>
+                                                        <option value="June">June</option>
+                                                        <option value="July">July</option>
+                                                        <option value="August">August</option>
+                                                        <option value="September">September</option>
+                                                        <option value="October">October</option>
+                                                        <option value="November">November</option>
+                                                        <option value="December">December</option>
+                                                      </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                      <label for="start-year" class="form-label">Start Year</label>
+                                                      <input type="number" class="form-control" id="start-year" name="start_year">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                      <label for="end-month" class="form-label">End Month</label>
+                                                      <select class="form-select" id="end-month" name="end_month">
+                                                        <option value="">--Month--</option>
+                                                        <option value="January">January</option>
+                                                        <option value="February">February</option>
+                                                        <option value="March">March</option>
+                                                        <option value="April">April</option>
+                                                        <option value="May">May</option>
+                                                        <option value="June">June</option>
+                                                        <option value="July">July</option>
+                                                        <option value="August">August</option>
+                                                        <option value="September">September</option>
+                                                        <option value="October">October</option>
+                                                        <option value="November">November</option>
+                                                        <option value="December">December</option>
+                                                      </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                      <label for="end-year" class="form-label">End Year</label>
+                                                      <input type="number" class="form-control" id="end-year" name="end_year">
+                                                    </div>
 
-                                        const modal = bootstrap.Modal.getInstance(document.getElementById('educationModal'));
-                                        modal.hide();
-                                    });
-                                    function calculateDuration(startDate, endDate) {
-                                        const years = endDate.getFullYear() - startDate.getFullYear();
-                                        const months = endDate.getMonth() - startDate.getMonth();
-                                        let totalYears = years;
-                                        let totalMonths = months;
-                                        if (months < 0) {
-                                            totalYears--;
-                                            totalMonths += 12;
-                                        }
-                                        return `${totalYears}y ${totalMonths} months`;
-                                    }
-                                    </script>
+                                                    <div class="col-md-6">
+                                                      <label for="grade" class="form-label">Grade</label>
+                                                      <input type="text" class="form-control" id="grade" name="grade">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                      <label for="activities" class="form-label">Activities and Societies</label>
+                                                      <input type="text" class="form-control" id="activities" name="activities" maxlength="500">
+                                                    </div>
+                                                    <div class="col-12">
+                                                      <label for="edu-description" class="form-label">Description</label>
+                                                      <textarea class="form-control" id="edu-description" name="description" rows="3" maxlength="1000"></textarea>
+                                                    </div>
+
+                                                    <!-- Skills Input -->
+                                                    <div class="col-12">
+                                                      <label class="form-label">Skills</label>
+                                                      <div id="skill-list" class="d-flex flex-wrap gap-2 mb-2"></div>
+                                                      <div class="input-group">
+                                                        <input type="text" class="form-control" id="skill-input" placeholder="Add a skill">
+                                                        <button class="btn btn-outline-primary" id="add-skill">+ Add Skill</button>
+                                                      </div>
+                                                      <div class="form-text">Maximum 5 skills allowed</div>
+                                                    </div>
+                                                  </div>
+
+                                                  <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                  </div>
+                                                </form>
+                                              </div>
+                                            </div>
+
+                                            <script>
+                                                  let skills = [];
+
+                                                  document.getElementById("add-skill").addEventListener("click", function (e) {
+                                                    e.preventDefault();
+                                                    const input = document.getElementById("skill-input");
+                                                    const skill = input.value.trim();
+
+                                                    if (skill && skills.length < 5 && !skills.includes(skill)) {
+                                                      skills.push(skill);
+                                                      updateSkillList();
+                                                      input.value = "";
+                                                    }
+                                                  });
+
+                                                  function updateSkillList() {
+                                                    const list = document.getElementById("skill-list");
+                                                    list.innerHTML = "";
+
+                                                    skills.forEach((skill, index) => {
+                                                      const badge = document.createElement("span");
+                                                      badge.className = "badge bg-secondary d-flex align-items-center";
+                                                      badge.innerHTML = `
+                                                        ${skill}
+                                                        <button type="button" class="btn-close btn-close-white btn-sm ms-2 remove-skill" aria-label="Remove" data-index="${index}"></button>
+                                                      `;
+                                                      list.appendChild(badge);
+                                                    });
+
+                                                    document.querySelectorAll(".remove-skill").forEach(btn => {
+                                                      btn.addEventListener("click", function () {
+                                                        const index = this.getAttribute("data-index");
+                                                        skills.splice(index, 1);
+                                                        updateSkillList();
+                                                      });
+                                                    });
+                                                  }
+
+                                                  document.getElementById("education-form").addEventListener("submit", function () {
+                                                    const hidden = document.createElement("input");
+                                                    hidden.type = "hidden";
+                                                    hidden.name = "skills";
+                                                    hidden.value = JSON.stringify(skills);
+                                                    this.appendChild(hidden);
+                                                  });
+                                            </script>
+
+
+
                                         <div class="modal fade" id="skillsModal" tabindex="-1" aria-labelledby="skillsModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">

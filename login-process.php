@@ -1,24 +1,31 @@
 <?php
 session_start();
-require_once 'includes/db-conn.php'; // DB connection
+require_once 'includes/db-conn.php'; // Ensure database connection
 
 // Initialize login attempts
 if (!isset($_SESSION['login_attempts'])) {
     $_SESSION['login_attempts'] = 0;
+    $_SESSION['lockout_stage'] = 0;
     $_SESSION['last_attempt_time'] = time();
 }
 
-// Lockout after 3 failed attempts (5 minutes)
+// Lockout durations based on failed attempts
+$lockout_durations = [5 * 60, 10 * 60, 20 * 60, 60 * 60]; 
+
+// Check if the user is locked out
 if ($_SESSION['login_attempts'] >= 3) {
-    $timeout = 5 * 60; // 5 minutes
+    $stage = $_SESSION['lockout_stage'];
+    $timeout = $lockout_durations[$stage] ?? end($lockout_durations); 
     $remaining = ($_SESSION['last_attempt_time'] + $timeout) - time();
 
     if ($remaining > 0) {
         $_SESSION['error_message'] = "Too many failed attempts. Try again in " . ceil($remaining / 60) . " minute(s).";
+        $_SESSION['lockout_remaining'] = $remaining;
         header("Location: index.php");
         exit();
     } else {
-        $_SESSION['login_attempts'] = 0; // Reset after timeout
+        $_SESSION['login_attempts'] = 0; 
+        $_SESSION['lockout_stage'] += 1; 
     }
 }
 
@@ -38,6 +45,7 @@ if (isset($_POST['submit'])) {
             if ($user && password_verify($password, $user['password'])) {
                 // Reset attempts on success
                 $_SESSION['login_attempts'] = 0;
+                $_SESSION['lockout_stage'] = 0;
 
                 // Redirect based on user type
                 if ($table == 'admins' && $user['status'] == 'approved') {
@@ -72,6 +80,12 @@ if (isset($_POST['submit'])) {
     $_SESSION['login_attempts'] += 1;
     $_SESSION['last_attempt_time'] = time();
     $_SESSION['error_message'] = "Invalid email or password.";
+    
+    // If 3 failed attempts reached, increase lockout stage
+    if ($_SESSION['login_attempts'] % 3 == 0) {
+        $_SESSION['lockout_stage'] += 1;
+    }
+
     header("Location: index.php");
     exit();
 }

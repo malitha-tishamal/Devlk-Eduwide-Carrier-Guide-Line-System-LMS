@@ -97,9 +97,44 @@
                                           <p class="small mb-0" style="font-size:14px;"><a href="forgotten-password.php">Forgotten password</a>
                                         </div-->
 
+                                        <?php if (isset($_SESSION['lockout_remaining']) && $_SESSION['lockout_remaining'] > 0): ?>
+                                            <script>
+                                                function startCountdown(duration) {
+                                                    let timer = duration, minutes, seconds;
+                                                    const countdownElement = document.getElementById('countdown');
+
+                                                    function updateCountdown() {
+                                                        minutes = parseInt(timer / 60, 10);
+                                                        seconds = parseInt(timer % 60, 10);
+
+                                                        minutes = minutes < 10 ? "0" + minutes : minutes;
+                                                        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                                                        countdownElement.textContent = minutes + ":" + seconds;
+
+                                                        if (--timer < 0) {
+                                                            countdownElement.textContent = "You can now try again!";
+                                                        } else {
+                                                            setTimeout(updateCountdown, 1000);
+                                                        }
+                                                    }
+                                                    updateCountdown();
+                                                }
+
+                                                window.onload = function () {
+                                                    <?php if (isset($_SESSION['lockout_remaining']) && $_SESSION['lockout_remaining'] > 0) { ?>
+                                                        startCountdown(<?php echo $_SESSION['lockout_remaining']; ?>);
+                                                    <?php } ?>
+                                                };
+                                            </script>
+                                        <?php endif; ?>
+
+
                                         <div class="col-12">
                                             <input type="submit" class="btn btn-primary w-100" id="submit" name="submit" value="Login">
+                                            <p id="countdown-timer" style="color: red; text-align: center; margin-top: 10px;"></p>
                                         </div>
+
 
                                          <div class="col-12">
                                           <p class="small mb-0" style="font-size:14px;">Don't have account? <a href="pages-signup.php">Create an account</a></p>
