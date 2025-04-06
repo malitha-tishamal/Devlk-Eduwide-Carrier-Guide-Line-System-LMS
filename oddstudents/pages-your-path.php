@@ -168,6 +168,52 @@ $stmt->close();
         }
 
 
+
+        #education-list .education-card {
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #dfe3e8;
+            width: 60%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #education-list .education-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+
+        #education-list .card-title {
+            font-size: 1.25rem;
+            color: #0073b1;
+            font-weight: bold;
+        }
+
+        #education-list .card-subtitle {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        #education-list .education-details {
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        #education-list .education-details span {
+            margin-right: 1rem;
+        }
+
+        #education-list .education-description p {
+            font-size: 1rem;
+            color: #495057;
+            line-height: 1.5;
+            margin-top: 0.2rem;
+        }
+
+
+
+
     </style>
 </head>
 <body>
@@ -693,6 +739,82 @@ $stmt->close();
                                             </ul>
                                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#educationModal">Add Education</button>
                                         </div>
+
+                                            <div>
+                                                <ul class="list-group" id="education-list">
+                                                    <?php
+                                                    // Fetch education data from the database
+                                                    $query = "SELECT * FROM education WHERE user_id = ?";
+                                                    $stmt = $conn->prepare($query);
+                                                    $stmt->bind_param('i', $user_id);
+                                                    $stmt->execute();
+                                                    $result = $stmt->get_result();
+
+                                                    if ($result->num_rows > 0) {
+                                                        while ($row = $result->fetch_assoc()) {
+                                                            echo '
+                                                            <li class="list-group-item border-0">
+                                                                <div class="education-card card mb-4 shadow-sm">
+                                                                    <div class="card-body p-4">
+                                                                        <h5 class="card-title mb-2 font-weight-bold">' .htmlspecialchars($row['degree']) . ' <span class="">&emsp; From &emsp; </span> <font color="red">' . htmlspecialchars($row['school']) . '</font></h5>
+                                                                        <h6 class="card-subtitle mb-3 text-muted">' . htmlspecialchars($row['field_of_study']) . '</h6>
+                                                                        <div class="education-details mb-3">
+                                                                            <span class="text-muted">' . htmlspecialchars($row['start_month']) . ' ' . $row['start_year'] . ' - ' . htmlspecialchars($row['end_month']) . ' ' . $row['end_year'] . '</span>
+                                                                            <span class="ml-3 text-muted">Grade: ' . htmlspecialchars($row['grade']) . '</span>
+                                                                        </div>
+                                                                        <p class="card-text mb-2"><strong>Activities & Societies:</strong> ' . htmlspecialchars($row['activities']) . '</p>
+                                                                        <div class="education-description">
+                                                                            <p>' . nl2br(htmlspecialchars($row['description'])) . '</p>
+                                                                        </div>
+
+                                                                        <!-- Edit and Delete buttons -->
+                                                                        <div class="education-actions mt-3">
+                                                                            <a href="edit_education.php?id=' . $row['id'] . '" class="btn btn-warning btn-sm">Edit</a>
+                                                                            <button class="btn btn-danger btn-sm delete-btn" data-id="' . $row['id'] . '">Delete</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li>';
+                                                        }
+                                                    } else {
+                                                        echo '<p>No education information added yet.</p>';
+                                                    }
+                                                    ?>
+
+                                                </ul>
+                                            </div>
+
+                                            <script>
+                                                // Event listener for Delete button
+                                                document.querySelectorAll('.delete-btn').forEach(function (button) {
+                                                    button.addEventListener('click', function() {
+                                                        var educationId = this.getAttribute('data-id');
+                                                        
+                                                        if (confirm('Are you sure you want to delete this education record?')) {
+                                                            // Send an AJAX request to delete the education record
+                                                            var xhr = new XMLHttpRequest();
+                                                            xhr.open('POST', 'delete_education.php', true);
+                                                            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                                                            xhr.onload = function() {
+                                                                if (xhr.status === 200) {
+                                                                    var response = JSON.parse(xhr.responseText);
+                                                                    if (response.status === 'success') {
+                                                                        alert(response.message);
+                                                                        // Remove the card from the DOM
+                                                                        document.getElementById('education-' + educationId).remove();
+                                                                    } else {
+                                                                        alert(response.message);
+                                                                    }
+                                                                } else {
+                                                                    alert('An error occurred while deleting the record.');
+                                                                }
+                                                            };
+                                                            xhr.send('id=' + educationId);  // Send the ID of the education to be deleted
+                                                        }
+                                                    });
+                                                });
+                                            </script>
+
  
 
                                         <div class="modal fade" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
@@ -775,72 +897,13 @@ $stmt->close();
                                                       <textarea class="form-control" id="edu-description" name="description" rows="3" maxlength="1000"></textarea>
                                                     </div>
 
-                                                    <!-- Skills Input -->
-                                                    <div class="col-12">
-                                                      <label class="form-label">Skills</label>
-                                                      <div id="skill-list" class="d-flex flex-wrap gap-2 mb-2"></div>
-                                                      <div class="input-group">
-                                                        <input type="text" class="form-control" id="skill-input" placeholder="Add a skill">
-                                                        <button class="btn btn-outline-primary" id="add-skill">+ Add Skill</button>
-                                                      </div>
-                                                      <div class="form-text">Maximum 5 skills allowed</div>
-                                                    </div>
-                                                  </div>
-
                                                   <div class="modal-footer">
                                                     <button type="submit" class="btn btn-primary">Save</button>
                                                   </div>
                                                 </form>
                                               </div>
                                             </div>
-
-                                            <script>
-                                                  let skills = [];
-
-                                                  document.getElementById("add-skill").addEventListener("click", function (e) {
-                                                    e.preventDefault();
-                                                    const input = document.getElementById("skill-input");
-                                                    const skill = input.value.trim();
-
-                                                    if (skill && skills.length < 5 && !skills.includes(skill)) {
-                                                      skills.push(skill);
-                                                      updateSkillList();
-                                                      input.value = "";
-                                                    }
-                                                  });
-
-                                                  function updateSkillList() {
-                                                    const list = document.getElementById("skill-list");
-                                                    list.innerHTML = "";
-
-                                                    skills.forEach((skill, index) => {
-                                                      const badge = document.createElement("span");
-                                                      badge.className = "badge bg-secondary d-flex align-items-center";
-                                                      badge.innerHTML = `
-                                                        ${skill}
-                                                        <button type="button" class="btn-close btn-close-white btn-sm ms-2 remove-skill" aria-label="Remove" data-index="${index}"></button>
-                                                      `;
-                                                      list.appendChild(badge);
-                                                    });
-
-                                                    document.querySelectorAll(".remove-skill").forEach(btn => {
-                                                      btn.addEventListener("click", function () {
-                                                        const index = this.getAttribute("data-index");
-                                                        skills.splice(index, 1);
-                                                        updateSkillList();
-                                                      });
-                                                    });
-                                                  }
-
-                                                  document.getElementById("education-form").addEventListener("submit", function () {
-                                                    const hidden = document.createElement("input");
-                                                    hidden.type = "hidden";
-                                                    hidden.name = "skills";
-                                                    hidden.value = JSON.stringify(skills);
-                                                    this.appendChild(hidden);
-                                                  });
-                                            </script>
-
+                                            <div>
 
 
                                         <div class="modal fade" id="skillsModal" tabindex="-1" aria-labelledby="skillsModalLabel" aria-hidden="true">
@@ -868,134 +931,11 @@ $stmt->close();
                                                 </div>
                                             </div>
                                         </div>
-                                        <script type="text/javascript">
-                                           document.getElementById('skills-form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent form from submitting normally
-
-    const skill = document.getElementById('skill').value;
-    const institution = document.getElementById('institution2').value;
-
-    if (!skill || !institution) {
-        alert("Please fill in both Skill and Institution fields.");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('skill', skill);
-    formData.append('institution', institution);
-
-    // Send the data to the backend PHP file
-    fetch('add_skill.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json()) // Parse the JSON response from PHP
-    .then(data => {
-        if (data.success) {
-            alert(data.success); // Show success message
-            const skillHTML = `
-                <li class="list-group-item">
-                    <div class="skillsbox">
-                        <h4>${skill}</h4>
-                        <p>${institution}</p>
-                        <div class="d-flex">
-                            <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                            <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                        </div>
-                    </div>
-                </li>
-            `;
-            document.getElementById('skills-list').innerHTML += skillHTML; // Add new skill to the list
-            document.getElementById('skills-form').reset(); // Reset form
-            initSortable(); // Reinitialize sortable functionality
-            addSkillEventListeners(); // Reinitialize event listeners
-        } else {
-            alert(data.error); // Show error message
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error); // Log errors in the console
-        alert('Error adding skill. Please try again.');
-    });
-});
-
-                                        </script>
-
-                                        <script type="text/javascript">
-                                            function initSortable() {
-    const skillList = document.getElementById('skills-list');
-    new Sortable(skillList, {
-        animation: 150,
-        handle: '.skillsbox', // Drag handle
-    });
-}
-
-function addSkillEventListeners() {
-    const editButtons = document.querySelectorAll('.edit-btn');
-    editButtons.forEach((button) => {
-        button.addEventListener('click', function() {
-            const listItem = button.closest('li');
-            const skillName = listItem.querySelector('h4').textContent;
-            const institutionName = listItem.querySelector('p').textContent;
-
-            const newSkill = prompt('Edit Skill', skillName);
-            const newInstitution = prompt('Edit Institution', institutionName);
-
-            if (newSkill && newInstitution) {
-                listItem.querySelector('h4').textContent = newSkill;
-                listItem.querySelector('p').textContent = newInstitution;
-            }
-        });
-    });
-
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach((button) => {
-        button.addEventListener('click', function() {
-            const listItem = button.closest('li');
-            listItem.remove();
-        });
-    });
-}
-
-                                        </script>
-                                        <script>
-                                            document.addEventListener("DOMContentLoaded", function () {
-                                                fetchSkills();
-                                            });
-
-                                            function fetchSkills() {
-                                                fetch('fetch_skills.php')
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        const skillsList = document.getElementById('skills-list');
-                                                        skillsList.innerHTML = ''; // Clear current list
-
-                                                        data.forEach(skill => {
-                                                            const skillHTML = `
-                                                                <li class="list-group-item">
-                                                                    <div class="skillsbox">
-                                                                        <h4>${skill.skill_name}</h4>
-                                                                        <p>${skill.institution}</p>
-                                                                        <div class="d-flex">
-                                                                            <button class="btn btn-warning btn-sm edit-btn">Edit</button>
-                                                                            <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </li>
-                                                            `;
-                                                            skillsList.innerHTML += skillHTML;
-                                                        });
-
-                                                        initSortable();
-                                                        addSkillEventListeners();
-                                                    })
-                                                    .catch(error => {
-                                                        console.error('Error fetching skills:', error);
-                                                    });
-                                            }
-                                            </script>
+                                    </div>
 
                                         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
