@@ -79,27 +79,27 @@ if (isset($_GET['id'])) {
 
                                 <div class="mb-3">
                                     <label for="school" class="form-label">School</label>
-                                    <input type="text" class="form-control w-75" id="school" name="school" value="<?php echo htmlspecialchars($row['school']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="school" name="school" value="<?php echo htmlspecialchars($row['school']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="degree" class="form-label">Degree</label>
-                                    <input type="text" class="form-control w-75" id="degree" name="degree" value="<?php echo htmlspecialchars($row['degree']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="degree" name="degree" value="<?php echo htmlspecialchars($row['degree']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="field" class="form-label">Field of Study</label>
-                                    <input type="text" class="form-control w-75" id="field" name="field" value="<?php echo htmlspecialchars($row['field_of_study']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="field" name="field" value="<?php echo htmlspecialchars($row['field_of_study']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="start_month" class="form-label">Start Month</label>
-                                    <input type="text" class="form-control w-75" id="start_month" name="start_month" value="<?php echo htmlspecialchars($row['start_month']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="start_month" name="start_month" value="<?php echo htmlspecialchars($row['start_month']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="start_year" class="form-label">Start Year</label>
-                                    <input type="number" class="form-control w-75" id="start_year" name="start_year" value="<?php echo $row['start_year']; ?>" required>
+                                    <input type="number" class="form-control w-75" id="start_year" name="start_year" value="<?php echo $row['start_year']; ?>" >
                                 </div>
                                 
                                 <div class="mb-3">
@@ -114,12 +114,12 @@ if (isset($_GET['id'])) {
                                 
                                 <div class="mb-3">
                                     <label for="grade" class="form-label">Grade</label>
-                                    <input type="text" class="form-control w-75" id="grade" name="grade" value="<?php echo htmlspecialchars($row['grade']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="grade" name="grade" value="<?php echo htmlspecialchars($row['grade']); ?>" >
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="activities" class="form-label">Activities & Societies</label>
-                                    <input type="text" class="form-control w-75" id="activities" name="activities" value="<?php echo htmlspecialchars($row['activities']); ?>" required>
+                                    <input type="text" class="form-control w-75" id="activities" name="activities" value="<?php echo htmlspecialchars($row['activities']); ?>" >
                                 </div>
                                 
                                 <div class="mb-3">

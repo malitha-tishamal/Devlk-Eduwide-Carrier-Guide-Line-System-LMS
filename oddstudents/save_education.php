@@ -4,7 +4,7 @@ require_once '../includes/db-conn.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['former_student_id'])) {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+    header("Location: login.php");
     exit();
 }
 
@@ -18,43 +18,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $field = $_POST['field'];
     $start_month = $_POST['start_month'];
     $start_year = $_POST['start_year'];
-    $end_month = empty($_POST['end_month']) ? NULL : $_POST['end_month'];  // If end_month is empty, set it as NULL
-    $end_year = empty($_POST['end_year']) ? NULL : $_POST['end_year'];    // If end_year is empty, set it as NULL
+    $end_month = empty($_POST['end_month']) ? NULL : $_POST['end_month'];
+    $end_year = empty($_POST['end_year']) ? NULL : $_POST['end_year'];
     $grade = $_POST['grade'];
     $activities = $_POST['activities'];
     $description = $_POST['description'];
+    $education_id = isset($_POST['education_id']) ? $_POST['education_id'] : null;
 
-    // Prepare and insert into the database
-    $query = "INSERT INTO education 
-              (user_id, school, degree, field_of_study, start_month, start_year, end_month, end_year, grade, activities, description) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    // Prepare the statement and bind parameters
-    $stmt = $conn->prepare($query);
-    if ($end_month === NULL && $end_year === NULL) {
-        $stmt->bind_param('issssssssss', $user_id, $school, $degree, $field, $start_month, $start_year, $end_month, $end_year, $grade, $activities, $description);
+    if ($education_id) {
+        // UPDATE existing record
+        $query = "UPDATE education SET 
+                    school = ?, degree = ?, field_of_study = ?, 
+                    start_month = ?, start_year = ?, 
+                    end_month = ?, end_year = ?, 
+                    grade = ?, activities = ?, description = ?
+                  WHERE id = ? AND user_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param(
+            'ssssssssssii',
+            $school, $degree, $field,
+            $start_month, $start_year,
+            $end_month, $end_year,
+            $grade, $activities, $description,
+            $education_id, $user_id
+        );
     } else {
-        $stmt->bind_param('issssssssss', $user_id, $school, $degree, $field, $start_month, $start_year, $end_month, $end_year, $grade, $activities, $description);
+        // INSERT new record
+        $query = "INSERT INTO education 
+                  (user_id, school, degree, field_of_study, start_month, start_year, end_month, end_year, grade, activities, description) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param(
+            'issssssssss',
+            $user_id, $school, $degree, $field,
+            $start_month, $start_year,
+            $end_month, $end_year,
+            $grade, $activities, $description
+        );
     }
 
-    // Execute the query
-if ($stmt->execute()) {
-    echo json_encode([
-        'status' => 'success', 
-        'message' => 'Education added successfully',
-        
-    ]);
+    if ($stmt->execute()) {
+        $stmt->close();
+        header("Location: pages-your-path.php?success=1");
+        exit();
+    } else {
+        $stmt->close();
+        header("Location: pages-your-path.php?error=1");
+        exit();
+    }
 } else {
-    echo json_encode([
-        'status' => 'error', 
-        'message' => 'Failed to add education',
-        'redirect' => 'pages-your-path.php' // specify the page you want to redirect to
-    ]);
+    header("Location: pages-your-path.php?error=invalid_request");
+    exit();
 }
-
-$stmt->close();
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
-}
-
 ?>

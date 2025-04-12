@@ -785,22 +785,20 @@ $stmt->close();
                                             </div>
 
                                             <script>
-                                                // Event listener for Delete button
                                                 document.querySelectorAll('.delete-btn').forEach(function (button) {
-                                                    button.addEventListener('click', function() {
+                                                    button.addEventListener('click', function () {
                                                         var educationId = this.getAttribute('data-id');
-                                                        
+
                                                         if (confirm('Are you sure you want to delete this education record?')) {
-                                                            // Send an AJAX request to delete the education record
                                                             var xhr = new XMLHttpRequest();
                                                             xhr.open('POST', 'delete_education.php', true);
                                                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                            xhr.onload = function() {
+                                                            xhr.onload = function () {
                                                                 if (xhr.status === 200) {
                                                                     var response = JSON.parse(xhr.responseText);
                                                                     if (response.status === 'success') {
                                                                         alert(response.message);
-                                                                        // Remove the card from the DOM
+                                                                        // Remove the card or section from the DOM
                                                                         document.getElementById('education-' + educationId).remove();
                                                                     } else {
                                                                         alert(response.message);
@@ -809,11 +807,13 @@ $stmt->close();
                                                                     alert('An error occurred while deleting the record.');
                                                                 }
                                                             };
-                                                            xhr.send('id=' + educationId);  // Send the ID of the education to be deleted
+                                                            xhr.send('education_id=' + educationId); 
                                                         }
                                                     });
                                                 });
-                                            </script>
+                                                </script>
+
+                                            
 
  
 

@@ -20,17 +20,13 @@ if (isset($_POST['education_id'])) {
     $stmt->bind_param('ii', $education_id, $user_id);
 
     if ($stmt->execute()) {
-        // Redirect to the same page
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
-        exit();
+        echo json_encode(['status' => 'success', 'message' => 'Education record deleted successfully']);
     } else {
-        // If query execution fails
         echo json_encode(['status' => 'error', 'message' => 'Failed to delete education record']);
     }
 
     $stmt->close();
 } else {
-    // If the education_id is not set
     echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
 }
 ?>
