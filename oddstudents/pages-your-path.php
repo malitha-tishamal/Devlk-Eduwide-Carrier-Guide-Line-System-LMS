@@ -800,6 +800,7 @@ $stmt->close();
                                                                         alert(response.message);
                                                                         // Remove the card or section from the DOM
                                                                         document.getElementById('education-' + educationId).remove();
+                                                                        location.reload();
                                                                     } else {
                                                                         alert(response.message);
                                                                     }
