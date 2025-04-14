@@ -16,7 +16,7 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-$edu_stmt = $conn->prepare("SELECT school, field_of_study, start_year, end_year FROM education WHERE user_id = ? ORDER BY id DESC LIMIT 1");
+$edu_stmt = $conn->prepare("SELECT school, field_of_study FROM education WHERE user_id = ? ORDER BY id DESC LIMIT 1");
 $edu_stmt->bind_param("i", $current_user_id);
 $edu_stmt->execute();
 $edu_data = $edu_stmt->get_result()->fetch_assoc();
@@ -30,44 +30,79 @@ $work_stmt->close();
 
 $school = $edu_data['school'] ?? '';
 $field = $edu_data['field_of_study'] ?? '';
-$start_year = $edu_data['start_year'] ?? '';
-$end_year = $edu_data['end_year'] ?? '';
 $company = $work_data['company'] ?? '';
 $title = $work_data['title'] ?? '';
 
-// AI-Like Weighted Matching (simulated)
-$query = "
-SELECT fs.id, fs.username AS full_name, fs.profile_picture, fs.facebook, fs.github, fs.linkedin, fs.blog,
-       e.school, e.field_of_study AS course, w.company AS job_company, w.title AS job_role,
-       (
-         (CASE WHEN e.school = ? THEN 3 ELSE 0 END) +
-         (CASE WHEN e.field_of_study = ? THEN 2 ELSE 0 END) +
-         (CASE WHEN e.start_year = ? THEN 1 ELSE 0 END) +
-         (CASE WHEN e.end_year = ? THEN 1 ELSE 0 END) +
-         (CASE WHEN w.company = ? THEN 3 ELSE 0 END) +
-         (CASE WHEN w.title = ? THEN 2 ELSE 0 END)
-       ) AS score
-FROM former_students fs
-LEFT JOIN education e ON fs.id = e.user_id
-LEFT JOIN experiences w ON fs.id = w.user_id
-WHERE fs.id != ?
-GROUP BY fs.id
-HAVING score > 0
-ORDER BY score DESC, RAND()
-LIMIT 20";
+$current_profile = implode(" ", [$school, $field, $company, $title]);
 
-$stmt = $conn->prepare($query);
-$stmt->bind_param("ssisssi", $school, $field, $start_year, $end_year, $company, $title, $current_user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch all other users
+$all_stmt = $conn->prepare("SELECT former_students.id, username, school, field_of_study, company, title
+    FROM former_students
+    LEFT JOIN education ON former_students.id = education.user_id
+    LEFT JOIN experiences ON former_students.id = experiences.user_id
+    WHERE former_students.id != ?");
+$all_stmt->bind_param("i", $current_user_id);
+$all_stmt->execute();
+$all_users = $all_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$all_stmt->close();
 
-$suggestions = [];
-while ($row = $result->fetch_assoc()) {
-    $suggestions[] = $row;
+$other_profiles = [];
+$other_ids = [];
+foreach ($all_users as $u) {
+    $other_ids[] = $u['id'];
+    $other_profiles[] = implode(" ", [$u['school'], $u['field_of_study'], $u['company'], $u['title']]);
 }
-$stmt->close();
-?>
 
+$payload = json_encode([
+    "user_profile" => $current_profile,
+    "other_profiles" => $other_profiles,
+    "other_ids" => $other_ids
+]);
+
+$ch = curl_init('http://localhost:5005/get_similar');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+$ai_results = json_decode($response, true);
+
+// Check if the AI response is valid
+if (isset($ai_results) && is_array($ai_results) && !empty($ai_results)) {
+    $ids = array_column($ai_results, 'id');
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $types = str_repeat('i', count($ids));
+    $suggestions = [];
+
+    if (!empty($ids)) {
+        $query = "SELECT fs.id, fs.username AS full_name, fs.profile_picture, fs.facebook, fs.github, fs.linkedin, fs.blog,
+                         e.school, e.field_of_study AS course, w.company AS job_company, w.title AS job_role
+                  FROM former_students fs
+                  LEFT JOIN education e ON fs.id = e.user_id
+                  LEFT JOIN experiences w ON fs.id = w.user_id
+                  WHERE fs.id IN ($placeholders)
+                  GROUP BY fs.id";
+
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param($types, ...$ids);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $suggestions[] = $row;
+        }
+        $stmt->close();
+    }
+} else {
+    // Handle the case where no valid AI results are returned
+    $suggestions = [];
+    // Optionally, log the error or handle it as needed
+    error_log("No valid AI results returned or AI API request failed.");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

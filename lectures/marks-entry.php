@@ -173,14 +173,14 @@ if (isset($_GET['subject_id'])) {
                                 <!-- Practical Marks -->
                                 <div class="form-group mb-3">
                                     <label for="practicalMarks">Practical Marks</label>
-                                    <input type="number" class="form-control w-50" id="practicalMarks" name="practicalMarks" placeholder="Enter Practical Marks" min="0" max="100" required>
+                                    <input type="number" class="form-control w-50" id="practicalMarks" name="practicalMarks" placeholder="Enter Practical Marks" min="0" max="100" >
                                     <div id="practical-error-message" class="text-danger mt-2" style="display: none;">Please enter a value between 0 and 100.</div>
                                 </div>
 
                                 <!-- Paper Marks -->
                                 <div class="form-group mb-3">
                                     <label for="paperMarks">Paper Marks</label>
-                                    <input type="number" class="form-control w-50" id="paperMarks" name="paperMarks" placeholder="Enter Paper Marks" min="0" max="100" required>
+                                    <input type="number" class="form-control w-50" id="paperMarks" name="paperMarks" placeholder="Enter Paper Marks" min="0" max="100">
                                     <div id="paper-error-message" class="text-danger mt-2" style="display: none;">Please enter a value between 0 and 100.</div>
                                 </div>
 
