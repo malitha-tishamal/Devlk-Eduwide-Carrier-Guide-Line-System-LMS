@@ -202,10 +202,10 @@ $resources = [
                                                         (($paper_marks >= 35) ? 'orange' : 'red')));
 
                                     // Set color for final mark
-                                    $final_text_color = ($final_mark >= 50) ? 'green' : 'red';
+                                    $final_text_color = ($final_mark > 40) ? 'green' : 'red';
 
                                     // Check if the final marks are below 50, and add the "low-marks" class for styling
-                                    $low_marks_class = ($final_mark < 50) ? 'low-marks' : '';
+                                    $low_marks_class = ($final_mark < 40) ? 'low-marks' : '';
 
                                     echo "<div class='marks-row $low_marks_class'>
                                         <div class='marks-item'>$subject_name</div>
@@ -215,7 +215,7 @@ $resources = [
                                         <div class='marks-item'>
                                             <div class='resource-links'>";
                                     
-                                    if ($final_mark <= 50 && isset($resources[$subject_code])) {
+                                    if ($final_mark < 40 && isset($resources[$subject_code])) {
                                         echo "
                                          <a href='" . $resources[$subject_code]['past_papers'] . "' target='_blank' class='paper-icon'>
                                                 <i class='fas fa-file icon'></i> Past Papers</a><br/>
@@ -277,9 +277,11 @@ $resources = [
                         </div>
                     </div>
                 </div>
-        </div>
+            </div>
             </div>
         </section>
     </main>
+    <?php include_once("includes/footer4.php") ?>
+       <?php include_once("includes/js-links-inc.php") ?>
 </body>
 </html>

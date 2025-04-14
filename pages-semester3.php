@@ -20,14 +20,58 @@ $stmt->close();
 $reg_id = $user['reg_id']; // Get student's registration ID
 $student_name = $user['username']; // Get student's name
 
-// Fetch student marks for Semester III
+// Fetch student marks for Semester I, join with subjects table to get subject name
 $semester = 'Semester III';
-$sql_marks = "SELECT * FROM marks WHERE student_id = ? AND semester = ?";
+$sql_marks = "
+    SELECT marks.*, subjects.code AS subject_code, subjects.name AS subject_name
+    FROM marks
+    JOIN subjects ON marks.subject = subjects.name
+    WHERE marks.student_id = ? AND marks.semester = ?";
 $stmt_marks = $conn->prepare($sql_marks);
 $stmt_marks->bind_param("is", $reg_id, $semester); // Binding reg_id and semester
 $stmt_marks->execute();
 $marks_result = $stmt_marks->get_result();
 $stmt_marks->close();
+
+// Resource array for suggestions based on subject code
+$resources = [
+    "HNDIT3012" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Object+Oriented+Programming+HNDIT"
+    ],
+    "HNDIT3022" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Web+Programming+HNDIT"
+    ],
+    "HNDIT3032" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Data+Structures+and+Algorithms+HNDIT"
+    ],
+    "HNDIT3042" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Database+Management+Systems+HNDIT"
+    ],
+    "HNDIT3052" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Operating+Systems+HNDIT"
+    ],
+    "HNDIT3062" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Information+and+Computer+Security+HNDIT"
+    ],
+    "HNDIT3072" => [
+        "notes" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "past_papers" => "https://hnditmaterial.blogspot.com/2021/08/hndit-past-paper-2nd-year-1st-semester.html",
+        "youtube" => "https://www.youtube.com/results?search_query=Statistics+for+IT+HNDIT"
+    ],
+];
+
 ?>
 
 <!DOCTYPE html>
@@ -37,6 +81,7 @@ $stmt_marks->close();
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Semester III - EduWide</title>
     <?php include_once("includes/css-links-inc.php"); ?>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style type="text/css">
         .marks-container {
             padding: 20px;
@@ -72,6 +117,44 @@ $stmt_marks->close();
         .marks-item {
             text-align: center;
         }
+
+        .resource-links {
+            padding: 5px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .resource-links a {
+            margin-right: 10px;
+        }
+
+        /* Styling for subjects with final marks less than 50 */
+        .low-marks {
+            background-color: #ffcccc;
+            border: 2px solid red;
+        }
+
+        .icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        /* Natural icon colors */
+        .youtube-icon {
+            color: red;
+        }
+
+        .notes-icon {
+            color: blue;
+        }
+
+        .paper-icon {
+            color: green;
+        }
+
+        .icon:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -80,8 +163,7 @@ $stmt_marks->close();
     <?php include_once("includes/students-sidebar.php") ?>
 
     <main id="main" class="main">
-        <div class="pagetitle">
-        </div>
+        <div class="pagetitle"></div>
 
         <section class="section">
             <div class="row">
@@ -89,69 +171,79 @@ $stmt_marks->close();
                     <div class="card">
                         <div class="marks-container">
                             <h3 class="text-primary">Marks Semester III</h3>
-                            <!-- Displaying the student's name and reg_id -->
                             <h2 class="card-title mb-4 d-flex">Hello :&nbsp;&nbsp; <div class="text-success"><?php echo $student_name; ?> &nbsp;&nbsp;&nbsp; (Reg ID: <?php echo $reg_id; ?>)</div></h2>
                             <div class="marks-title">
                                 <div class="marks-item title">Subject Name</div>
                                 <div class="marks-item title">Practical Marks</div>
                                 <div class="marks-item title">Paper Marks</div>
-                                <div class="marks-item title">Special Notes</div>
+                                <div class="marks-item title">Final Marks</div>
+                                <div class="marks-item title">Resources</div> <!-- Added Resources Column -->
                             </div>
 
                             <?php
                             if ($marks_result->num_rows > 0) {
                                 while ($row = $marks_result->fetch_assoc()) {
-                                    // Set font color based on practical marks
+                                    // Fetch subject details from the join
+                                    $subject_name = $row['subject_name'];
+                                    $subject_code = $row['subject_code'];
+
+                                    // Fetch practical and paper marks
                                     $practical_marks = $row['practical_marks'];
                                     $paper_marks = $row['paper_marks'];
 
-                                    // Practical Marks font color logic
-                                    if ($practical_marks >= 90) {
-                                        $practical_text_color = 'green';
-                                    } elseif ($practical_marks >= 75) {
-                                        $practical_text_color = 'darkblue';
-                                    } elseif ($practical_marks >= 65) {
-                                        $practical_text_color = 'blue';
-                                    } elseif ($practical_marks >= 35) {
-                                        $practical_text_color = 'orange';
-                                    } else {
-                                        $practical_text_color = 'red';
-                                    }
+                                    // Final marks calculation: 60% paper marks + 40% practical marks
+                                    $final_mark = ($paper_marks * 0.60) + ($practical_marks * 0.40);
 
-                                    // Paper Marks font color logic
-                                    if ($paper_marks >= 90) {
-                                        $paper_text_color = 'green';
-                                    } elseif ($paper_marks >= 75) {
-                                        $paper_text_color = 'darkblue';
-                                    } elseif ($paper_marks >= 65) {
-                                        $paper_text_color = 'blue';
-                                    } elseif ($paper_marks >= 35) {
-                                        $paper_text_color = 'orange';
-                                    } else {
-                                        $paper_text_color = 'red';
-                                    }
+                                    // Set font color based on practical marks
+                                    $practical_text_color = ($practical_marks >= 90) ? 'green' :
+                                                            (($practical_marks >= 75) ? 'darkblue' :
+                                                            (($practical_marks >= 65) ? 'blue' :
+                                                            (($practical_marks >= 35) ? 'orange' : 'red')));
 
-                                    echo "<div class='marks-row'>
-                                            <div class='marks-item'>{$row['subject']}</div>  
-                                            <div class='marks-item' style='color: $practical_text_color;'>{$practical_marks}</div>  
-                                            <div class='marks-item' style='color: $paper_text_color;'>{$paper_marks}</div>  
-                                            <div class='marks-item'>{$row['special_notes']}</div>  
-                                          </div>";
+                                    // Set font color based on paper marks
+                                    $paper_text_color = ($paper_marks >= 90) ? 'green' :
+                                                        (($paper_marks >= 75) ? 'darkblue' :
+                                                        (($paper_marks >= 65) ? 'blue' :
+                                                        (($paper_marks >= 35) ? 'orange' : 'red')));
+
+                                    // Set color for final mark
+                                    $final_text_color = ($final_mark > 40) ? 'green' : 'red';
+
+                                    // Check if the final marks are below 50, and add the "low-marks" class for styling
+                                    $low_marks_class = ($final_mark < 40) ? 'low-marks' : '';
+
+                                    echo "<div class='marks-row $low_marks_class'>
+                                        <div class='marks-item'>$subject_name</div>
+                                        <div class='marks-item' style='color: $practical_text_color;'>$practical_marks</div>
+                                        <div class='marks-item' style='color: $paper_text_color;'>$paper_marks</div>
+                                        <div class='marks-item' style='color: $final_text_color;'>$final_mark</div>
+                                        <div class='marks-item'>
+                                            <div class='resource-links'>";
+                                    
+                                    if ($final_mark < 40 && isset($resources[$subject_code])) {
+                                        echo "
+                                         <a href='" . $resources[$subject_code]['past_papers'] . "' target='_blank' class='paper-icon'>
+                                                <i class='fas fa-file icon'></i> Past Papers</a><br/>
+                                        <a href='" . $resources[$subject_code]['youtube'] . "' target='_blank' class='youtube-icon'>
+                                                <i class='fab fa-youtube icon'></i> YouTube</a><br/>
+                                                <a href='" . $resources[$subject_code]['notes'] . "' target='_blank' class='notes-icon'>
+                                                <i class='fas fa-book icon'></i> Notes</a>
+                                                ";
+                                    }
+                                    
+                                    echo "</div></div></div>";
                                 }
                             } else {
-                                echo "<div class='marks-row'>
-                                        <div class='marks-item' colspan='4'>No marks available for Semester III.</div>
-                                      </div>";
+                                echo "<div class='marks-row'>No marks found</div>";
                             }
                             ?>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        <div class="row">
+                <div class="row">
                 <div class="col-lg-12">
-                    <div class="card">
+                    <div class="card p-2">
+                        <b>Paper & Practicle Marks</b>
                         <div class="d-flex m-4">
                             <div>
                                 <div class="bg-success p-2  text-white">Status Verry Good</div>
@@ -175,16 +267,26 @@ $stmt_marks->close();
                         </div>
                     </div>
                 </div>
-        </div>
+
+                <div class="col-lg-12">
+                    <div class="card p-2">
+                        <b>Final Marks</b>
+                        <div class="d-flex m-4">
+                            <div>
+                                <div class="bg-success p-2  text-white">Good Pass</div>
+                            </div>
+                            &nbsp;&nbsp;
+                            <div>
+                                <div class="bg-danger p-2 text-white">Status Fail (Please Refer Resourses !)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
     </main>
-
     <?php include_once("includes/footer4.php") ?>
-    <?php include_once("includes/js-links-inc.php") ?>
-
+       <?php include_once("includes/js-links-inc.php") ?>
 </body>
 </html>
-
-<?php
-// Close database connection
-$conn->close();
-?>
