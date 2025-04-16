@@ -148,7 +148,7 @@ $admins = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                                 <div class="text-center mt-3 mb-3">                                                     
                                                     <img src="<?php echo $admin['profile_picture']; ?>" class="card-img-top" alt="Profile Picture" onerror="this.onerror=null;this.src='uploads/profile_pictures/default.jpg';">                                                 
                                                 </div>                                                 
-                                                <div class="card-body" style="height: 200px;">                                                     
+                                                <div class="card-body" style="height: 220px;">                                                     
                                                     <h4 class="text-primary text-center"><?php echo $admin['username']; ?></h4>                                                     
                                                     <div class="card-text mt-1"><strong>Email:</strong> <?php echo $admin['email']; ?></div>                                                     
                                                     <div class="card-text mt-1"><strong>Mobile:</strong> <?php echo $admin['mobile']; ?></div>                                                     
