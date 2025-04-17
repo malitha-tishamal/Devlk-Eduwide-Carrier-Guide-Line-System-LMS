@@ -127,6 +127,9 @@ $result = $conn->query($sql);
                                             echo "<td class='text-center'>
                                                     <a href='edit-admin.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
                                                   </td>";
+                                            echo "<td class='text-center'>
+                                                   <a href='admin-profile.php?admin_id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary btn-sm w-100'>Profile</a>
+                                                  </td>";
 
                                             echo "</tr>";
                                         }

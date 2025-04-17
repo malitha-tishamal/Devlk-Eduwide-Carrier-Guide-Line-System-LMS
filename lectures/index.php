@@ -32,6 +32,11 @@ $subjects_query = "
     JOIN lectures_assignment la ON s.id = la.subject_id
     WHERE la.lecturer_id = ?
 ";
+// Fetch all students
+$query = "SELECT id, username, nic, email, mobile, linkedin, blog, github, facebook, profile_picture FROM students"; 
+$result = mysqli_query($conn, $query); 
+$students = mysqli_fetch_all($result, MYSQLI_ASSOC); 
+
 ?>
 
 <!DOCTYPE html>
@@ -78,12 +83,12 @@ $subjects_query = "
 }
 
 .card-title {
-    font-size: 1.5rem;
+    font-size: 0.9rem;
     font-weight: bold;
 }
 
 .card-text {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #555;
 }
 
@@ -146,10 +151,10 @@ ul.list-unstyled li i {
                                         <div class="col-md-4">
                                             <div class="card lecturer-card shadow-lg rounded">
                                                 <div>
-                                                    <div class=" text-center mt-3 mb-3">
+                                                    <div class=" text-center mt-3 mb-1">
                                                     <img src="<?php echo $lecturer['profile_picture']; ?>" class="card-img-top " alt="Profile Picture" onerror="this.onerror=null;this.src='uploads/profile_pictures/default.jpg';">
                                                 </div>
-                                                <div class="card-body" style="height: 300px;">
+                                                <div class="card-body" style="min-height: 300px;">
                                                     <h4 class="text-primary text-center "><?php echo $lecturer['username']; ?></h4>
                                                     <div class="card-text  mt-1"><strong>Email:</strong> <?php echo $lecturer['email']; ?></div>
                                                     <div class="card-text mt-1"><strong>Mobile:</strong> <?php echo $lecturer['mobile']; ?></div>
@@ -172,7 +177,7 @@ ul.list-unstyled li i {
                                                             $stmt->execute();
                                                             $subjects_result = $stmt->get_result();
                                                             while ($subject = $subjects_result->fetch_assoc()) {
-                                                                echo '<li><i class="fas fa-book mr-2"></i>' . $subject['name'] . ' (' . $subject['code'] . ')</li>';
+                                                                echo '<li><i class="fas fa-book mr-2"></i>' .'[ ' . $subject['code'].' ] ' .  $subject['name'] .'</li>';
                                                             }
                                                             $stmt->close();
                                                             ?>
@@ -240,6 +245,42 @@ ul.list-unstyled li i {
                                                     }
                                                 </style>
                                             </div>
+
+                                            <?php 
+                                                $recent_students_query = "SELECT * FROM students ORDER BY last_login DESC LIMIT 5";
+                                                $recent_students_result = $conn->query($recent_students_query);
+                                            ?>
+                                            <div class="container mt-2">                                 
+                                                <h4 class="mb-2">Recently Logged-In Students</h4>                                 
+                                                <div class="row">                                     
+                                                    <?php while ($student = $recent_students_result->fetch_assoc()): ?>                                         
+                                                        <div class="col-md-4 col-lg-3">                                             
+                                                            <div class="card mini-card shadow-lg">                                                 
+                                                                <div class="d-flex align-items-center p-2">                                                     
+                                                                   <img src="..//<?php echo $student['profile_picture']; ?>" 
+                                                                         alt="Profile Picture"
+                                                                         class="rounded-circle me-2"
+                                                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                                                         onerror="this.onerror=null;this.src='../uploads/profile_pictures/default.png';">                                                     
+                                                                    <div>                                                         
+                                                                        <h6 class="mb-0"><?php echo $student['username']; ?></h6>                                                         
+                                                                        <small class="text-muted">
+                                                                            <?php 
+                                                                                if (!empty($student['last_login'])) {
+                                                                                    echo "Last login: " . date("M d, Y h:i A", strtotime($student['last_login']));
+                                                                                } else {
+                                                                                    echo "Last login: N/A";
+                                                                                }
+                                                                            ?>
+                                                                        </small>                                                     
+                                                                    </div>                                                 
+                                                                </div>                                             
+                                                            </div>                                         
+                                                        </div>                                     
+                                                    <?php endwhile; ?>                                 
+                                                </div>                             
+                                            </div> 
+                                
                                         </div>
                                     </div>
                                 </div>

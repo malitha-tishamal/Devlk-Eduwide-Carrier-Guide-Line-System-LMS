@@ -89,13 +89,13 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
         }
 
         .card-text {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #555;
         }
 
         .social-links a {
             margin: 0 10px;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             color: #555;
             transition: color 0.3s ease;
         }
@@ -113,7 +113,7 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
         }
 
         ul.list-unstyled li {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #333;
             display: flex;
             align-items: center;
@@ -140,11 +140,12 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 <body>     
     <main id="main" class="main">         
-        <div class="pagetitle">             
-            <h1>Admin Panel</h1>             
+        <div class="pagetitle">
+            <h1>Home</h1>                      
             <nav>                 
                 <ol class="breadcrumb">                     
-                    <li class="breadcrumb-item"><a href="">Home</a></li>                 
+                    <li class="breadcrumb-item"><a href="">Home</a></li>   
+                    <li class="breadcrumb-item"><a href="">Admin Pannel</a></li>                
                 </ol>             
             </nav>         
         </div>  
@@ -162,11 +163,11 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                     <?php foreach ($admins as $admin): ?>                                         
                                         <div class="col-md-4 mb-4">                                             
                                             <div class="card lecturer-card shadow-lg rounded">                                                 
-                                                <div class="text-center mt-3 mb-3">                                                     
+                                                <div class="text-center mt-3 mb-2">                                                     
                                                     <img src="<?php echo $admin['profile_picture']; ?>" class="card-img-top" alt="Profile Picture" onerror="this.onerror=null;this.src='uploads/profile_pictures/default.jpg';">                                                 
                                                 </div>                                                 
-                                                <div class="card-body" style="height: 220px;">                                                     
-                                                    <h4 class="text-primary text-center"><?php echo $admin['username']; ?></h4>                                                     
+                                                <div class="card-body" style="min-height: 160px;">                                                     
+                                                    <h5 class="text-primary text-center"><?php echo $admin['username']; ?></h5>                                                     
                                                     <div class="card-text mt-1"><strong>Email:</strong> <?php echo $admin['email']; ?></div>                                                     
                                                     <div class="card-text mt-1"><strong>Mobile:</strong> <?php echo $admin['mobile']; ?></div>                                                     
                                                     <div class="social-links mt-2">                                                         
@@ -188,11 +189,11 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                 $recent_admins_query = "SELECT * FROM admins ORDER BY last_login DESC LIMIT 5";
                                 $recent_admins_result = $conn->query($recent_admins_query);
                             ?>
-                            <div class="container mt-4">                                 
-                                <h4 class="mb-3">Recently Logged-In Admins</h4>                                 
+                            <div class="container mt-2">                                 
+                                <h4 class="mb-2">Recently Logged-In Admins</h4>                                 
                                 <div class="row">                                     
                                     <?php while ($admin = $recent_admins_result->fetch_assoc()): ?>                                         
-                                        <div class="col-md-4 col-lg-3 mb-3">                                             
+                                        <div class="col-md-4 col-lg-3">                                             
                                             <div class="card mini-card shadow-lg">                                                 
                                                 <div class="d-flex align-items-center p-2">                                                     
                                                     <img src="<?php echo $admin['profile_picture']; ?>" alt="Profile Picture"
@@ -224,11 +225,11 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
                             ?>
 
-                                <div class="container mt-4">
-                                    <h4 class="mb-3">Recently Logged-In Lecturers</h4>
+                                <div class="container mt-2">
+                                    <h4 class="mb-2">Recently Logged-In Lecturers</h4>
                                     <div class="row">
                                         <?php while ($lecturer = $recent_lecturers_result->fetch_assoc()): ?>
-                                            <div class="col-md-4 col-lg-3 mb-3">
+                                            <div class="col-md-4 col-lg-3">
                                                 <div class="card mini-card shadow-lg">
                                                     <div class="d-flex align-items-center p-2">
                                                        <img src="../lectures/<?php echo $lecturer['profile_picture']; ?>" 
@@ -260,11 +261,11 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                     $recent_students_query = "SELECT * FROM students ORDER BY last_login DESC LIMIT 5";
                                     $recent_students_result = $conn->query($recent_students_query);
                                 ?>
-                                <div class="container mt-4">                                 
-                                    <h4 class="mb-3">Recently Logged-In Students</h4>                                 
+                                <div class="container mt-2">                                 
+                                    <h4 class="mb-2">Recently Logged-In Students</h4>                                 
                                     <div class="row">                                     
                                         <?php while ($student = $recent_students_result->fetch_assoc()): ?>                                         
-                                            <div class="col-md-4 col-lg-3 mb-3">                                             
+                                            <div class="col-md-4 col-lg-3">                                             
                                                 <div class="card mini-card shadow-lg">                                                 
                                                     <div class="d-flex align-items-center p-2">                                                     
                                                        <img src="..//<?php echo $student['profile_picture']; ?>" 
@@ -297,17 +298,18 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
                             ?>
 
-                                <div class="container mt-4">
-                                    <h4 class="mb-3">Recently Logged-In Former Students</h4>
+                                <div class="container mt-2">
+                                    <h4 class="mb-2">Recently Logged-In Former Students</h4>
                                     <div class="row ">
                                         <?php while ($former_student = $recent_former_students_result->fetch_assoc()): ?>
-                                            <div class="col-md-4 col-lg-3 mb-3 ">
+                                            <div class="col-md-4 col-lg-3 ">
                                                 <div class="card mini-card shadow-lg">
                                                     <div class="d-flex align-items-center p-2">
-                                                        <img src="<?php echo $former_student['profile_picture']; ?>" alt="Profile Picture"
-                                                            class="rounded-circle me-2"
-                                                            style="width: 50px; height: 50px; object-fit: cover;"
-                                                            onerror="this.onerror=null;this.src='../oddstudents/uploads/profile_pictures/default.jpg';">
+                                                        <img src="../oddstudents/<?php echo $former_student['profile_picture']; ?>" 
+                                                             alt="Profile Picture"
+                                                             class="rounded-circle me-2"
+                                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                                             onerror="this.onerror=null;this.src='../oddstudents/uploads/profile_pictures/default.png';">
                                                         <div>
                                                             <h6 class="mb-0"><?php echo $former_student['username']; ?></h6>
                                                             <!--small class="text-muted"><?php echo $lecturer['email']; ?></small><br-->

@@ -175,6 +175,12 @@ $result = $conn->query($sql2);
                                             echo "<td class='text-center'>
                                                     <button class='btn btn-danger btn-sm w-100 delete-btn' data-id='" . $row['id'] . "'>Delete</button>
                                                   </td>";
+                                            echo "<td class='text-center'>
+                                                    <a href='edit-former_student.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
+                                                  </td>";
+                                            echo "<td class='text-center'>
+                                                   <a href='former_student-profile.php?former_student_id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary btn-sm w-100'>Profile</a>
+                                                  </td>";
                                             echo "</tr>";
                                         }
                                     } else {
