@@ -79,12 +79,20 @@ if (isset($_POST['submit'])) {
                 } elseif ($table == 'students' && $user['status'] == 'approved') {
                     $_SESSION['student_id'] = $user['id'];
                     $_SESSION['success_message'] = "Welcome Student!";
+                    $student_id = $user['id'];
+                    $update = $conn->prepare("UPDATE students SET last_login = ? WHERE id = ?");
+                    $update->bind_param("si", $current_time, $student_id);
+                    $update->execute();
                     header("Location: pages-home.php");
                     exit();
 
                 } elseif ($table == 'former_students' && $user['status'] == 'approved') {
                     $_SESSION['former_student_id'] = $user['id'];
                     $_SESSION['success_message'] = "Welcome Former Student!";
+                    $former_student_id = $user['id'];
+                    $update = $conn->prepare("UPDATE former_students SET last_login = ? WHERE id = ?");
+                    $update->bind_param("si", $current_time, $former_student_id);
+                    $update->execute();
                     header("Location: oddstudents/index.php");
                     exit();
                 } else {
