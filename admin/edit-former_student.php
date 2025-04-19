@@ -18,7 +18,7 @@ $former_student_id = $_GET['id'];
 
 // Fetch admin details
 $user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$sql = "SELECT username, email, nic, mobile, profile_picture FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -44,16 +44,17 @@ if (!$student) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
+    $reg_id = trim($_POST['reg_id']); // Added reg_id
     $nic = trim($_POST['nic']);
     $mobile = trim($_POST['mobile']);
     $study_year = trim($_POST['study_year']);
 
-    if (empty($username) || empty($email) || empty($nic) || empty($mobile) || empty($study_year)) {
+    if (empty($username) || empty($email) || empty($reg_id) || empty($nic) || empty($mobile) || empty($study_year)) {
         $_SESSION['error_message'] = "All fields are required!";
     } else {
-        $sql = "UPDATE former_students SET username=?, email=?, nic=?, mobile=?, study_year=? WHERE id=?";
+        $sql = "UPDATE former_students SET username=?, email=?, reg_id=?, nic=?, mobile=?, study_year=? WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $username, $email, $nic, $mobile, $study_year, $former_student_id);
+        $stmt->bind_param("ssssssi", $username, $email, $reg_id, $nic, $mobile, $study_year, $former_student_id);
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Student details updated successfully!";
@@ -90,14 +91,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Edit Former Student Details</h5>
+
                             <?php if (isset($_SESSION['error_message'])): ?>
-                                <div class='alert alert-danger'><?= $_SESSION['error_message']; ?></div>
+                                <div class="alert alert-danger"><?= $_SESSION['error_message']; ?></div>
                                 <?php unset($_SESSION['error_message']); ?>
                             <?php endif; ?>
+
                             <?php if (isset($_SESSION['success_message'])): ?>
-                                <div class='alert alert-success'><?= $_SESSION['success_message']; ?></div>
+                                <div class="alert alert-success"><?= $_SESSION['success_message']; ?></div>
                                 <?php unset($_SESSION['success_message']); ?>
                             <?php endif; ?>
+
                             <form method="POST" action="">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
@@ -106,6 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($student['email']); ?>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg_id" class="form-label">Reg ID</label>
+                                    <input type="text" class="form-control" id="reg_id" name="reg_id" value="<?= htmlspecialchars($student['reg_id']); ?>" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="nic" class="form-label">NIC</label>
@@ -128,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </section>
     </main>
+
     <?php include_once("../includes/footer.php"); ?>
     <?php include_once("../includes/js-links-inc.php"); ?>
 </body>

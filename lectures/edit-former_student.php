@@ -16,9 +16,9 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $former_student_id = $_GET['id'];
 
-// Fetch admin details
+// Fetch lecturer details
 $user_id = $_SESSION['lecturer_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM lectures WHERE id = ?";
+$sql = "SELECT username, email, nic, mobile, profile_picture FROM lectures WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -44,16 +44,17 @@ if (!$student) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
+    $reg_id = trim($_POST['reg_id']);
     $nic = trim($_POST['nic']);
     $mobile = trim($_POST['mobile']);
     $study_year = trim($_POST['study_year']);
 
-    if (empty($username) || empty($email) || empty($nic) || empty($mobile) || empty($study_year)) {
+    if (empty($username) || empty($email) || empty($reg_id) || empty($nic) || empty($mobile) || empty($study_year)) {
         $_SESSION['error_message'] = "All fields are required!";
     } else {
-        $sql = "UPDATE former_students SET username=?, email=?, nic=?, mobile=?, study_year=? WHERE id=?";
+        $sql = "UPDATE former_students SET username=?, email=?, reg_id=?, nic=?, mobile=?, study_year=? WHERE id=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $username, $email, $nic, $mobile, $study_year, $former_student_id);
+        $stmt->bind_param("ssssssi", $username, $email, $reg_id, $nic, $mobile, $study_year, $former_student_id);
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Student details updated successfully!";
@@ -106,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($student['email']); ?>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg_id" class="form-label">Reg ID</label>
+                                    <input type="text" class="form-control" id="reg_id" name="reg_id" value="<?= htmlspecialchars($student['reg_id']); ?>" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="nic" class="form-label">NIC</label>

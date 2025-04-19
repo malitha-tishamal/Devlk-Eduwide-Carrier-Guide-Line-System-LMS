@@ -61,7 +61,7 @@ $result = $conn->query($sql2);
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Manage Former Students (Still Study)</h1>
+            <h1>Manage Former Students</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
@@ -76,8 +76,8 @@ $result = $conn->query($sql2);
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Former Still Study Students Management</h5>
-                            <p>Manage Former Students (Still Study) here.</p>
+                            <h5 class="card-title">Former Students Management</h5>
+                            <p>Manage Former Students here.</p>
 
                             <!-- Search Bar and Filters -->
                             <form method="GET" action="">
