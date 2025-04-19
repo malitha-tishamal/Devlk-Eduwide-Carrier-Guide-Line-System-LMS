@@ -37,7 +37,7 @@ $stmt->close();
 
 if (!$student) {
     $_SESSION['error_message'] = "Student not found.";
-    header("Location: manage-former_students.php");
+    header("Location: manage-former-students-edu.php");
     exit();
 }
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Student details updated successfully!";
-            header("Location: manage-former_students.php");
+            header("Location: manage-former-students-edu.php");
             exit();
         } else {
             $_SESSION['error_message'] = "Error updating student details.";

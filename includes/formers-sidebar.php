@@ -3,7 +3,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link" href="pages-home.php">
+            <a class="nav-link" href="index.php">
                 <i class="bi bi-house-door"></i> <span>Home</span>
             </a>
         </li>
