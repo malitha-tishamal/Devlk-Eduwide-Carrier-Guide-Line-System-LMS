@@ -18,6 +18,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc(); 
 $stmt->close();  
 
+
 // Fetch all admins
 $query = "SELECT id, username, nic, email, mobile, linkedin, blog, github, facebook, profile_picture FROM admins"; 
 $result = mysqli_query($conn, $query); 
