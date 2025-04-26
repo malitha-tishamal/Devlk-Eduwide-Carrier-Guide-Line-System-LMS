@@ -36,55 +36,28 @@ $company = $work_data['company'] ?? '';
 $title = $work_data['title'] ?? '';
 
 // AI-Like Weighted Matching (simulated)
-// New SQL with better priority sorting
 $query = "
-SELECT 
-    fs.id, 
-    fs.username AS full_name, 
-    fs.profile_picture, 
-    fs.facebook, 
-    fs.github, 
-    fs.linkedin, 
-    fs.blog,
-    e.school, 
-    e.field_of_study AS course, 
-    w.company AS job_company, 
-    w.title AS job_role,
-    COUNT(DISTINCT e.id) AS education_count,
-    COUNT(DISTINCT w.id) AS experience_count,
-    (
-        CASE 
-            WHEN e.school = ? AND w.company = ? THEN 100 -- same education and work
-            WHEN e.school = ? THEN 50                     -- only same education
-            ELSE 0
-        END
-        + 
-        (CASE WHEN e.field_of_study = ? THEN 10 ELSE 0 END) +
-        (CASE WHEN w.title = ? THEN 5 ELSE 0 END) +
-        (COUNT(DISTINCT e.id) * 0.5) + 
-        (COUNT(DISTINCT w.id) * 0.5)
-    ) AS score
-FROM 
-    former_students fs
-LEFT JOIN 
-    education e ON fs.id = e.user_id
-LEFT JOIN 
-    experiences w ON fs.id = w.user_id
-WHERE 
-    fs.id != ?
-GROUP BY 
-    fs.id
-HAVING 
-    score > 0
-ORDER BY 
-    score DESC, RAND()
-LIMIT 20
-";
-
+SELECT fs.id, fs.username AS full_name, fs.profile_picture, fs.facebook, fs.github, fs.linkedin, fs.blog,
+       e.school, e.field_of_study AS course, w.company AS job_company, w.title AS job_role,
+       (
+         (CASE WHEN e.school = ? THEN 3 ELSE 0 END) +
+         (CASE WHEN e.field_of_study = ? THEN 2 ELSE 0 END) +
+         (CASE WHEN e.start_year = ? THEN 1 ELSE 0 END) +
+         (CASE WHEN e.end_year = ? THEN 1 ELSE 0 END) +
+         (CASE WHEN w.company = ? THEN 3 ELSE 0 END) +
+         (CASE WHEN w.title = ? THEN 2 ELSE 0 END)
+       ) AS score
+FROM former_students fs
+LEFT JOIN education e ON fs.id = e.user_id
+LEFT JOIN experiences w ON fs.id = w.user_id
+WHERE fs.id != ?
+GROUP BY fs.id
+HAVING score > 0
+ORDER BY score DESC, RAND()
+LIMIT 20";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("sssisi", $school, $company, $school, $field, $title, $current_user_id);
-
+$stmt->bind_param("ssisssi", $school, $field, $start_year, $end_year, $company, $title, $current_user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
