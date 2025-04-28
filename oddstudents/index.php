@@ -120,8 +120,8 @@ $stmt->close();
         }
 
         .profile-img {
-            width: 60px;
-            height: 60px;
+            width: 85px;
+            height: 85px;
             object-fit: cover;
             border-radius: 50%;
             border: 2px solid #0d6efd;

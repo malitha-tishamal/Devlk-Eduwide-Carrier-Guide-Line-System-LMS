@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Prepare the update statement
     $query = "UPDATE former_students 
               SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?
-              WHERE former_student_id = ?";
+              WHERE id = ?"; 
 
     $stmt = $conn->prepare($query);
 

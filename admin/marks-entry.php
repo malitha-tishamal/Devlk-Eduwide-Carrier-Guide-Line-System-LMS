@@ -50,7 +50,7 @@ if (isset($_GET['subject_id'])) {
         }
 
         #profilePictureContainer img {
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             padding: 5px;
         }
     </style>
@@ -328,8 +328,8 @@ if (isset($_GET['subject_id'])) {
                             const profilePicture = document.createElement('img');
                             profilePicture.src = `../${selectedStudent.profile_picture}`;
                             profilePicture.alt = "Profile Picture";
-                            profilePicture.style.width = '100px';
-                            profilePicture.style.height = '100px';
+                            profilePicture.style.width = '180px';
+                            profilePicture.style.height = '180px';
 
                             profilePictureContainer.innerHTML = '';  // Clear previous profile picture
                             profilePictureContainer.appendChild(profilePicture);

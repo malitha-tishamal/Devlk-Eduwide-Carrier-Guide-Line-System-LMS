@@ -70,8 +70,8 @@
                     <img src="assets\images\Developers\amandi.jpg" alt="Team Member">
                     <h5 class="fw-bold">Amandi Kaushalya</h5>
                     <p><b>Frontend Developer</b>
-                        <b>Business Analyst</b></p>
-                    <br>
+                        <br>Business Analyst<br>
+                        &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href= ><i class="bi bi-github"></i></a>

@@ -207,14 +207,14 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">Now Full Time Status )</div>
                                                 <div class="col-lg-9 col-md-8">
-                                                    <input type="radio" name="nowstatus" value="edu" id="edu" <?php echo ($nowstatus == 'edu') ? 'checked' : ''; ?>>&nbsp;&nbsp;Edu
+                                                    <input type="radio" name="nowstatus" value="study" id="study" <?php echo ($nowstatus == 'study') ? 'checked' : ''; ?>>&nbsp;&nbsp;Still Study
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                     <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'work') ? 'checked' : ''; ?>> &nbsp;&nbsp;Work
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'intern') ? 'checked' : ''; ?>> &nbsp;&nbsp;Intern
+                                                    <input type="radio" name="nowstatus" value="intern" id="intern" <?php echo ($nowstatus == 'intern') ? 'checked' : ''; ?>> &nbsp;&nbsp;Intern
 
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" name="nowstatus" value="work" id="work" <?php echo ($nowstatus == 'free') ? 'checked' : ''; ?>> &nbsp;&nbsp;Free
+                                                    <input type="radio" name="nowstatus" value="free" id="free" <?php echo ($nowstatus == 'free') ? 'checked' : ''; ?>> &nbsp;&nbsp;Free
                                                 </div>
                                             </div>
 
@@ -239,7 +239,7 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                                 <div class="col-lg-3 col-md-4 label">Personal Blog <i class="bi bi-globe"></i></div>
                                                 <div class="col-lg-9 col-md-8">
                                                     <div class="d-flex">
-                                                        <input type="test" name="blog" class="form-control w-75" placeholder="e.g.: https://www.domain.com" value="<?php echo htmlspecialchars($user['blog']); ?>">
+                                                        <input type="test" name="blog" class="form-control w-75" placeholder="e.g.: https://www.yourblogname.com" value="<?php echo htmlspecialchars($user['blog']); ?>">
                                                     </div>
                                                 </div>
                                             </div>                                       
