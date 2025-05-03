@@ -8,16 +8,6 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Fetch the subject details from the database
-$subject_sql = "SELECT * FROM subjects WHERE id = ?";
-$stmt = $conn->prepare($subject_sql);
-$stmt->bind_param("i", $subject_id);
-$stmt->execute();
-$subject_result = $stmt->get_result();
-$subject = $subject_result->fetch_assoc();
-$stmt->close();
-
-// Fetch user details
 $user_id = $_SESSION['admin_id'];
 $sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
@@ -27,22 +17,24 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Filter logic
+// Filters
 $year_filter = isset($_POST['year']) ? $_POST['year'] : '';
 $semester_filter = isset($_POST['semester']) ? $_POST['semester'] : '';
 
-// SQL query to get marks data based on the filters
-$sql = "SELECT * FROM marks WHERE 1";
-
-// Apply filters if set
+// Final Query: Join with lecturers table to get lecturer name
+$sql = "
+    SELECT marks.*, lectures.username AS lecturer_name
+    FROM marks
+    LEFT JOIN lectures ON marks.entered_by_id = lectures.id AND marks.entered_by_role = 'lecturer'
+    WHERE 1
+";
 if (!empty($year_filter)) {
-    $sql .= " AND year = ?";
+    $sql .= " AND marks.year = ?";
 }
 if (!empty($semester_filter)) {
-    $sql .= " AND semester = ?";
+    $sql .= " AND marks.semester = ?";
 }
 
-// Prepare and execute the query with filters
 $stmt = $conn->prepare($sql);
 if (!empty($year_filter) && !empty($semester_filter)) {
     $stmt->bind_param("ss", $year_filter, $semester_filter);
@@ -143,6 +135,8 @@ $stmt->close();
                                         <th>Practical Marks</th>
                                         <th>Paper Marks</th>
                                         <th>Note</th>
+                                        <th>System Updated By</th>
+                                        <th>Admin/Lecturer</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -157,6 +151,8 @@ $stmt->close();
                                                 <td><?= htmlspecialchars($row['practical_marks']) ?></td>
                                                 <td><?= htmlspecialchars($row['paper_marks']) ?></td>
                                                 <td><?= htmlspecialchars($row['special_notes']) ?></td>
+                                                <td><?= htmlspecialchars($row['lecturer_name'] ?? 'N/A') ?></td>
+                                                <td><?= htmlspecialchars($row['entered_by_role']) ?></td>
                                                 <td class="text-center">
                                                     <a href="edit-marks.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Edit</a>
                                                 </td>

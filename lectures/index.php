@@ -280,6 +280,43 @@ ul.list-unstyled li i {
                                                     <?php endwhile; ?>                                 
                                                 </div>                             
                                             </div> 
+
+                                             <?php
+                                                $recent_former_students_query = "SELECT * FROM former_students ORDER BY last_login DESC LIMIT 5";
+                                                $recent_former_students_result = $conn->query($recent_former_students_query);
+
+                                            ?>
+
+                                                <div class="container mt-2">
+                                                    <h4 class="mb-2">Recently Logged-In Former Students</h4>
+                                                    <div class="row ">
+                                                        <?php while ($former_student = $recent_former_students_result->fetch_assoc()): ?>
+                                                            <div class="col-md-4 col-lg-3 ">
+                                                                <div class="card mini-card shadow-lg">
+                                                                    <div class="d-flex align-items-center p-2">
+                                                                        <img src="../oddstudents/<?php echo $former_student['profile_picture']; ?>" 
+                                                                             alt="Profile Picture"
+                                                                             class="rounded-circle me-2"
+                                                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                                                             onerror="this.onerror=null;this.src='../oddstudents/uploads/profile_pictures/default.png';">
+                                                                        <div>
+                                                                            <h6 class="mb-0"><?php echo $former_student['username']; ?></h6>
+                                                                            <!--small class="text-muted"><?php echo $lecturer['email']; ?></small><br-->
+                                                                            <small class="text-muted"> <?php if (!empty($former_student['last_login'])): ?>
+                                                                            <small class="text-muted">
+                                                                                    Last login: <?php echo date("M d, Y h:i A", strtotime($former_student['last_login'])); ?>
+                                                                                </small>
+                                                                            <?php else: ?>
+                                                                                <small class="text-muted">Last login: N/A</small>
+                                                                            <?php endif; ?>
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <?php endwhile; ?>
+                                                    </div>
+                                                </div> 
                                 
                                         </div>
                                     </div>

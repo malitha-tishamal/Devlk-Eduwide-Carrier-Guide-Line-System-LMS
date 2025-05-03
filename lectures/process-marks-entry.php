@@ -2,35 +2,44 @@
 session_start();
 require_once '../includes/db-conn.php';
 
-// Check if the form is submitted
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Collecting data from the form
+
     $year = $_POST['year'] ?? '';
     $student_id = $_POST['studentId'] ?? '';
     $subject = $_POST['subject'] ?? '';
     $semester = $_POST['semestersubject'] ?? '';
-    $student_id = $_POST['studentId'] ?? '';
     $practical_marks = $_POST['practicalMarks'] ?? '';
     $paper_marks = $_POST['paperMarks'] ?? '';
     $special_notes = $_POST['specialnotes'] ?? '';
+    $subject_id = $_POST['subject_id'] ?? ''; 
 
-    // Validate input: Ensure no required fields are empty
+    $entered_by_id = null;
+    $entered_by_role = null;
+
+    if (isset($_SESSION['lecturer_id'])) {
+        $entered_by_id = $_SESSION['lecturer_id'];
+        $entered_by_role = 'lecturer';
+    } elseif (isset($_SESSION['admin_id'])) {
+        $entered_by_id = $_SESSION['admin_id'];
+        $entered_by_role = 'admin';
+    }
+
     if (empty($year) || empty($student_id) || empty($subject) || empty($semester) || $practical_marks === '' || $paper_marks === '') {
         $_SESSION['status'] = 'error';
         $_SESSION['message'] = 'All fields are required.';
-        header("Location: marks-entry.php?subject_id=" . urlencode($_POST['subject_id']));
+        header("Location: marks-entry.php?subject_id=" . urlencode($subject_id));
         exit();
     }
 
-    // Validate marks: Ensure marks are between 0 and 100
     if ($practical_marks < 0 || $practical_marks > 100 || $paper_marks < 0 || $paper_marks > 100) {
         $_SESSION['status'] = 'error';
         $_SESSION['message'] = 'Marks should be between 0 and 100.';
-        header("Location: marks-entry.php?subject_id=" . urlencode($_POST['subject_id']));
+        header("Location: marks-entry.php?subject_id=" . urlencode($subject_id));
         exit();
     }
 
-    // Check if the student already has marks for this subject and semester
+    // Check for duplicate entry
     $check_sql = "SELECT id FROM marks WHERE student_id = ? AND subject = ? AND semester = ?";
     $stmt = $conn->prepare($check_sql);
     $stmt->bind_param("sss", $student_id, $subject, $semester);
@@ -38,40 +47,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Marks already exist for this student in this subject and semester
         $_SESSION['status'] = 'error';
         $_SESSION['message'] = 'Marks for this student in this subject and semester already exist.';
-        header("Location: marks-entry.php?subject_id=" . urlencode($_POST['subject_id']));
+        header("Location: marks-entry.php?subject_id=" . urlencode($subject_id));
         exit();
     }
 
     $stmt->close();
 
-    // Insert marks into the database
-    $insert_sql = "INSERT INTO marks (student_id, year, subject, semester, practical_marks, paper_marks, special_notes) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO marks 
+        (student_id, year, subject, semester, practical_marks, paper_marks, special_notes, entered_by_id, entered_by_role) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
     $stmt = $conn->prepare($insert_sql);
-    $stmt->bind_param("sssssss", $student_id, $year, $subject, $semester, $practical_marks, $paper_marks, $special_notes);
+    $stmt->bind_param(
+        "sssssssis",
+        $student_id,
+        $year,
+        $subject,
+        $semester,
+        $practical_marks,
+        $paper_marks,
+        $special_notes,
+        $entered_by_id,
+        $entered_by_role
+    );
 
-    // Execute the query and check if it was successful
     if ($stmt->execute()) {
-        // Success: Marks have been entered
         $_SESSION['status'] = 'success';
         $_SESSION['message'] = 'Marks successfully entered.';
     } else {
-        // Failure: There was an error while entering the marks
         $_SESSION['status'] = 'error';
         $_SESSION['message'] = 'Error entering marks. Please try again.';
     }
 
-    // Close the statement
     $stmt->close();
+    $conn->close();
 
-    // Redirect back to the marks-entry page with the subject_id
-    header("Location: marks-entry.php?subject_id=" . urlencode($_POST['subject_id']));
+    header("Location: marks-entry.php?subject_id=" . urlencode($subject_id));
     exit();
 } else {
-    // If the request is not POST, redirect to the index page
     header("Location: ../index.php");
     exit();
 }

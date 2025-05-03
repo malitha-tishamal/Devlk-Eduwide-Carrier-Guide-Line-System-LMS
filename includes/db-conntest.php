@@ -1,8 +1,8 @@
 <?php
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "eduwide";
+    $servername = "mysql-malitha.alwaysdata.net";
+    $username = "malitha";
+    $password = "Ybb@K2ab#2t7#_q";
+    $dbname = "malitha_eduwide";
     
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);

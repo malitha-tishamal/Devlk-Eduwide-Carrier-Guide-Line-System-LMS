@@ -20,7 +20,7 @@ $stmt->close();
 
 $sql = "SELECT subjects.* FROM subjects
         INNER JOIN lectures_assignment ON subjects.id = lectures_assignment.subject_id
-        WHERE lectures_assignment.lecturer_id = ? AND subjects.semester = 'Semester II'";
+        WHERE lectures_assignment.lecturer_id = ? AND subjects.semester = 'Semester III'";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
