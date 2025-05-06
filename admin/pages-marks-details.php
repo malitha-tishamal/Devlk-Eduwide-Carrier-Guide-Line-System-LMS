@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$sql = "SELECT username, email, nic, mobile, profile_picture FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -21,13 +21,21 @@ $stmt->close();
 $year_filter = isset($_POST['year']) ? $_POST['year'] : '';
 $semester_filter = isset($_POST['semester']) ? $_POST['semester'] : '';
 
-// Final Query: Join with lecturers table to get lecturer name
+// Query marks with joined names
 $sql = "
-    SELECT marks.*, lectures.username AS lecturer_name
+    SELECT 
+        marks.*, 
+        CASE 
+            WHEN marks.entered_by_role = 'lecturer' THEN lectures.username 
+            WHEN marks.entered_by_role = 'admin' THEN admins.username 
+            ELSE NULL 
+        END AS entered_by_name
     FROM marks
     LEFT JOIN lectures ON marks.entered_by_id = lectures.id AND marks.entered_by_role = 'lecturer'
+    LEFT JOIN admins ON marks.entered_by_id = admins.id AND marks.entered_by_role = 'admin'
     WHERE 1
 ";
+
 if (!empty($year_filter)) {
     $sql .= " AND marks.year = ?";
 }
@@ -46,14 +54,13 @@ if (!empty($year_filter) && !empty($semester_filter)) {
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Fetch the subject details
+// Fetch the subject details (not used here, but kept if needed)
 $subject_sql = "SELECT * FROM subjects";
 $stmt = $conn->prepare($subject_sql);
 $stmt->execute();
 $subject_result = $stmt->get_result();
 $subject = $subject_result->fetch_assoc();
 $stmt->close();
-
 ?>
 
 <!DOCTYPE html>
@@ -76,8 +83,8 @@ $stmt->close();
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item"><a href="index.html">Marks</a></li>
-                    <li class="breadcrumb-item"><a href="index.html">Marks Details</a></li>
+                    <li class="breadcrumb-item">Marks</li>
+                    <li class="breadcrumb-item active">Marks Details</li>
                 </ol>
             </nav>
         </div>
@@ -95,7 +102,6 @@ $stmt->close();
                                             <select class="form-select" id="year" name="year" required>
                                                 <option value="">Select Batch Year</option>
                                                 <?php
-                                                // Fetch distinct batch years from students table
                                                 $year_sql = "SELECT DISTINCT study_year FROM students ORDER BY study_year DESC";
                                                 $year_result = $conn->query($year_sql);
 
@@ -120,11 +126,11 @@ $stmt->close();
                                                 <option value="Semester IV" <?= $semester_filter == 'Semester IV' ? 'selected' : ''; ?>>Semester IV</option>
                                             </select>
                                         </div>
-                                        &nbsp;&nbsp;&nbsp;
                                     </div>
                                     <button class="btn btn-primary mt-3">Filter</button>
-                                </form>  
+                                </form>
                             </div>
+
                             <table class="table datatable">
                                 <thead class="align-middle text-center">
                                     <tr>
@@ -151,8 +157,8 @@ $stmt->close();
                                                 <td><?= htmlspecialchars($row['practical_marks']) ?></td>
                                                 <td><?= htmlspecialchars($row['paper_marks']) ?></td>
                                                 <td><?= htmlspecialchars($row['special_notes']) ?></td>
-                                                <td><?= htmlspecialchars($row['lecturer_name'] ?? 'N/A') ?></td>
-                                                <td><?= htmlspecialchars($row['entered_by_role']) ?></td>
+                                                <td><?= htmlspecialchars($row['entered_by_name'] ?? 'N/A') ?></td>
+                                                <td><?= htmlspecialchars(ucfirst($row['entered_by_role'])) ?></td>
                                                 <td class="text-center">
                                                     <a href="edit-marks.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm">Edit</a>
                                                 </td>
@@ -160,7 +166,7 @@ $stmt->close();
                                         <?php endwhile; ?>
                                     <?php else : ?>
                                         <tr>
-                                            <td colspan="8" class="text-center">No results found.</td>
+                                            <td colspan="10" class="text-center">No results found.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -183,6 +189,5 @@ $stmt->close();
 </html>
 
 <?php
-// Close database connection
 $conn->close();
 ?>
