@@ -17,20 +17,9 @@ $user = $result->fetch_assoc();
 $stmt->close();
 
 $reg_id = $user['reg_id'];
-$student_id = $user['id']; // Use this for marks table match
 $student_name = $user['username'];
 
 $semesters = ['Semester I', 'Semester II', 'Semester III', 'Semester IV'];
-$marks_results = [];
-
-foreach ($semesters as $semester) {
-    $sql_marks = "SELECT * FROM marks WHERE student_id = ? AND semester = ?";
-    $stmt_marks = $conn->prepare($sql_marks);
-    $stmt_marks->bind_param("is", $student_id, $semester);
-    $stmt_marks->execute();
-    $marks_results[$semester] = $stmt_marks->get_result();
-    $stmt_marks->close();
-}
 
 function getFinalMarksStatus($final_marks) {
     if ($final_marks >= 90) {
@@ -123,7 +112,13 @@ function getFinalMarksStatus($final_marks) {
                                     </thead>
                                     <tbody>
                                     <?php
-                                    $marks_result = $marks_results[$semester];
+                                    $sql_marks = "SELECT * FROM marks WHERE student_id = ? AND semester = ?";
+                                    $stmt_marks = $conn->prepare($sql_marks);
+                                    $stmt_marks->bind_param("ss", $reg_id, $semester);
+                                    $stmt_marks->execute();
+                                    $marks_result = $stmt_marks->get_result();
+                                    $stmt_marks->close();
+
                                     if ($marks_result->num_rows > 0):
                                         while ($row = $marks_result->fetch_assoc()):
                                             $practical = $row['practical_marks'];
