@@ -17,10 +17,10 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-$reg_id = $user['reg_id']; // Get student's registration ID
-$student_name = $user['username']; // Get student's name
+$reg_id = $user['reg_id'];
+$student_name = $user['username'];
 
-// Fetch student marks for Semester I, join with subjects table to get subject name
+
 $semester = 'Semester II';
 $sql_marks = "
     SELECT marks.*, subjects.code AS subject_code, subjects.name AS subject_name
@@ -28,12 +28,11 @@ $sql_marks = "
     JOIN subjects ON marks.subject = subjects.name
     WHERE marks.student_id = ? AND marks.semester = ?";
 $stmt_marks = $conn->prepare($sql_marks);
-$stmt_marks->bind_param("is", $reg_id, $semester); // Binding reg_id and semester
+$stmt_marks->bind_param("is", $user_id, $semester);
 $stmt_marks->execute();
 $marks_result = $stmt_marks->get_result();
 $stmt_marks->close();
 
-// Resource array for suggestions based on subject code
 $resources = [
     "HNDIT2012" => [
         "notes" => "https://hnditmaterial.blogspot.com/2021/06/hndit-1st-year-2nd-semester-lecture.html",

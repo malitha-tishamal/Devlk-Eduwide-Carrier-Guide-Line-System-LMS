@@ -74,10 +74,10 @@
                         &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
-                        <a href= ><i class="bi bi-github"></i></a>
-                        <a href=""><i class="bi bi-linkedin"></i></a>
-                        <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="" ><i class="bi bi-envelope"></i></a>
+                        <a href= "https://github.com/Amandi-Kaushalya-Dewmini"><i class="bi bi-github"></i></a>
+                        <a href="https://www.linkedin.com/in/amandi-kaushalya-dewmini-4059b5352/"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=100090649864805&mibextid=ZbWKwL" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="mailto:dewmikaushalya1234@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -92,8 +92,8 @@
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="" target="_blank"><i class="bi bi-github"></i></a>
                         <a href="" target="_blank"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" target="_blank"><i class="bi bi-facebook"></i></a>
-                        <a href="mailto:matheenihari13@gmaiil.com" ><i class="bi bi-envelope"></i></a>
+                        <a href="https://web.facebook.com/profile.php?id=61554725222633" target="_blank"><i class="bi bi-facebook"></i></a>
+                        <a href="mailto:himadevindi2002@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
             </div>

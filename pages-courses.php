@@ -46,7 +46,7 @@ $semesters = $conn->query("SELECT DISTINCT semester FROM subjects ORDER BY semes
             <h1>Courses</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="">Home</a></li>
+                    <li class="breadcrumb-item"><a href="pages-home.php">Home</a></li>
                     <li class="breadcrumb-item"><a href="">Courses</a></li>
                 </ol>
             </nav>

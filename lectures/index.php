@@ -71,8 +71,8 @@ $students = mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 
 .card-img-top {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     border: 5px solid rgba(13, 110, 253, 1);
     object-fit: cover;
@@ -197,126 +197,128 @@ ul.list-unstyled li i {
                                 <div class="col-lg-12">
                                     <div class="card">
                                         <div class="card-body"> 
+                                            <!-- Recently Logged-In Lecturers -->
                                             <?php
-                                                $recent_lecturers_query = "SELECT * FROM lectures ORDER BY last_login DESC LIMIT 5";
-                                                $recent_lecturers_result = $conn->query($recent_lecturers_query);
-
+                                            $recent_lecturers_query = "SELECT * FROM lectures ORDER BY last_login DESC LIMIT 5";
+                                            $recent_lecturers_result = $conn->query($recent_lecturers_query);
                                             ?>
-
-                                                <div class="container mt-4">
-                                                    <h4 class="mb-3">Recently Logged-In Lecturers</h4>
-                                                    <div class="row">
-                                                        <?php while ($lecturer = $recent_lecturers_result->fetch_assoc()): ?>
-                                                            <div class="col-md-4 col-lg-3 mb-3">
-                                                                <div class="card mini-card shadow-lg">
-                                                                    <div class="d-flex align-items-center p-2">
-                                                                        <img src="<?php echo $lecturer['profile_picture']; ?>" alt="Profile Picture"
-                                                                            class="rounded-circle me-2"
-                                                                            style="width: 50px; height: 50px; object-fit: cover;"
-                                                                            onerror="this.onerror=null;this.src='uploads/profile_pictures/default.jpg';">
-                                                                        <div>
-                                                                            <h6 class="mb-0"><?php echo $lecturer['username']; ?></h6>
-                                                                            <!--small class="text-muted"><?php echo $lecturer['email']; ?></small><br-->
-                                                                            <small class="text-muted"> <?php if (!empty($lecturer['last_login'])): ?>
-                                                                            <small class="text-muted">
-                                                                                    Last login: <?php echo date("M d, Y h:i A", strtotime($lecturer['last_login'])); ?>
-                                                                                </small>
-                                                                            <?php else: ?>
-                                                                                <small class="text-muted">Last login: N/A</small>
-                                                                            <?php endif; ?>
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        <?php endwhile; ?>
-                                                    </div>
-                                                </div>
-                                                <style>
-                                                    .mini-card {
-                                                        border-radius: 12px;
-                                                        transition: transform 0.2s;
-                                                        background-color: #f8f9fa;
-                                                    }
-
-                                                    .mini-card:hover {
-                                                        transform: scale(1.02);
-                                                        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
-                                                    }
-                                                </style>
-                                            </div>
-
-                                            <?php 
-                                                $recent_students_query = "SELECT * FROM students ORDER BY last_login DESC LIMIT 5";
-                                                $recent_students_result = $conn->query($recent_students_query);
-                                            ?>
-                                            <div class="container mt-2">                                 
-                                                <h4 class="mb-2">Recently Logged-In Students</h4>                                 
-                                                <div class="row">                                     
-                                                    <?php while ($student = $recent_students_result->fetch_assoc()): ?>                                         
-                                                        <div class="col-md-4 col-lg-3">                                             
-                                                            <div class="card mini-card shadow-lg">                                                 
-                                                                <div class="d-flex align-items-center p-2">                                                     
-                                                                   <img src="..//<?php echo $student['profile_picture']; ?>" 
+                                            <div class="container mt-2">
+                                                <h4 class="mb-2">Recently Logged-In Lecturers</h4>
+                                                <div class="row">
+                                                    <?php while ($lecturer = $recent_lecturers_result->fetch_assoc()): ?>
+                                                        <div class="col-md-4 col-lg-3">
+                                                            <div class="card mini-card shadow-lg">
+                                                                <div class="d-flex align-items-center p-2">
+                                                                    <img src="<?php echo $lecturer['profile_picture']; ?>" 
                                                                          alt="Profile Picture"
                                                                          class="rounded-circle me-2"
                                                                          style="width: 50px; height: 50px; object-fit: cover;"
-                                                                         onerror="this.onerror=null;this.src='../uploads/profile_pictures/default.png';">                                                     
-                                                                    <div>                                                         
-                                                                        <h6 class="mb-0"><?php echo $student['username']; ?></h6>                                                         
+                                                                         onerror="this.onerror=null;this.src='uploads/profile_pictures/default.jpg';">
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?php echo $lecturer['username']; ?></h6>
                                                                         <small class="text-muted">
                                                                             <?php 
-                                                                                if (!empty($student['last_login'])) {
-                                                                                    echo "Last login: " . date("M d, Y h:i A", strtotime($student['last_login']));
-                                                                                } else {
-                                                                                    echo "Last login: N/A";
-                                                                                }
+                                                                            if (!empty($lecturer['last_login'])) {
+                                                                                echo "Last login: " . date("M d, Y h:i A", strtotime($lecturer['last_login']));
+                                                                            } else {
+                                                                                echo "Last login: N/A";
+                                                                            }
                                                                             ?>
-                                                                        </small>                                                     
-                                                                    </div>                                                 
-                                                                </div>                                             
-                                                            </div>                                         
-                                                        </div>                                     
-                                                    <?php endwhile; ?>                                 
-                                                </div>                             
-                                            </div> 
-
-                                             <?php
-                                                $recent_former_students_query = "SELECT * FROM former_students ORDER BY last_login DESC LIMIT 5";
-                                                $recent_former_students_result = $conn->query($recent_former_students_query);
-
-                                            ?>
-
-                                                <div class="container mt-2">
-                                                    <h4 class="mb-2">Recently Logged-In Former Students</h4>
-                                                    <div class="row ">
-                                                        <?php while ($former_student = $recent_former_students_result->fetch_assoc()): ?>
-                                                            <div class="col-md-4 col-lg-3 ">
-                                                                <div class="card mini-card shadow-lg">
-                                                                    <div class="d-flex align-items-center p-2">
-                                                                        <img src="../oddstudents/<?php echo $former_student['profile_picture']; ?>" 
-                                                                             alt="Profile Picture"
-                                                                             class="rounded-circle me-2"
-                                                                             style="width: 50px; height: 50px; object-fit: cover;"
-                                                                             onerror="this.onerror=null;this.src='../oddstudents/uploads/profile_pictures/default.png';">
-                                                                        <div>
-                                                                            <h6 class="mb-0"><?php echo $former_student['username']; ?></h6>
-                                                                            <!--small class="text-muted"><?php echo $lecturer['email']; ?></small><br-->
-                                                                            <small class="text-muted"> <?php if (!empty($former_student['last_login'])): ?>
-                                                                            <small class="text-muted">
-                                                                                    Last login: <?php echo date("M d, Y h:i A", strtotime($former_student['last_login'])); ?>
-                                                                                </small>
-                                                                            <?php else: ?>
-                                                                                <small class="text-muted">Last login: N/A</small>
-                                                                            <?php endif; ?>
-                                                                            </small>
-                                                                        </div>
+                                                                        </small>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        <?php endwhile; ?>
-                                                    </div>
-                                                </div> 
+                                                        </div>
+                                                    <?php endwhile; ?>
+                                                </div>
+                                            </div>
+
+                                            <!-- Recently Logged-In Students -->
+                                            <?php 
+                                            $recent_students_query = "SELECT * FROM students ORDER BY last_login DESC LIMIT 5";
+                                            $recent_students_result = $conn->query($recent_students_query);
+                                            ?>
+                                            <div class="container mt-2">
+                                                <h4 class="mb-2">Recently Logged-In Students</h4>
+                                                <div class="row">
+                                                    <?php while ($student = $recent_students_result->fetch_assoc()): ?>
+                                                        <div class="col-md-4 col-lg-3">
+                                                            <div class="card mini-card shadow-lg">
+                                                                <div class="d-flex align-items-center p-2">
+                                                                    <img src="../<?php echo $student['profile_picture']; ?>" 
+                                                                         alt="Profile Picture"
+                                                                         class="rounded-circle me-2"
+                                                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                                                         onerror="this.onerror=null;this.src='../uploads/profile_pictures/default.png';">
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?php echo $student['username']; ?></h6>
+                                                                        <small class="text-muted">
+                                                                            <?php 
+                                                                            if (!empty($student['last_login'])) {
+                                                                                echo "Last login: " . date("M d, Y h:i A", strtotime($student['last_login']));
+                                                                            } else {
+                                                                                echo "Last login: N/A";
+                                                                            }
+                                                                            ?>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endwhile; ?>
+                                                </div>
+                                            </div>
+
+                                            <!-- Recently Logged-In Former Students -->
+                                            <?php
+                                            $recent_former_students_query = "SELECT * FROM former_students ORDER BY last_login DESC LIMIT 5";
+                                            $recent_former_students_result = $conn->query($recent_former_students_query);
+                                            ?>
+                                            <div class="container mt-2">
+                                                <h4 class="mb-2">Recently Logged-In Former Students</h4>
+                                                <div class="row">
+                                                    <?php while ($former_student = $recent_former_students_result->fetch_assoc()): ?>
+                                                        <div class="col-md-4 col-lg-3">
+                                                            <div class="card mini-card shadow-lg">
+                                                                <div class="d-flex align-items-center p-2">
+                                                                    <img src="../oddstudents/<?php echo $former_student['profile_picture']; ?>" 
+                                                                         alt="Profile Picture"
+                                                                         class="rounded-circle me-2"
+                                                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                                                         onerror="this.onerror=null;this.src='../oddstudents/uploads/profile_pictures/default.png';">
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?php echo $former_student['username']; ?></h6>
+                                                                        <small class="text-muted">
+                                                                            <?php 
+                                                                            if (!empty($former_student['last_login'])) {
+                                                                                echo "Last login: " . date("M d, Y h:i A", strtotime($former_student['last_login']));
+                                                                            } else {
+                                                                                echo "Last login: N/A";
+                                                                            }
+                                                                            ?>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endwhile; ?>
+                                                </div>
+                                            </div>
+
+                                            <style>
+                                                .mini-card {
+                                                    border-radius: 12px;
+                                                    transition: transform 0.2s;
+                                                    background-color: #f8f9fa;
+                                                    margin-bottom: 10px;
+                                                }
+
+                                                .mini-card:hover {
+                                                    transform: scale(1.02);
+                                                    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+                                                }
+                                            </style>
+ 
                                 
                                         </div>
                                     </div>

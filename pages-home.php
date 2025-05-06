@@ -17,6 +17,7 @@ $user = $result->fetch_assoc();
 $stmt->close();
 
 $reg_id = $user['reg_id'];
+$student_id = $user['id']; // Use this for marks table match
 $student_name = $user['username'];
 
 $semesters = ['Semester I', 'Semester II', 'Semester III', 'Semester IV'];
@@ -25,7 +26,7 @@ $marks_results = [];
 foreach ($semesters as $semester) {
     $sql_marks = "SELECT * FROM marks WHERE student_id = ? AND semester = ?";
     $stmt_marks = $conn->prepare($sql_marks);
-    $stmt_marks->bind_param("is", $reg_id, $semester);
+    $stmt_marks->bind_param("is", $student_id, $semester);
     $stmt_marks->execute();
     $marks_results[$semester] = $stmt_marks->get_result();
     $stmt_marks->close();
@@ -142,7 +143,7 @@ function getFinalMarksStatus($final_marks) {
                                             $paperColor = ($paper >= 90) ? 'green' :
                                                          (($paper >= 75) ? 'darkblue' :
                                                          (($paper >= 65) ? 'blue' :
-                                                         (($paper >= 35) ? 'orange' : 'red')));
+                                                         (($paper >= 35) ? 'orange' : 'red'))); 
                                     ?>
                                         <tr>
                                             <td><?php echo $row['subject']; ?></td>

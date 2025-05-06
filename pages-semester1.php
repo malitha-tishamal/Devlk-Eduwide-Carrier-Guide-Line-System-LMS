@@ -20,7 +20,6 @@ $stmt->close();
 $reg_id = $user['reg_id']; // Get student's registration ID
 $student_name = $user['username']; // Get student's name
 
-// Fetch student marks for Semester I, join with subjects table to get subject name
 $semester = 'Semester I';
 $sql_marks = "
     SELECT marks.*, subjects.code AS subject_code, subjects.name AS subject_name
@@ -28,7 +27,7 @@ $sql_marks = "
     JOIN subjects ON marks.subject = subjects.name
     WHERE marks.student_id = ? AND marks.semester = ?";
 $stmt_marks = $conn->prepare($sql_marks);
-$stmt_marks->bind_param("is", $reg_id, $semester); // Binding reg_id and semester
+$stmt_marks->bind_param("is", $user_id, $semester);
 $stmt_marks->execute();
 $marks_result = $stmt_marks->get_result();
 $stmt_marks->close();
@@ -66,8 +65,8 @@ $resources = [
         "youtube" => "https://www.youtube.com/results?search_query=Communication+Skills+HNDIT"
     ],
 ];
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
