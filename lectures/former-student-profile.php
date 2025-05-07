@@ -25,7 +25,7 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$student = $result->fetch_assoc();  // this is correctly named
+$student = $result->fetch_assoc(); 
 $stmt->close();
 
 if (!$student) {
@@ -33,7 +33,7 @@ if (!$student) {
     exit();
 }
 
-// Fetch education
+
 $edu_sql = "SELECT * FROM education WHERE user_id = ? ORDER BY id DESC";
 $stmt = $conn->prepare($edu_sql);
 $stmt->bind_param("i", $student_id);
@@ -41,7 +41,7 @@ $stmt->execute();
 $education = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Fetch work experiences
+
 $work_sql = "SELECT * FROM experiences WHERE user_id = ? ORDER BY id DESC";
 $stmt = $conn->prepare($work_sql);
 $stmt->bind_param("i", $student_id);
@@ -49,7 +49,7 @@ $stmt->execute();
 $experiences = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Fetch summary (from 'summaries' table)
+
 $summary_sql = "SELECT summary FROM summaries WHERE user_id = ? ORDER BY created_at DESC LIMIT 1";
 $stmt = $conn->prepare($summary_sql);
 $stmt->bind_param("i", $student_id);
@@ -58,13 +58,20 @@ $summary_result = $stmt->get_result();
 $summary = $summary_result->fetch_assoc()['summary'] ?? '';
 $stmt->close();
 
-// Fetch about text (from 'about' table)
+
 $about_sql = "SELECT about_text FROM about WHERE user_id = ? LIMIT 1";
 $stmt = $conn->prepare($about_sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $about_result = $stmt->get_result();
 $about = $about_result->fetch_assoc()['about_text'] ?? '';
+$stmt->close();
+
+$achievements_sql = "SELECT * FROM former_students_achievements WHERE former_student_id = ? ORDER BY event_date DESC";
+$stmt = $conn->prepare($achievements_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$achievements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
 
@@ -370,6 +377,32 @@ $stmt->close();
                                             <?php endforeach; ?>
                                         </ul>
                                     </div>
+
+                                    <?php if (!empty($achievements)): ?>
+                                    <div class="card shadow-lg mt-4">
+                                        <div class="card-body">
+                                            <h4 class="section-title mt-2">Student Achievements</h4>
+                                            <div class="row">
+                                                <?php foreach ($achievements as $ach): ?>
+                                                    <div class="col-md-6 col-lg-4 mb-4">
+                                                        <div class="card h-100 border shadow-sm">
+                                                            <?php if (!empty($ach['image_path']) && file_exists('../oddstudents/' . $ach['image_path'])): ?>
+                                                                <img src="../oddstudents/<?= htmlspecialchars($ach['image_path']) ?>" class="card-img-top" alt="Achievement Image" style="width: 300px; object-fit: cover;">
+                                                            <?php endif; ?>
+                                                            <div class="card-body">
+                                                                <h5 class="card-title"><?= htmlspecialchars($ach['event_title']) ?></h5>
+                                                                <p><strong>Event Name:</strong> <?= htmlspecialchars($ach['event_name']) ?></p>
+                                                                <p><strong>Organized By:</strong> <?= htmlspecialchars($ach['organized_by']) ?></p>
+                                                                <p><strong>Date:</strong> <?= htmlspecialchars($ach['event_date']) ?></p>
+                                                                <p><?= nl2br(htmlspecialchars($ach['event_description'])) ?></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <a href="manage-former-students-edu.php" class="btn btn-primary mb-4"><i class="bi bi-arrow-bar-left"></i> Back </a>

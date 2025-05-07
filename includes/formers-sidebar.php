@@ -26,6 +26,13 @@
                 <i class="bi bi-person-circle"></i> <span>Profile</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-achievements.php">
+                <i class="bi bi-trophy"></i> <span>Achievements</span>
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link collapsed" href="pages-your-path.php">
                 <i class="bi bi-person-circle"></i> <span>Your Path</span>

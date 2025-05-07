@@ -33,36 +33,43 @@ if (isset($_GET['id'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['event_image'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $event_name = $_POST['event_name'];
     $organized_by = $_POST['organized_by'];
     $event_date = $_POST['event_date'];
     $event_title = $_POST['event_title'];
     $event_description = $_POST['event_description'];
 
-    $image_name = $_FILES['event_image']['name'];
-    $image_tmp_name = $_FILES['event_image']['tmp_name'];
-    $image_size = $_FILES['event_image']['size'];
-    $image_error = $_FILES['event_image']['error'];
-    $image_ext = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
+    $image_path = $achievement['image_path']; // Default to current image
 
-    $allowed_extensions = ['jpg', 'jpeg', 'png'];
-    if (in_array($image_ext, $allowed_extensions) && $image_size < 5000000 && $image_error == 0) {
-        $image_new_name = uniqid('', true) . "." . $image_ext;
-        $image_upload_path = 'uploads/achievements/' . $image_new_name;
-        move_uploaded_file($image_tmp_name, $image_upload_path);
+    if (isset($_FILES['event_image']) && $_FILES['event_image']['error'] === 0) {
+        $image_name = $_FILES['event_image']['name'];
+        $image_tmp_name = $_FILES['event_image']['tmp_name'];
+        $image_size = $_FILES['event_image']['size'];
+        $image_ext = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
+
+        $allowed_extensions = ['jpg', 'jpeg', 'png'];
+
+        if (in_array($image_ext, $allowed_extensions) && $image_size < 5000000) {
+            $image_new_name = uniqid('', true) . "." . $image_ext;
+            $image_upload_path = 'uploads/achievements/' . $image_new_name;
+            move_uploaded_file($image_tmp_name, $image_upload_path);
+            $image_path = $image_upload_path;
+        } else {
+            $error_message = "Invalid image file. Please upload a JPG, JPEG, or PNG image smaller than 5MB.";
+        }
+    }
+
+    if (!isset($error_message)) {
         $stmt = $conn->prepare("UPDATE former_students_achievements SET event_name = ?, organized_by = ?, event_date = ?, event_title = ?, event_description = ?, image_path = ? WHERE id = ? AND former_student_id = ?");
-        $stmt->bind_param("ssssssii", $event_name, $organized_by, $event_date, $event_title, $event_description, $image_upload_path, $achievement_id, $current_user_id);
+        $stmt->bind_param("ssssssii", $event_name, $organized_by, $event_date, $event_title, $event_description, $image_path, $achievement_id, $current_user_id);
         $stmt->execute();
         $stmt->close();
 
-        header("Location: pages-achievements.php"); 
+        header("Location: pages-achievements.php");
         exit();
-    } else {
-        $error_message = "Invalid image file. Please upload a JPG, JPEG, or PNG image smaller than 5MB.";
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -121,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['event_image'])) {
               </div>
               <div class="mb-3">
                 <label for="event_description" class="form-label">Event Description</label>
-                <textarea class="form-control" id="event_description" name="event_description" rows="3" required><?= htmlspecialchars($achievement['event_description']); ?></textarea>
+                <textarea class="form-control" id="event_description" name="event_description" rows="3" ><?= htmlspecialchars($achievement['event_description']); ?></textarea>
               </div>
               <div class="mb-3">
                 <label for="event_image" class="form-label">Event Image</label>
@@ -131,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['event_image'])) {
                 <?php endif; ?>
               </div>
               <button type="submit" class="btn btn-primary">Update Achievement</button>
+               <a href="pages-achievements.php"><button type="cancel" class="btn btn-danger">Cancel</button></a>
             </form>
           </div>
         </div>

@@ -69,6 +69,15 @@ $stmt->execute();
 $about_result = $stmt->get_result();
 $about = $about_result->fetch_assoc()['about_text'] ?? '';
 $stmt->close();
+
+// Fetch achievements
+$achievements_sql = "SELECT * FROM former_students_achievements WHERE former_student_id = ? ORDER BY event_date DESC";
+$stmt = $conn->prepare($achievements_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$achievements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -373,6 +382,34 @@ $stmt->close();
                                             <?php endforeach; ?>
                                         </ul>
                                     </div>
+
+                                    <!-- Student Achievements Section -->
+                                        <?php if (!empty($achievements)): ?>
+                                        <div class="card shadow-lg">
+                                            <div class="card-body">
+                                                <h4 class="section-title">Achievements</h4>
+                                                <div class="row">
+                                                    <?php foreach ($achievements as $ach): ?>
+                                                        <div class="col-md-6 col-lg-4 mb-4">
+                                                            <div class="card h-100 border shadow-sm">
+                                                                <?php if (!empty($ach['image_path']) && file_exists('' . $ach['image_path'])): ?>
+                                                                    <img src="<?= htmlspecialchars($ach['image_path']) ?>" class="card-img-top" alt="Achievement Image" style="width: 300px; object-fit: cover;">
+                                                                <?php endif; ?>
+                                                                <div class="card-body">
+                                                                    <h5 class="card-title"><?= htmlspecialchars($ach['event_title']) ?></h5>
+                                                                    <p><strong>Event Name:</strong> <?= htmlspecialchars($ach['event_name']) ?></p>
+                                                                    <p><strong>Organized By:</strong> <?= htmlspecialchars($ach['organized_by']) ?></p>
+                                                                    <p><strong>Date:</strong> <?= htmlspecialchars($ach['event_date']) ?></p>
+                                                                    <p><?= nl2br(htmlspecialchars($ach['event_description'])) ?></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php endif; ?>
+
                                 </div>
 
                                 <a href="index.php" class="btn btn-primary mb-4"><i class="bi bi-arrow-bar-left"></i> Back </a>
