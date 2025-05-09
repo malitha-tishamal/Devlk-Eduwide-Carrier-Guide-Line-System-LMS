@@ -1,16 +1,16 @@
 <?php
 session_start();
-require_once '../includes/db-conn.php';
+require_once 'includes/db-conn.php';
 
-if (!isset($_SESSION['former_student_id'])) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['student_id'])) {
+    header("Location: index.php");
     exit();
 }
 
-$current_user_id = $_SESSION['former_student_id'];
+$current_user_id = $_SESSION['student_id'];
 
 // Get user data
-$stmt = $conn->prepare("SELECT * FROM former_students WHERE id = ?");
+$stmt = $conn->prepare("SELECT * FROM students WHERE id = ?");
 $stmt->bind_param("i", $current_user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -18,7 +18,7 @@ $stmt->close();
 
 if (isset($_GET['id'])) {
     $achievement_id = $_GET['id'];
-    $stmt = $conn->prepare("SELECT * FROM former_students_achievements WHERE id = ? AND former_student_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM students_achievements WHERE id = ? AND student_id = ?");
     $stmt->bind_param("ii", $achievement_id, $current_user_id);
     $stmt->execute();
     $achievement = $stmt->get_result()->fetch_assoc();
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if (!isset($error_message)) {
-        $stmt = $conn->prepare("UPDATE former_students_achievements SET event_name = ?, organized_by = ?, event_date = ?, event_title = ?, event_description = ?, image_path = ? WHERE id = ? AND former_student_id = ?");
+        $stmt = $conn->prepare("UPDATE students_achievements SET event_name = ?, organized_by = ?, event_date = ?, event_title = ?, event_description = ?, image_path = ? WHERE id = ? AND student_id = ?");
         $stmt->bind_param("ssssssii", $event_name, $organized_by, $event_date, $event_title, $event_description, $image_path, $achievement_id, $current_user_id);
         $stmt->execute();
         $stmt->close();
@@ -78,11 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Achievement | Alumni Portal</title>
-  <?php include_once("../includes/css-links-inc.php"); ?>
+  <?php include_once("includes/css-links-inc.php"); ?>
 </head>
 <body class="bg-light">
-<?php include_once("../includes/header.php"); ?>
-<?php include_once("../includes/formers-sidebar.php"); ?>
+<?php include_once("includes/header.php"); ?>
+<?php include_once("includes/students-sidebar.php"); ?>
 
 <main id="main" class="main">
   <div class="pagetitle">
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </section>
 </main>
 
-<?php include_once("../includes/footer.php"); ?>
-<?php include_once("../includes/js-links-inc.php"); ?>
+<?php include_once("includes/footer.php"); ?>
+<?php include_once("includes/js-links-inc.php"); ?>
 </body>
 </html>

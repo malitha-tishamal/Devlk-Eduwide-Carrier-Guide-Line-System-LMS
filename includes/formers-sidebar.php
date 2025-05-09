@@ -34,6 +34,12 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-Certification.php">
+               <i class="bi bi-window-fullscreen"></i> <span>Certifications</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link collapsed" href="pages-your-path.php">
                 <i class="bi bi-person-circle"></i> <span>Your Path</span>
             </a>

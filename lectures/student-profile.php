@@ -38,6 +38,27 @@ if (!$student) {
     echo "Profile not found.";
     exit();
 }
+// Fetch education
+$edu_sql = "SELECT * FROM students_education WHERE user_id = ? ORDER BY id DESC";
+$stmt = $conn->prepare($edu_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$education = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+$achievements_sql = "SELECT * FROM students_achievements WHERE student_id = ? ORDER BY event_date DESC";
+$stmt = $conn->prepare($achievements_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$achievements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+$certifications_sql = "SELECT * FROM students_certifications WHERE student_id = ? ORDER BY date DESC";
+$stmt = $conn->prepare($certifications_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$certifications = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 ?>
 
 
@@ -336,6 +357,78 @@ if (!$student) {
                                             </div>
                                         </div>
                                     </div>
+
+                                     <!-- Education and Work Experience Section -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h4 class="section-title">Education</h4>
+                                        <ul class="timeline">
+                                            <?php foreach ($education as $edu): ?>
+                                                <li class="timeline-item">
+                                                    <div>
+                                                        <h5><?= htmlspecialchars($edu['school']) ?></h5>
+                                                        <p><span><?= htmlspecialchars($edu['degree']) ?></span> - <?= htmlspecialchars($edu['field_of_study']) ?></p>
+                                                        <p><strong>Period:</strong> <?= htmlspecialchars($edu['start_month']) ?> <?= htmlspecialchars($edu['start_year']) ?> - <?= htmlspecialchars($edu['end_month']) ?> <?= htmlspecialchars($edu['end_year']) ?></p>
+                                                    </div>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+
+
+                                     <?php if (!empty($achievements)): ?>
+                                    <div class="card shadow-lg">
+                                        <div class="card-body">
+                                            <h5 class="section-title">Student Achievements</h5>
+                                            <div class="row">
+                                                <?php foreach ($achievements as $ach): ?>
+                                                    <div class="col-md-6 col-lg-4 ">
+                                                        <div class="card h-100 border shadow-sm">
+                                                            <?php if (!empty($ach['image_path']) && file_exists('../' . $ach['image_path'])): ?>
+                                                                <img src="../<?= htmlspecialchars($ach['image_path']) ?>" class="card-img-top" alt="Achievement Image" style="width: 300px; object-fit: cover;">
+                                                            <?php endif; ?>
+                                                            <div class="card-body">
+                                                                <h5 class="card-title"><?= htmlspecialchars($ach['event_title']) ?></h5>
+                                                                <p><strong>Event Name:</strong> <?= htmlspecialchars($ach['event_name']) ?></p>
+                                                                <p><strong>Organized By:</strong> <?= htmlspecialchars($ach['organized_by']) ?></p>
+                                                                <p><strong>Date:</strong> <?= htmlspecialchars($ach['event_date']) ?></p>
+                                                                <p><?= nl2br(htmlspecialchars($ach['event_description'])) ?></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($certifications)): ?>
+                                        <div class="card shadow-lg ">
+                                            <div class="card-body">
+                                                <h5 class="section-title">Certifications</h5>
+                                                <div class="row">
+                                                    <?php foreach ($certifications as $cert): ?>
+                                                        <div class="col-md-6 col-lg-4">
+                                                            <div class="card h-100 border shadow-sm">
+                                                                <?php if (!empty($cert['image_path']) && file_exists('../' . $cert['image_path'])): ?>
+                                                                    <img src="../<?= htmlspecialchars($cert['image_path']) ?>" class="card-img-top" alt="Certification Image" style="width: 300px; object-fit: cover;">
+                                                                <?php endif; ?>
+                                                                <div class="card-body">
+                                                                    <h5 class="card-title"><?= htmlspecialchars($cert['certification_name']) ?></h5>
+                                                                    <p><strong>Issued By:</strong> <?= htmlspecialchars($cert['issued_by']) ?></p>
+                                                                    <p><strong>Date:</strong> <?= htmlspecialchars($cert['date']) ?></p>
+                                                                    <?php if (!empty($cert['link'])): ?>
+                                                                        <p><strong>Link:</strong> <a href="<?= htmlspecialchars($cert['link']) ?>" target="_blank">View</a></p>
+                                                                    <?php endif; ?>
+                                                                    <p><?= nl2br(htmlspecialchars($cert['certification_description'])) ?></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
 
                                
                                 </div>

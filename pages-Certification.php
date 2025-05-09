@@ -1,16 +1,16 @@
 <?php
 session_start();
-require_once '../includes/db-conn.php';
+require_once 'includes/db-conn.php';
 
-if (!isset($_SESSION['former_student_id'])) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['student_id'])) {
+    header("Location: index.php");
     exit();
 }
 
-$current_user_id = $_SESSION['former_student_id'];
+$current_user_id = $_SESSION['student_id'];
 
 // Get user data
-$stmt = $conn->prepare("SELECT * FROM former_students WHERE id = ?");
+$stmt = $conn->prepare("SELECT * FROM students WHERE id = ?");
 $stmt->bind_param("i", $current_user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -35,13 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['certification_image']
         $image_upload_path = 'uploads/certifications/' . $image_new_name;
         move_uploaded_file($image_tmp_name, $image_upload_path);
 
-        $stmt = $conn->prepare("INSERT INTO former_students_certifications (former_student_id, certification_name, issued_by, date, link, certification_description, image_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO students_certifications (student_id, certification_name, issued_by, date, link, certification_description, image_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("issssss", $current_user_id, $certification_name, $issued_by, $date, $link, $certification_description, $image_upload_path);
         $stmt->execute();
         $stmt->close();
         
 
-        $stmt = $conn->prepare("SELECT * FROM former_students_certifications WHERE former_student_id = ?");
+        $stmt = $conn->prepare("SELECT * FROM students_certifications WHERE student_id = ?");
         $stmt->bind_param("i", $current_user_id);
         $stmt->execute();
         $certifications_result = $stmt->get_result();
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['certification_image']
     }
 } else {
 
-    $stmt = $conn->prepare("SELECT * FROM former_students_certifications WHERE former_student_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM students_certifications WHERE student_id = ?");
     $stmt->bind_param("i", $current_user_id);
     $stmt->execute();
     $certifications_result = $stmt->get_result();
@@ -65,11 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['certification_image']
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title> Certifications</title>
-  <?php include_once("../includes/css-links-inc.php"); ?>
+  <?php include_once("includes/css-links-inc.php"); ?>
 </head>
 <body class="bg-light">
-<?php include_once("../includes/header.php"); ?>
-<?php include_once("../includes/formers-sidebar.php"); ?>
+<?php include_once("includes/header.php"); ?>
+<?php include_once("includes/students-sidebar.php"); ?>
 
 <main id="main" class="main">
   <div class="pagetitle">
@@ -171,8 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['certification_image']
   </section>
 </main>
 
-<?php include_once("../includes/footer.php"); ?>
-<?php include_once("../includes/js-links-inc.php"); ?>
+<?php include_once("includes/footer.php"); ?>
+<?php include_once("includes/js-links-inc.php"); ?>
 
 </body>
 </html>
