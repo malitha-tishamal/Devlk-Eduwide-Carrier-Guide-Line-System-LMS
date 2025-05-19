@@ -24,7 +24,7 @@ $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
 // Build the SQL query with filters
-$sql2 = "SELECT * FROM former_students";
+$sql2 = "SELECT * FROM former_students WHERE 1";
 
 // Apply search filter if provided
 if ($search !== '') {
@@ -91,7 +91,7 @@ $result = $conn->query($sql2);
                                             <?php
                                             $current_year = date("Y");
                                             for ($year = 2000; $year <= $current_year + 2; $year++) {
-                                                $selected = ($study_year == "Year $year") ? 'selected' : '';
+                                                $selected = ($study_year == "$year") ? 'selected' : '';
                                                 echo "<option value='$year' $selected>Year $year</option>";
                                             }
                                             ?>
@@ -125,15 +125,12 @@ $result = $conn->query($sql2);
                                         <th>Email</th>
                                         <th>Mobile</th>
                                         <th>Now Status</th>
-                                        <th></th>
-                                        <th></th>
-                                        <th>Action</th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="10" class="text-center"></th>
-                                        <th class="text-center">Approve</th>
-                                        <th class="text-center">Disable</th>
-                                        <th class="text-center">Delete</th>
+                                        <th>Status</th>
+                                        <th>Approve</th>
+                                        <th>Disable</th>
+                                        <th>Delete</th>
+                                        <th>Edit</th>
+                                        <th>Profile</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -142,23 +139,23 @@ $result = $conn->query($sql2);
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<tr>";
                                             echo "<td>" . $row['id'] . "</td>";
-                                            echo " <td><img src='../oddstudents/" . $row["profile_picture"] . "' alt='Profile' width='50'></td>";
-                                            echo "<td>" . $row['username'] . "</td>";
-                                            echo "<td>" . $row['reg_id'] . "</td>";
-                                            echo "<td>" . $row['nic'] . "</td>";
-                                            echo "<td>" . $row['study_year'] . "</td>";
-                                            echo "<td>" . $row['email'] . "</td>";
-                                            echo "<td>" . $row['mobile'] . "</td>";
-                                            echo "<td>" . $row['nowstatus'] . "</td>";
+                                            echo "<td><img src='../oddstudents/" . htmlspecialchars($row["profile_picture"]) . "' alt='Profile' width='50'></td>";
+                                            echo "<td>" . htmlspecialchars($row['username']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['reg_id']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['nic']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['study_year']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['mobile']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['nowstatus']) . "</td>";
 
                                             // Status Column with Color
                                             echo "<td>";
-                                            $status = strtolower($row['status']);
-                                            if ($status === 'active' || $status === 'approved') {
+                                            $statusVal = strtolower($row['status']);
+                                            if ($statusVal === 'active' || $statusVal === 'approved') {
                                                 echo "<span class='btn btn-success btn-sm w-100 text-center'>Approved</span>";
-                                            } elseif ($status === 'disabled') {
+                                            } elseif ($statusVal === 'disabled') {
                                                 echo "<span class='btn btn-danger btn-sm w-100 text-center'>Disabled</span>";
-                                            } elseif ($status === 'pending') {
+                                            } elseif ($statusVal === 'pending') {
                                                 echo "<span class='btn btn-warning btn-sm w-100 text-center'>Pending</span>";
                                             } else {
                                                 echo "<span class='btn btn-secondary btn-sm w-100 text-center'>" . ucfirst($row['status']) . "</span>";
@@ -166,25 +163,15 @@ $result = $conn->query($sql2);
                                             echo "</td>";
 
                                             // Action Buttons
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-success btn-sm w-100 approve-btn' data-id='" . $row['id'] . "'>Approve</button>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-warning btn-sm w-100 disable-btn' data-id='" . $row['id'] . "'>Disable</button>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-danger btn-sm w-100 delete-btn' data-id='" . $row['id'] . "'>Delete</button>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                    <a href='edit-former_student.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                   <a href='former_student-profile.php?former_student_id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary btn-sm w-100'>Profile</a>
-                                                  </td>";
+                                            echo "<td class='text-center'><button class='btn btn-success btn-sm w-100 approve-btn' data-id='" . $row['id'] . "'>Approve</button></td>";
+                                            echo "<td class='text-center'><button class='btn btn-warning btn-sm w-100 disable-btn' data-id='" . $row['id'] . "'>Disable</button></td>";
+                                            echo "<td class='text-center'><button class='btn btn-danger btn-sm w-100 delete-btn' data-id='" . $row['id'] . "'>Delete</button></td>";
+                                            echo "<td class='text-center'><a href='edit-former_student.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a></td>";
+                                            echo "<td class='text-center'><a href='former_student-profile.php?former_student_id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary btn-sm w-100'>Profile</a></td>";
                                             echo "</tr>";
                                         }
                                     } else {
-                                        echo "<tr><td colspan='9' class='text-center'>No users found.</td></tr>";
+                                        echo "<tr><td colspan='15' class='text-center'>No users found.</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -199,46 +186,45 @@ $result = $conn->query($sql2);
     </main>
 
     <?php include_once("../includes/footer.php") ?>
-
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
     <?php include_once("../includes/js-links-inc.php") ?>
+
     <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', function () {
-        const approveButtons = document.querySelectorAll('.approve-btn');
-        const disableButtons = document.querySelectorAll('.disable-btn');
-        const deleteButtons = document.querySelectorAll('.delete-btn');
+        document.addEventListener('DOMContentLoaded', function () {
+            const approveButtons = document.querySelectorAll('.approve-btn');
+            const disableButtons = document.querySelectorAll('.disable-btn');
+            const deleteButtons = document.querySelectorAll('.delete-btn');
 
-        approveButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-former-students-edu.php?approve_id=${userId}`;
+            approveButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const userId = this.getAttribute('data-id');
+                    window.location.href = `process-former-students-edu.php?approve_id=${userId}`;
+                });
+            });
+
+            disableButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const userId = this.getAttribute('data-id');
+                    window.location.href = `process-former-students-edu.php?disable_id=${userId}`;
+                });
+            });
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const userId = this.getAttribute('data-id');
+                    if (confirm("Are you sure you want to delete this user?")) {
+                        window.location.href = `process-former-students-edu.php?delete_id=${userId}`;
+                    }
+                });
             });
         });
-
-        disableButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-former-students-edu.php?disable_id=${userId}`;
-            });
-        });
-
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                if (confirm("Are you sure you want to delete this user?")) {
-                    window.location.href = `process-former-students-edu.php?delete_id=${userId}`;
-                }
-            });
-        });
-      });
     </script>
-
 </body>
 
 </html>
 
 <?php
-// Close database connection
 $conn->close();
 ?>
