@@ -138,6 +138,7 @@
 
                                          <div class="col-12">
                                           <p class="small mb-0" style="font-size:14px;">Don't have account? <a href="pages-signup.php">Create an account</a></p>
+                                          <p class="small mb-0" style="font-size:14px;">Are you Company ? <a href="companies/pages-signup.php">Create an account</a></p>
                                         </div>
 
                                     </form>

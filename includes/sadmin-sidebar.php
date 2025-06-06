@@ -103,6 +103,24 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#antibiotics-nav5" role="button">
+               <i class="bi bi-building-fill"></i> <span>Companies</span> <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="antibiotics-nav5" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="pages-add-company.php">
+                         <i class="bi bi-circle"></i> <span>Add Companies</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="manage-companies.php">
+                        <i class="bi bi-circle"></i> <span>Manage Companies</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#course-nav" role="button">
                 <i class="bi bi-book"></i> <span>Course Content</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>

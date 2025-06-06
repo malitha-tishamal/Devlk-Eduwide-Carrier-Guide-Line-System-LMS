@@ -3,12 +3,12 @@ session_start();
 require_once "../includes/db-conn.php"; // Ensure the DB connection
 
 // Check if admin is logged in
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['company_id'])) {
     header("Location: ../index.php"); // Redirect if not logged in
     exit();
 }
 
-$admin_id = $_SESSION['admin_id'];  // Assuming the session stores admin's ID for updating their profile
+$admin_id = $_SESSION['company_id'];  // Assuming the session stores admin's ID for updating their profile
 
 // Handle password change
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
@@ -32,8 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         exit();
     }
 
-    // Fetch current lecture's data from database
-    $sql = "SELECT * FROM admins WHERE id = ?";
+    // Fetch current admin's data from database
+    $sql = "SELECT * FROM companies WHERE id = ?";
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $admin_id);
         $stmt->execute();
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             $hashed_new_password = password_hash($new_password, PASSWORD_BCRYPT);
 
             // Update the password in the admins table (assuming admin's password is being updated)
-            $update_sql = "UPDATE admins SET password = ? WHERE id = ?";
+            $update_sql = "UPDATE companies SET password = ? WHERE id = ?";
             if ($update_stmt = $conn->prepare($update_sql)) {
                 $update_stmt->bind_param("si", $hashed_new_password, $admin_id);
                 if ($update_stmt->execute()) {
