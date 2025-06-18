@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['event_image'])) {
                       </div>
                       <div class="mb-3">
                         <label for="event_description" class="form-label">Event Description</label>
-                        <textarea class="form-control" id="event_description" name="event_description" rows="3"></textarea>
+                        <textarea class="form-control" id="event_description" name="event_description" rows="3" ></textarea>
                       </div>
                       <div class="mb-3">
                         <label for="event_image" class="form-label">Event Image</label>

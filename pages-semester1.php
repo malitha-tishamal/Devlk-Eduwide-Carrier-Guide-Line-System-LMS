@@ -27,7 +27,7 @@ $sql_marks = "
     JOIN subjects ON marks.subject = subjects.name
     WHERE marks.student_id = ? AND marks.semester = ?";
 $stmt_marks = $conn->prepare($sql_marks);
-$stmt_marks->bind_param("ss", $reg_id, $semester); 
+$stmt_marks->bind_param("ss", $reg_id, $semester); // Fixed here
 $stmt_marks->execute();
 $marks_result = $stmt_marks->get_result();
 $stmt_marks->close();

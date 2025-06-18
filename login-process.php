@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'includes/db-conn.php'; // Ensure database connection
+require_once 'includes/db-conn.php';
 
 // Set timezone to Sri Lanka
 date_default_timezone_set('Asia/Colombo');

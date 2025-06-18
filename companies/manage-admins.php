@@ -82,8 +82,9 @@ $result = $conn->query($sql);
                                             echo "<td>" . $row['id'] . "</td>";
                                             echo "<td><img src='../admin/" . $row["profile_picture"] . "' alt='Profile' width='50'></td>";
                                             echo "<td>" . $row['username'] . "</td> ";
-                                            echo "<td>" . $row['email'] . "</td>";
-                                            echo "<td>" . $row['mobile'] . "</td>";
+                                            echo "<td><a href='mailto:" . $row['email'] . "'>" . $row['email'] . "</a></td>";
+                                            echo "<td><a href='tel:" . $row['mobile'] . "'>" . $row['mobile'] . "</a></td>";
+
 
                                             echo "</tr>";
                                         }

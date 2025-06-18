@@ -2,22 +2,15 @@
 require_once '../includes/db-conn.php';
 session_start();
 
-// Ensure student_id is passed in URL
-if (!isset($_GET['student_id'])) {
+// Get former student ID from URL
+if (!isset($_GET['former_student_id'])) {
     echo "Invalid profile!";
     exit();
 }
 
-$student_id = intval($_GET['student_id']);
-
-// Fetch logged-in admin user details
-$user_id = $_SESSION['lecturer_id'] ?? null;
-if (!$user_id) {
-    echo "Unauthorized access!";
-    exit();
-}
-
-$sql = "SELECT * FROM lectures WHERE id = ?";
+// Fetch user details
+$user_id = $_SESSION['company_id'];
+$sql = "SELECT * FROM companies WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -25,8 +18,12 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
+$current_user_id = $_SESSION['former_student_id'];
+
+$student_id = intval($_GET['former_student_id']);
+
 // Fetch student basic info
-$sql = "SELECT * FROM students WHERE id = ?";
+$sql = "SELECT * FROM former_students WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
@@ -38,21 +35,56 @@ if (!$student) {
     echo "Profile not found.";
     exit();
 }
-$achievements_sql = "SELECT * FROM students_achievements WHERE student_id = ? ORDER BY event_date DESC";
+
+// Fetch education
+$edu_sql = "SELECT * FROM education WHERE user_id = ? ORDER BY id DESC";
+$stmt = $conn->prepare($edu_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$education = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Fetch work experiences
+$work_sql = "SELECT * FROM experiences WHERE user_id = ? ORDER BY id DESC";
+$stmt = $conn->prepare($work_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$experiences = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Fetch summary (from 'summaries' table)
+$summary_sql = "SELECT summary FROM summaries WHERE user_id = ? ORDER BY created_at DESC LIMIT 1";
+$stmt = $conn->prepare($summary_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$summary_result = $stmt->get_result();
+$summary = $summary_result->fetch_assoc()['summary'] ?? '';
+$stmt->close();
+
+// Fetch about text (from 'about' table)
+$about_sql = "SELECT about_text FROM about WHERE user_id = ? LIMIT 1";
+$stmt = $conn->prepare($about_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$about_result = $stmt->get_result();
+$about = $about_result->fetch_assoc()['about_text'] ?? '';
+$stmt->close();
+
+$achievements_sql = "SELECT * FROM former_students_achievements WHERE former_student_id = ? ORDER BY event_date DESC";
 $stmt = $conn->prepare($achievements_sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $achievements = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-$certifications_sql = "SELECT * FROM students_certifications WHERE student_id = ? ORDER BY date DESC";
+$certifications_sql = "SELECT * FROM former_students_certifications WHERE former_student_id = ? ORDER BY date DESC";
 $stmt = $conn->prepare($certifications_sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $certifications = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-?>
 
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -248,16 +280,6 @@ $stmt->close();
             font-size: 1rem;
             color: #333;
         }
-        .card p {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            color: #444;
-        }
-        .card-title {
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-
 
         /* Responsive design */
         @media (max-width: 768px) {
@@ -276,7 +298,7 @@ $stmt->close();
 
     <?php include_once("../includes/header.php") ?>
 
-    <?php include_once("../includes/lectures-sidebar.php") ?>
+    <?php include_once("../includes/formers-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -300,7 +322,7 @@ $stmt->close();
 
                                 <!-- Profile Header -->
                                 <div class="profile-header">
-                                    <img src="../<?= htmlspecialchars($student['profile_picture']) ?>" alt="Profile Picture">
+                                    <img src="../oddstudents/<?= htmlspecialchars($student['profile_picture']) ?>" alt="Profile Picture">
                                     <h2 class="mt-2"><?= htmlspecialchars($student['username']) ?></h2>
 
                                     <?php if (!empty($summary)): ?>
@@ -324,33 +346,50 @@ $stmt->close();
                                     </div>
                                 </div>
 
-                               
-                                    <div class="row mt-5">
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm border-0 rounded-4">
-                                                <div class="card-body">
-                                                    <h5 class="card-title text-primary mb-3"><i class="bi bi-info-circle"></i> Personal Info</h5>
-                                                    <p><strong>ID:</strong> <?= htmlspecialchars($student['id']) ?></p>
-                                                    <p><strong>Name:</strong> <?= htmlspecialchars($student['username']) ?></p>
-                                                    <p><strong>Registration ID:</strong> <?= htmlspecialchars($student['reg_id']) ?></p>
-                                                    <p><strong>NIC:</strong> <?= htmlspecialchars($student['nic']) ?></p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="card shadow-sm border-0 rounded-4">
-                                                <div class="card-body">
-                                                    <h5 class="card-title text-primary mb-3"><i class="bi bi-phone-vibrate"></i> Contact & Academic</h5>
-                                                    <p><strong>Study Year:</strong> <?= htmlspecialchars($student['study_year']) ?></p>
-                                                    <p><strong>Email:</strong> <?= htmlspecialchars($student['email']) ?></p>
-                                                    <p><strong>Mobile:</strong> <?= htmlspecialchars($student['mobile']) ?></p>
-                                                </div>
-                                            </div>
+                                <!-- About Me Section -->
+                                <?php if (!empty($about)): ?>
+                                    <div class="card shadow-lg">
+                                        <div class="card-body">
+                                            <h4 class="section-title">About Me</h4>
+                                            <p><?= nl2br(htmlspecialchars($about)) ?></p>
                                         </div>
                                     </div>
+                                <?php endif; ?>
 
-                                     <?php if (!empty($achievements)): ?>
+                                <!-- Education and Work Experience Section -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h4 class="section-title">Education</h4>
+                                        <ul class="timeline">
+                                            <?php foreach ($education as $edu): ?>
+                                                <li class="timeline-item">
+                                                    <div>
+                                                        <h5><?= htmlspecialchars($edu['school']) ?></h5>
+                                                        <p><span><?= htmlspecialchars($edu['degree']) ?></span> - <?= htmlspecialchars($edu['field_of_study']) ?></p>
+                                                        <p>From: <?= htmlspecialchars($edu['start_month']) ?> <?= htmlspecialchars($edu['start_year']) ?> to <?= htmlspecialchars($edu['end_month']) ?> <?= htmlspecialchars($edu['end_year']) ?></p>
+                                                    </div>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <h4 class="section-title">Work Experience</h4>
+                                        <ul class="timeline">
+                                            <?php foreach ($experiences as $exp): ?>
+                                                <li class="timeline-item">
+                                                    <div>
+                                                        <h5><?= htmlspecialchars($exp['title']) ?> at <?= htmlspecialchars($exp['company']) ?></h5>
+                                                        <p><span><?= htmlspecialchars($exp['employment_type']) ?></span> - <?= htmlspecialchars($exp['location']) ?></p>
+                                                        <p>From: <?= htmlspecialchars($exp['start_month']) ?> <?= htmlspecialchars($exp['start_year']) ?> to <?= htmlspecialchars($exp['end_month']) ?> <?= htmlspecialchars($exp['end_year']) ?></p>
+                                                        <p><?= nl2br(htmlspecialchars($exp['description'])) ?></p>
+                                                    </div>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+
+                                    <?php if (!empty($achievements)): ?>
                                     <div class="card shadow-lg">
                                         <div class="card-body">
                                             <h5 class="section-title">Student Achievements</h5>
@@ -358,8 +397,8 @@ $stmt->close();
                                                 <?php foreach ($achievements as $ach): ?>
                                                     <div class="col-md-6 col-lg-4 ">
                                                         <div class="card h-100 border shadow-sm">
-                                                            <?php if (!empty($ach['image_path']) && file_exists('../' . $ach['image_path'])): ?>
-                                                                <img src="../<?= htmlspecialchars($ach['image_path']) ?>" class="card-img-top" alt="Achievement Image" style="width: 300px; object-fit: cover;">
+                                                            <?php if (!empty($ach['image_path']) && file_exists('../oddstudents/' . $ach['image_path'])): ?>
+                                                                <img src="../oddstudents/<?= htmlspecialchars($ach['image_path']) ?>" class="card-img-top" alt="Achievement Image" style="width: 300px; object-fit: cover;">
                                                             <?php endif; ?>
                                                             <div class="card-body">
                                                                 <h5 class="card-title"><?= htmlspecialchars($ach['event_title']) ?></h5>
@@ -384,8 +423,8 @@ $stmt->close();
                                                     <?php foreach ($certifications as $cert): ?>
                                                         <div class="col-md-6 col-lg-4">
                                                             <div class="card h-100 border shadow-sm">
-                                                                <?php if (!empty($cert['image_path']) && file_exists('../' . $cert['image_path'])): ?>
-                                                                    <img src="../<?= htmlspecialchars($cert['image_path']) ?>" class="card-img-top" alt="Certification Image" style="width: 300px; object-fit: cover;">
+                                                                <?php if (!empty($cert['image_path']) && file_exists('../oddstudents/' . $cert['image_path'])): ?>
+                                                                    <img src="../oddstudents/<?= htmlspecialchars($cert['image_path']) ?>" class="card-img-top" alt="Certification Image" style="width: 300px; object-fit: cover;">
                                                                 <?php endif; ?>
                                                                 <div class="card-body">
                                                                     <h5 class="card-title"><?= htmlspecialchars($cert['certification_name']) ?></h5>
@@ -404,9 +443,9 @@ $stmt->close();
                                         </div>
                                     <?php endif; ?>
 
-                               
                                 </div>
-                                <a href="manage-students.php" class="btn btn-primary mb-4"><i class="bi bi-arrow-bar-left"></i> Back </a>
+
+                                <a href="index.php" class="btn btn-primary mb-4"><i class="bi bi-arrow-bar-left"></i> Back </a>
 
                             </div>
                         </div>

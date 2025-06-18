@@ -12,7 +12,7 @@
             return $protocol . $host . '/Devlk-lms-Eduwide/';
         } else {
             // Production base URL
-            return $protocol . $host . '/Devlk-lms-Eduwide/';
+            return $protocol . $host . '/';
         }
     }
 

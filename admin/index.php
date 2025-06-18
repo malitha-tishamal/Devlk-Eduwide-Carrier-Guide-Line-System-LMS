@@ -220,6 +220,41 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                 </div>                             
                             </div> 
 
+                            <!-- Recently Logged-In Admins Section -->
+                            <?php 
+                                $recent_company_query = "SELECT * FROM companies ORDER BY last_login DESC LIMIT 5";
+                                $recent_company_result = $conn->query($recent_company_query);
+                            ?>
+                            <div class="container mt-2">                                 
+                                <h4 class="mb-2">Recently Logged-In companies</h4>                                 
+                                <div class="row">                                     
+                                    <?php while ($company = $recent_company_result->fetch_assoc()): ?>                                         
+                                        <div class="col-md-4 col-lg-3">                                             
+                                            <div class="card mini-card shadow-lg">                                                 
+                                                <div class="d-flex align-items-center p-2">                                                     
+                                                    <img src="../companies/<?php echo $compny['profile_picture']; ?>" alt="Profile Picture"
+                                                         class="rounded-circle me-2"
+                                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                                         onerror="this.onerror=null;this.src='../companies/uploads/profile_pictures/default.png';">                                                     
+                                                    <div>                                                         
+                                                        <h6 class="mb-0"><?php echo $company['username']; ?></h6>                                                         
+                                                        <small class="text-muted">
+                                                            <?php 
+                                                                if (!empty($company['last_login'])) {
+                                                                    echo "Last login: " . date("M d, Y h:i A", strtotime($company['last_login']));
+                                                                } else {
+                                                                    echo "Last login: N/A";
+                                                                }
+                                                            ?>
+                                                        </small>                                                     
+                                                    </div>                                                 
+                                                </div>                                             
+                                            </div>                                         
+                                        </div>                                     
+                                    <?php endwhile; ?>                                 
+                                </div>                             
+                            </div> 
+
                             <?php
                                 $recent_lecturers_query = "SELECT * FROM lectures ORDER BY last_login DESC LIMIT 5";
                                 $recent_lecturers_result = $conn->query($recent_lecturers_query);

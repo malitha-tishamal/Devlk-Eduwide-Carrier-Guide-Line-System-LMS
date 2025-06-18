@@ -10,6 +10,12 @@
     <meta content="" name="keywords">
 
     <?php include_once ("includes/css-links-inc.php"); ?>
+    <style>
+        .team-card img{
+            width : 130px;
+            height : 130px;
+        }
+    </style
 
 </head>
 
@@ -38,7 +44,7 @@
                         <br>Quality Assuarance
                         <br>System Administrator</p>
                     <div class="team-icons">
-                        <a href="https://malitha-tishamal.github.io/blog" target="_blank"><i class="bi bi-globe"></i></a>
+                        <a href="https://malithatishamal.42web.io" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="https://github.com/malitha-tishamal" target="_blank"><i class="bi bi-github"></i></a>
                         <a href="https://www.linkedin.com/in/malitha-tishamal" target="_blank"><i class="bi bi-linkedin"></i></a>
                         <a href="https://www.facebook.com/malitha.tishamal" target="_blank"><i class="bi bi-facebook"></i></a>
@@ -48,11 +54,11 @@
             </div>
 
             <div class="col-md-3">
-                <div class="team-card text-center">
+                <div class="team-card text-center"   style="opacity: 0.6;">
                     <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
                     <h5 class="fw-bold">Matheesha Nihari</h5>
                     <p><b>Frontend Developer</b>
-                        <br>Technical Writer<br>
+                        <br>Technical Writer
                         &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
@@ -61,6 +67,7 @@
                         <a href="https://www.facebook.com/profile.php?id=100068534863775" target="_blank"><i class="bi bi-facebook"></i></a>
                         <a href="mailto:matheenihari13@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
+                    <span class="text-center text-danger"><b>Not Active</b></span>
                 </div>
             </div>
 
@@ -82,7 +89,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <!--div class="col-md-3">
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\dewmini.jpg" alt="Team Member">
                     <h5 class="fw-bold">Hima Devindi</h5>
@@ -96,14 +103,14 @@
                         <a href="mailto:himadevindi2002@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
                 </div>
-            </div>
+            </div-->
              <!-- Team Member not active -->
             <div class="col-md-3" style="opacity: 0.6;">
                 <div class="team-card text-center">
-                    <img src="assets\images\Developers\sandeepa.jpg" alt="Team Member">
+                    <img src="assets\images\Developers\684c0f0cbbca3-1.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malith Sandeepa</h5>
                     <p><b>Frontend Developer</b>
-                        <br>System Administrator<br>
+                        <br>System Administrator
                         &nbsp;</p>
                     <div class="team-icons">
                         <a href="#" target="_blank"><i class="bi bi-globe"></i></a>

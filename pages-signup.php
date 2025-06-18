@@ -192,7 +192,7 @@ session_start();
 
                                         <div class="col-12">
                                           <p class="small mb-0">Create Former Students account? <a href="oddstudents/pages-signup.php">Click</a></p>
-                                           <p class="small mb-0">Create Lecture account? <a href="Lectures/pages-signup.php">Click</a></p>
+                                           <p class="small mb-0">Create Lecture account? <a href="../lectures/pages-signup.php">Click</a></p>
                                           <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
                                           <p class="small mb-0">Already have an account? <a href="index.php">Log in</a></p>
                                         </div>

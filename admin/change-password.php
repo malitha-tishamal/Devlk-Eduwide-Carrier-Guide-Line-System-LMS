@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         exit();
     }
 
-    // Fetch current lecture's data from database
+    // Fetch current admin's data from database
     $sql = "SELECT * FROM admins WHERE id = ?";
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $admin_id);
