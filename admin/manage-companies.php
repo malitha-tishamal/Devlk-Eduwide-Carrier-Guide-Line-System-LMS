@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$sql = "SELECT * FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -127,7 +127,7 @@ $result = $conn->query($sql);
 
                                             // Edit Profile Button
                                             echo "<td class='text-center'>
-                                                    <a href='edit-admin.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
+                                                    <a href='edit-company.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
                                                   </td>";
 
                                             echo "</tr>";

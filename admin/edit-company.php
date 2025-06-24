@@ -14,6 +14,17 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $company_id = intval($_GET['id']);
 
+// Fetch user details
+$user_id = $_SESSION['admin_id'];
+$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+
+
 // Fetch current company details
 $sql = "SELECT * FROM companies WHERE id = ?";
 $stmt = $conn->prepare($sql);

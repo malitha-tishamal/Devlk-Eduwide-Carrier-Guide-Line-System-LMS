@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['admin_id'];
-$sql = "SELECT username, email, nic,mobile,profile_picture FROM admins WHERE id = ?";
+$sql = "SELECT * FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
