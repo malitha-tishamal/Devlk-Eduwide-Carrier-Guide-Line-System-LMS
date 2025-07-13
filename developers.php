@@ -123,7 +123,7 @@
                 </div>
             </div-->
              <!-- Team Member not active -->
-            <div class="col-md-3" style="opacity: 0.6;">
+            <div class="col-md-3" >
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\684c0f0cbbca3-1.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malith Sandeepa</h5>
@@ -131,13 +131,12 @@
                         <br>System Administrator
                         &nbsp;</p>
                     <div class="team-icons">
-                        <a href="#" target="_blank"><i class="bi bi-globe"></i></a>
+                        <a href="https://kvmsandeepa.x10.mx/" target="_blank"><i class="bi bi-globe"></i></a>
                         <a href="https://github.com/KVMSANDEEPA" target="_blank"><i class="bi bi-github"></i></a>
                         <a href="www.linkedin.com/in/malith-sandeepa" target="_blank"><i class="bi bi-linkedin"></i></a>
                         <a href="https://www.facebook.com/profile.php?id=100071177107363" target="_blank"><i class="bi bi-facebook"></i></a>
                         <a href="mailto:malithsandeepa1081@gmail.com" ><i class="bi bi-envelope"></i></a>
                     </div>
-                    <span class="text-center text-danger"><b>Not Active</b></span>
                 </div>
             </div>
         </div>
