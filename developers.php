@@ -12,8 +12,8 @@
     <?php include_once ("includes/css-links-inc.php"); ?>
     <style>
         .team-card img{
-            width : 130px;
-            height : 130px;
+            width : 200px;
+            height : 200px;
         }
     </style
 
@@ -71,7 +71,7 @@
                 </div>
             </div-->
 
-            <div class="col-md-3">
+            <!--div class="col-md-3">
                 <div class="team-card text-center"   style="opacity: 0.6;">
                     <img src="assets\images\Developers\nihari.jpg" alt="Team Member">
                     <h5 class="fw-bold">Matheesha Nihari</h5>
@@ -123,7 +123,7 @@
                 </div>
             </div-->
              <!-- Team Member not active -->
-            <div class="col-md-3" >
+            <!--div class="col-md-3" >
                 <div class="team-card text-center">
                     <img src="assets\images\Developers\684c0f0cbbca3-1.jpg" alt="Team Member">
                     <h5 class="fw-bold">Malith Sandeepa</h5>
@@ -145,7 +145,7 @@
     <!-- Footer -->
     <div class="dev-footer">
         <p>&copy; Copyright <strong><span>Devlk</span></strong> All Rights Reserved</br>
-       Developed by <a href="developers.php">Devlk</a></p>
+       Developed by <a href="https://malithatishamal.42web.io/">Malitha Tishamal</a></p>
     </div>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

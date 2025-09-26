@@ -49,7 +49,7 @@
     <!-- Footer -->
     <div class="dev-footer">
         <p>&copy; Copyright <strong><span>Devlk</span></strong> All Rights Reserved</br>
-       Developed by <a href="developers.php">Devlk</a></p>
+       Developed by <a href="developers.php">Malitha Tishamal</a></p>
     </div>
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>

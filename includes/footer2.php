@@ -1,3 +1,3 @@
 <div class="credits">
-    Developed by <a href="developers.php">Devlk Team</a>
+    Developed by <a href="developers.php">Malitha Tishamal</a>
 </div>
