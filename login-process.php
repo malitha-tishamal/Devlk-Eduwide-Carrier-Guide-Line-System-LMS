@@ -78,7 +78,7 @@ if (isset($_POST['submit'])) {
                     $update = $conn->prepare("UPDATE students SET last_login = ? WHERE id = ?");
                     $update->bind_param("si", $current_time, $user['id']);
                     $update->execute();
-                    header("Location: pages-home.php");
+                    header("Location: user-profile.php");
                     exit();
 
                 } elseif ($table == 'former_students' && $user['status'] == 'approved') {

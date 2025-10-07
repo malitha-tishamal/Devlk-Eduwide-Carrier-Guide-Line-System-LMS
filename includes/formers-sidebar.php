@@ -8,7 +8,7 @@
             </a>
         </li>
 
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#course-nav" role="button">
                 <i class="bi bi-book"></i> <span>Course Content</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -19,7 +19,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li-->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="user-profile.php">

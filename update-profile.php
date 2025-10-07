@@ -18,8 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $nic = trim($_POST['nic']);
     $mobile = trim($_POST['mobile']);
-    
+    $course_id = isset($_POST['course_id']) ? (int)$_POST['course_id'] : null;
 
+    // Validate email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['status'] = 'error';
         $_SESSION['message'] = 'Invalid email format!';
@@ -27,11 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    // Update user details in the database
-    $sql = "UPDATE students SET username = ?, reg_id = ?, study_year = ?, email = ?, nic = ?, mobile = ? WHERE id = ?";
+    // Update user details in the database including HND course
+    $sql = "UPDATE students SET username = ?, reg_id = ?, study_year = ?, email = ?, nic = ?, mobile = ?, course_id = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
     if ($stmt) {
-        $stmt->bind_param("ssssssi", $username, $reg_id , $study_year , $email, $nic, $mobile, $user_id);
+        $stmt->bind_param("ssssssii", $username, $reg_id, $study_year, $email, $nic, $mobile, $course_id, $user_id);
         if ($stmt->execute()) {
             $_SESSION['status'] = 'success';
             $_SESSION['message'] = 'Profile updated successfully!';

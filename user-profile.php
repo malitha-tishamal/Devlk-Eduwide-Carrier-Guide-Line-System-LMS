@@ -122,7 +122,7 @@ $stmt->close();
                                         <div class="col-lg-9 col-md-8">
                                             <?php 
                                             // Display profile picture with timestamp to force refresh
-                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 100px; height: 100px; border-radius:50%;'>";
+                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 200px; height: 200px; border-radius:50%;'>";
                                             ?>
                                             
                                             <form action="update-profile-picture.php" method="POST" enctype="multipart/form-data">
@@ -181,6 +181,29 @@ $stmt->close();
                                                     <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>" required>
                                                 </div>
                                             </div>
+                                            
+                                            <!-- HND Course Selection -->
+<div class="row mt-3">
+    <div class="col-lg-3 col-md-4 label">HND Course</div>
+    <div class="col-lg-9 col-md-8">
+        <select name="course_id" class="form-control w-75" required>
+            <option value="" disabled>-- Select HND Course --</option>
+            <?php
+            // Fetch all HND courses from the database
+            $courseQuery = "SELECT * FROM hnd_courses ORDER BY name ASC";
+            $courseResult = $conn->query($courseQuery);
+            if ($courseResult->num_rows > 0) {
+                while ($course = $courseResult->fetch_assoc()) {
+                    // Auto-select the student's current course
+                    $selected = ($user['course_id'] == $course['id']) ? "selected" : "";
+                    echo "<option value='" . $course['id'] . "' $selected>" . htmlspecialchars($course['name']) . "</option>";
+                }
+            }
+            ?>
+        </select>
+    </div>
+</div>
+
 
                                             <!-- Submit Button -->
                                             <div class="row mt-4">

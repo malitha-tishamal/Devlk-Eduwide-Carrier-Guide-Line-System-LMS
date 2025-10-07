@@ -1,6 +1,18 @@
 <?php
 // Start session to access session variables
 session_start();
+
+// Include database connection to fetch courses
+require_once 'includes/db-conn.php';
+
+// Fetch HND courses
+$courses = [];
+$courseQuery = "SELECT id, name FROM hnd_courses ORDER BY name ASC";
+if ($result = $conn->query($courseQuery)) {
+    while ($row = $result->fetch_assoc()) {
+        $courses[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,13 +20,12 @@ session_start();
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
     <title>Create Active Students Account - EduWide</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
     <?php include_once ("includes/css-links-inc.php"); ?>
-        <style>
+    <style>
         /* Styling for the popup */
         .popup-message {
             position: fixed;
@@ -47,7 +58,7 @@ session_start();
             // Display the popup message
             document.getElementById('popup-alert').style.display = 'block';
 
-            // Automatically hide the popup after 10 seconds
+            // Automatically hide the popup after 1 second
             setTimeout(function() {
                 const popupAlert = document.getElementById('popup-alert');
                 if (popupAlert) {
@@ -57,7 +68,6 @@ session_start();
         </script>
 
         <?php
-        // Clear session variables after showing the message
         unset($_SESSION['status']);
         unset($_SESSION['message']);
         ?>
@@ -72,62 +82,73 @@ session_start();
                             <div class="d-flex justify-content-center py-4">
                                 <a href="" class="logo d-flex align-items-center w-auto">
                                     <img src="assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
-                                    <!-- <span class="d-none d-lg-block">MediQ</span> -->
                                 </a>
-                            </div><!-- End Logo -->
+                            </div>
 
                             <div class="card mb-2">
                                 <div class="card-body">
                                     <div class="pt-4 pb-2">
                                         <h5 class="card-title text-center pb-0 fs-4">Create Active Student Account</h5>
-                                        <!-- <p class="text-center small">Enter your username & password to login</p> -->
                                     </div>
 
-                                    <form action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
-
+                                    <form id="signup-form" action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
+                                        <!-- Name -->
                                         <div class="col-12">
-                                         <label for="name" class="form-label">Name</label>
+                                            <label for="name" class="form-label">Name</label>
                                             <input type="text" class="form-control" id="name" name="username" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter the name
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please enter the name
+                                            </div>
+                                        </div>
+                                        
+                                         <div class="col-12">
+                                            <label for="course" class="form-label">Select Course</label>
+                                            <select class="form-control" id="course" name="course_id" required>
+                                                <option value="" disabled selected>-- Select Course --</option>
+                                                <?php foreach($courses as $course): ?>
+                                                    <option value="<?php echo $course['id']; ?>">
+                                                        <?php echo htmlspecialchars($course['name']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please select a course
                                             </div>
                                         </div>
 
+                                        <!-- Registration ID -->
                                         <div class="col-12">
-                                         <label for="reg_id" class="form-label">Registration ID</label>
-                                            <input type="text" class="form-control" id="reg_id" name="reg_id" placeholder="e.g : GAL/IT/20xx/xxxx" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter your Registration ID
+                                            <label for="reg_id" class="form-label">Registration ID</label>
+                                            <input type="text" class="form-control" id="reg_id" name="reg_id" placeholder="e.g: GAL/IT/20xx/xxxx" required>
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please enter your Registration ID
                                             </div>
                                         </div>
 
+                                        <!-- NIC -->
                                         <div class="col-12">
-                                         <label for="nicNumber" class="form-label">NIC Number</label>
-                                              <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase(); validateNic(this);" required>
-                                            <div class="invalid-feedback" style="font-size:14px;" id="nicErrorMessage">
-                                                Please Enter the NIC number
+                                            <label for="nicNumber" class="form-label">NIC Number</label>
+                                            <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase();" required>
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please enter the NIC number
                                             </div>
                                         </div>
 
+                                        <!-- Study Year -->
                                         <div class="col-12">
                                             <label for="year" class="form-label">Select Study Year</label>
                                             <select class="form-control" id="year" name="study_year" required>
                                                 <option value="" disabled selected>-- Select Year --</option>
                                             </select>
                                             <div class="invalid-feedback" style="font-size:14px;">
-                                                Please Select Your Academic Year
+                                                Please select your academic year
                                             </div>
                                         </div>
-
                                         <script>
-                                            // Get the current year
                                             let currentYear = new Date().getFullYear();
                                             let startYear = 2022;
-                                            let endYear = currentYear + 2; // Two years ahead
-
+                                            let endYear = currentYear + 2;
                                             let yearSelect = document.getElementById("year");
-
-                                            // Populate the dropdown with years
                                             for (let year = startYear; year <= endYear; year++) {
                                                 let option = document.createElement("option");
                                                 option.value = year;
@@ -136,124 +157,90 @@ session_start();
                                             }
                                         </script>
 
-
+                                        <!-- Email -->
                                         <div class="col-12">
-                                          <label for="email" class="form-label">Email</label>
-                                          <input type="email" class="form-control" id="email" name="email" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter the email address
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                            <div class="invalid-feedback" style="font-size:14px;">
+                                                Please enter the email address
                                             </div>
                                         </div>
 
-                                        <!--div class="col-12">
-                                          <label for="photo" class="form-label">Profile Picture</label>
-                                          <input type="file" class="form-control form-control-sm" id="pro_photo" name="pro_photo">
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Upload Profile Picture
-                                            </div>
-                                        </div-->
-
-
+                                        <!-- Mobile -->
                                         <div class="col-12">
-                                          <label for="mobileNumber" class="form-label">Mobile Number</label>
-                                              <div class="input-group">
+                                            <label for="mobileNumber" class="form-label">Mobile Number</label>
+                                            <div class="input-group">
                                                 <span class="input-group-text">+94</span>
-                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" oninput="validateMobile(this)" required>
-                                                <div class="invalid-feedback" style="font-size:14px;" id="numberErrorMessage">
+                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" required>
+                                                <div class="invalid-feedback" style="font-size:14px;">
                                                     Please enter the mobile number
                                                 </div>
                                             </div>
                                         </div>
 
+                                        <!-- Password -->
                                         <div class="col-12">
-                                          <label for="password" class="form-label">Password</label>
+                                            <label for="password" class="form-label">Password</label>
                                             <div class="input-group">
                                                 <input type="password" class="form-control" id="password" name="password" required>
                                                 <span class="input-group-text" id="inputGroupPrepend">
                                                     <i class="password-toggle-icon1 bx bxs-show" onclick="togglePasswordVisibility('password', 'password-toggle-icon1')"></i>
                                                 </span>
-                                                <div class="invalid-feedback" style="font-size:14px;" id="">
+                                                <div class="invalid-feedback" style="font-size:14px;">
                                                     Please enter password
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <!--div class="col-12">
-                                          <div class="form-check">
-                                            <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
-                                            <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
-                                            <div class="invalid-feedback">You must agree before submitting.</div>
-                                          </div>
-                                        </div-->
+                                        <!-- HND Course Select -->
+                                       
+
+                                        <!-- Submit -->
                                         <div class="col-12">
-                                          <button class="btn btn-primary w-100" type="submit"
-                                           data-bs-toggle="modal" data-bs-target="#confirmSubmitModal">Create Account</button>
+                                            <button class="btn btn-primary w-100" type="submit">Create Account</button>
                                         </div>
 
+                                        <!-- Links -->
                                         <div class="col-12">
-                                          <p class="small mb-0">Create Former Students account? <a href="oddstudents/pages-signup.php">Click</a></p>
-                                           <p class="small mb-0">Create Lecture account? <a href="../lectures/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Already have an account? <a href="index.php">Log in</a></p>
+                                            <p class="small mb-0">Create Former Students account? <a href="oddstudents/pages-signup.php">Click</a></p>
+                                            <p class="small mb-0">Create Lecture account? <a href="../lectures/pages-signup.php">Click</a></p>
+                                            <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
+                                            <p class="small mb-0">Already have an account? <a href="index.php">Log in</a></p>
                                         </div>
-                                      </form>
+                                    </form>
                                 </div>
                             </div>
 
                             <?php include_once ("includes/footer3.php") ?>
-
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-    </main><!-- End #main -->
+    </main>
 
- 
-   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // On form submit
-            $("#signup-form").submit(function(event) {
-                event.preventDefault(); // Prevent form submission
+        // Simple password toggle
+        function togglePasswordVisibility(inputId, iconClass) {
+            const input = document.getElementById(inputId);
+            const icon = document.querySelector(`.${iconClass}`);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bxs-show");
+                icon.classList.add("bxs-hide");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bxs-hide");
+                icon.classList.add("bxs-show");
+            }
+        }
 
-                $.ajax({
-                    url: "register.php", // Send form data to register.php
-                    type: "POST",
-                    data: $(this).serialize(), // Serialize the form data
-                    dataType: "json", // Expect JSON response
-                    success: function(response) {
-                        let popupAlert = $("#popup-alert");
-
-                        // Set the message class and text based on the response status
-                        if (response.status === "success") {
-                            popupAlert.removeClass("alert-error").addClass("alert-success").html(response.message);
-                        } else {
-                            popupAlert.removeClass("alert-success").addClass("alert-error").html(response.message);
-                        }
-
-                        // Show the alert
-                        popupAlert.show();
-
-                        // Hide the alert after 10 seconds
-                        setTimeout(function() {
-                            popupAlert.fadeOut();
-                        }, 1000);
-
-                    error: function(xhr, status, error) {
-                        alert("AJAX Error: " + xhr.responseText); // Handle AJAX error
-                    }
-                });
-            });
-        });
+        // Optional: You can add form validation here
     </script>
 
-
-
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
     <?php include_once ("includes/js-links-inc.php") ?>
-
 </body>
 
 </html>

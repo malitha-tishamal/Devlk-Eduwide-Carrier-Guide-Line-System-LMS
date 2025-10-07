@@ -8,7 +8,7 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Fetch user details
+// Fetch admin details
 $user_id = $_SESSION['admin_id'];
 $sql = "SELECT username, email, nic, mobile, profile_picture FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
@@ -22,32 +22,36 @@ $stmt->close();
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
+$course_id = isset($_GET['course_id']) ? $_GET['course_id'] : '';
 
-// Build the SQL query with filters
-$sql2 = "SELECT * FROM former_students WHERE 1";
+// Fetch all courses for the filter dropdown
+$coursesResult = $conn->query("SELECT id, name FROM hnd_courses ORDER BY name ASC");
 
-// Apply search filter if provided
+// Build SQL query with optional filters
+$sql2 = "SELECT fs.*, hc.name AS course_name
+         FROM former_students fs
+         LEFT JOIN hnd_courses hc ON fs.course_id = hc.id
+         WHERE 1";
+
 if ($search !== '') {
-    $sql2 .= " AND (username LIKE '%$search%' OR reg_id LIKE '%$search%')";
+    $sql2 .= " AND (fs.username LIKE '%$search%' OR fs.reg_id LIKE '%$search%')";
 }
-
-// Apply study year filter if provided
 if ($study_year !== '') {
-    $sql2 .= " AND study_year = '$study_year'";
+    $sql2 .= " AND fs.study_year = '$study_year'";
 }
-
-// Apply status filter if provided
 if ($status !== '') {
-    $sql2 .= " AND status = '$status'";
+    $sql2 .= " AND fs.status = '$status'";
+}
+if ($course_id !== '') {
+    $sql2 .= " AND fs.course_id = '$course_id'";
 }
 
-// Execute the query with the applied filters
+// Execute query
 $result = $conn->query($sql2);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -64,7 +68,7 @@ $result = $conn->query($sql2);
             <h1>Manage Former Students</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                     <li class="breadcrumb-item">Pages</li>
                     <li class="breadcrumb-item active">Manage Former Students</li>
                 </ol>
@@ -79,13 +83,16 @@ $result = $conn->query($sql2);
                             <h5 class="card-title">Former Students Management</h5>
                             <p>Manage Former Students here.</p>
 
-                            <!-- Search Bar and Filters -->
+                            <!-- Filters Form -->
                             <form method="GET" action="">
                                 <div class="row mb-3">
+                                    <!-- Search -->
                                     <div class="col-md-3">
                                         <input type="text" name="search" class="form-control" placeholder="Search by Name or Reg ID" value="<?php echo htmlspecialchars($search); ?>">
                                     </div>
-                                    <div class="col-md-3">
+
+                                    <!-- Study Year -->
+                                    <div class="col-md-2">
                                         <select name="study_year" class="form-select">
                                             <option value="">All Years</option>
                                             <?php
@@ -98,7 +105,8 @@ $result = $conn->query($sql2);
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3">
+                                    <!-- Status -->
+                                    <div class="col-md-2">
                                         <select name="status" class="form-select">
                                             <option value="">All Status</option>
                                             <option value="active" <?php echo ($status == "active" ? 'selected' : ''); ?>>Active</option>
@@ -106,13 +114,29 @@ $result = $conn->query($sql2);
                                             <option value="disabled" <?php echo ($status == "disabled" ? 'selected' : ''); ?>>Disabled</option>
                                         </select>
                                     </div>
+
+                                    <!-- Course -->
                                     <div class="col-md-3">
-                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <select name="course_id" class="form-select">
+                                            <option value="">All Courses</option>
+                                            <?php
+                                            if ($coursesResult->num_rows > 0) {
+                                                while ($course = $coursesResult->fetch_assoc()) {
+                                                    $selected = ($course_id == $course['id']) ? 'selected' : '';
+                                                    echo "<option value='{$course['id']}' $selected>{$course['name']}</option>";
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">Filter</button>
                                     </div>
                                 </div>
                             </form>
 
-                            <!-- Table with user data -->
+                            <!-- Table -->
                             <table class="table datatable">
                                 <thead class="align-middle text-center">
                                     <tr>
@@ -124,6 +148,7 @@ $result = $conn->query($sql2);
                                         <th>Study Year</th>
                                         <th>Email</th>
                                         <th>Mobile</th>
+                                        <th>Course</th>
                                         <th>Now Status</th>
                                         <th>Status</th>
                                         <th>Approve</th>
@@ -139,16 +164,17 @@ $result = $conn->query($sql2);
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<tr>";
                                             echo "<td>" . $row['id'] . "</td>";
-                                            echo "<td><img src='../oddstudents/" . htmlspecialchars($row["profile_picture"]) . "' alt='Profile' width='50'></td>";
+                                            echo "<td><img src='../oddstudents/" . htmlspecialchars($row["profile_picture"]) . "' alt='Profile' width='120'></td>";
                                             echo "<td>" . htmlspecialchars($row['username']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['reg_id']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['nic']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['study_year']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['email']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['mobile']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['course_name']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['nowstatus']) . "</td>";
 
-                                            // Status Column with Color
+                                            // Status Column
                                             echo "<td>";
                                             $statusVal = strtolower($row['status']);
                                             if ($statusVal === 'active' || $statusVal === 'approved') {
@@ -162,7 +188,7 @@ $result = $conn->query($sql2);
                                             }
                                             echo "</td>";
 
-                                            // Action Buttons
+                                            // Action buttons
                                             echo "<td class='text-center'><button class='btn btn-success btn-sm w-100 approve-btn' data-id='" . $row['id'] . "'>Approve</button></td>";
                                             echo "<td class='text-center'><button class='btn btn-warning btn-sm w-100 disable-btn' data-id='" . $row['id'] . "'>Disable</button></td>";
                                             echo "<td class='text-center'><button class='btn btn-danger btn-sm w-100 delete-btn' data-id='" . $row['id'] . "'>Delete</button></td>";
@@ -171,13 +197,12 @@ $result = $conn->query($sql2);
                                             echo "</tr>";
                                         }
                                     } else {
-                                        echo "<tr><td colspan='15' class='text-center'>No users found.</td></tr>";
+                                        echo "<tr><td colspan='16' class='text-center'>No users found.</td></tr>";
                                     }
                                     ?>
                                 </tbody>
                             </table>
-                            <!-- End Table with user data -->
-
+                            <!-- End Table -->
                         </div>
                     </div>
                 </div>
@@ -186,12 +211,10 @@ $result = $conn->query($sql2);
     </main>
 
     <?php include_once("../includes/footer.php") ?>
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
-        <i class="bi bi-arrow-up-short"></i>
-    </a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <?php include_once("../includes/js-links-inc.php") ?>
 
-    <script type="text/javascript">
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const approveButtons = document.querySelectorAll('.approve-btn');
             const disableButtons = document.querySelectorAll('.disable-btn');
@@ -222,7 +245,6 @@ $result = $conn->query($sql2);
         });
     </script>
 </body>
-
 </html>
 
 <?php

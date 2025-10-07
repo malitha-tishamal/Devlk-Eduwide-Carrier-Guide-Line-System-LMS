@@ -145,7 +145,7 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                         <div class="col-lg-9 col-md-8">
                                             <?php 
                                             // Display profile picture with timestamp to force refresh
-                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 100px; height: 100px; border-radius:50%;'>";
+                                            echo "<img src='$profilePic?" . time() . "' alt='Profile Picture' class='img-thumbnail mb-1' style='width: 200px; height: 200px; border-radius:50%;'>";
                                             ?>
                                             
                                             <form action="update-profile-picture.php" method="POST" enctype="multipart/form-data">
@@ -204,6 +204,25 @@ $nowstatus = isset($user['nowstatus']) ? $user['nowstatus'] : ''; // Use the fet
                                                     <input type="text" name="mobile" class="form-control w-75" value="<?php echo htmlspecialchars($user['mobile']); ?>">
                                                 </div>
                                             </div>
+                                            <div class="row mt-3">
+    <div class="col-lg-3 col-md-4 label">Course</div>
+    <div class="col-lg-9 col-md-8">
+        <select name="course_id" class="form-select w-75" required>
+            <option value="">-- Select Course --</option>
+            <?php
+            $query = "SELECT id, name FROM hnd_courses ORDER BY name ASC";
+            $result = mysqli_query($conn, $query);
+            if ($result && mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $selected = ($row['id'] == $user['course_id']) ? 'selected' : '';
+                    echo '<option value="' . htmlspecialchars($row['id']) . '" ' . $selected . '>' . htmlspecialchars($row['name']) . '</option>';
+                }
+            }
+            ?>
+        </select>
+    </div>
+</div>
+
                                             <div class="row mt-3">
                                                 <div class="col-lg-3 col-md-4 label">Now Full Time Status )</div>
                                                 <div class="col-lg-9 col-md-8">

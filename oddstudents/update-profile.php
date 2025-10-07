@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nic        = trim($_POST['nic']);
     $mobile     = trim($_POST['mobile']);
     $nowstatus  = trim($_POST['nowstatus']);
+    $course_id  = isset($_POST['course_id']) ? trim($_POST['course_id']) : null;
+    $study_year = isset($_POST['study_year']) ? trim($_POST['study_year']) : null;
 
     // Optional: Basic validation
     if (empty($username) || empty($email)) {
@@ -26,9 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
+    // Optional: Validate course_id and study_year if required
+    if (empty($course_id) || empty($study_year)) {
+        $_SESSION['status'] = 'error';
+        $_SESSION['message'] = 'Course and Study Year are required.';
+        header("Location: user-profile.php");
+        exit();
+    }
+
     // Prepare the update statement
     $query = "UPDATE former_students 
-              SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?
+              SET username = ?, email = ?, nic = ?, mobile = ?, nowstatus = ?, course_id = ?, study_year = ?
               WHERE id = ?"; 
 
     $stmt = $conn->prepare($query);
@@ -40,7 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    $stmt->bind_param("sssssi", $username, $email, $nic, $mobile, $nowstatus, $former_student_id);
+    $stmt->bind_param(
+        "ssssssii", 
+        $username, 
+        $email, 
+        $nic, 
+        $mobile, 
+        $nowstatus, 
+        $course_id, 
+        $study_year, 
+        $former_student_id
+    );
 
     if ($stmt->execute()) {
         $_SESSION['status'] = 'success';

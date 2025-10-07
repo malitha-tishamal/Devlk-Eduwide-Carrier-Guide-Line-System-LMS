@@ -222,7 +222,7 @@ $stmt->close();
     <?php include_once("../includes/formers-sidebar.php") ?>
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Home</h1>
+            <h1>Your Education Path</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="">Home</a></li>

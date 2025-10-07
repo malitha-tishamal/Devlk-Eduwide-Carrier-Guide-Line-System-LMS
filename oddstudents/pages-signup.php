@@ -1,34 +1,33 @@
 <?php
-// Start session to access session variables
 session_start();
+include_once("../includes/db-conn.php"); // DB connection
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Former Students Account - EduWide</title>
-    <meta content="" name="description">
-    <meta content="" name="keywords">
     <link rel="icon" href="../assets/images/logos/favicon.png">
+    <?php include_once("../includes/css-links-inc.php"); ?>
 
-    <?php include_once ("../includes/css-links-inc.php"); ?>
-        <style>
-        /* Styling for the popup */
+    <style>
         .popup-message {
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px;
-            background-color: #28a745;
+            padding: 15px 25px;
+            border-radius: 6px;
             color: white;
-            font-weight: bold;
-            border-radius: 5px;
-            display: none; /* Hidden by default */
+            font-weight: 600;
+            display: none;
             z-index: 9999;
+        }
+
+        .success-popup {
+            background-color: #28a745;
         }
 
         .error-popup {
@@ -38,27 +37,19 @@ session_start();
 </head>
 
 <body>
-    <!-- Displaying the message from the session -->
+    <!-- ✅ Popup for PHP session messages -->
     <?php if (isset($_SESSION['status'])): ?>
-        <div class="popup-message <?php echo ($_SESSION['status'] == 'success') ? '' : 'error-popup'; ?>" id="popup-alert">
-            <?php echo $_SESSION['message']; ?>
+        <div class="popup-message <?php echo ($_SESSION['status'] == 'success') ? 'success-popup' : 'error-popup'; ?>" id="popup-alert">
+            <?php echo htmlspecialchars($_SESSION['message']); ?>
         </div>
-
         <script>
-            // Display the popup message
-            document.getElementById('popup-alert').style.display = 'block';
-
-            // Automatically hide the popup after 10 seconds
-            setTimeout(function() {
-                const popupAlert = document.getElementById('popup-alert');
-                if (popupAlert) {
-                    popupAlert.style.display = 'none';
-                }
-            }, 1000);
+            const popup = document.getElementById('popup-alert');
+            if (popup) {
+                popup.style.display = 'block';
+                setTimeout(() => popup.style.display = 'none', 3000);
+            }
         </script>
-
         <?php
-        // Clear session variables after showing the message
         unset($_SESSION['status']);
         unset($_SESSION['message']);
         ?>
@@ -69,204 +60,155 @@ session_start();
             <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
                 <div class="container">
                     <div class="row justify-content-center">
-                        <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                        <div class="col-lg-5 col-md-7 d-flex flex-column align-items-center justify-content-center">
+
                             <div class="d-flex justify-content-center py-4">
-                                <a href="" class="logo d-flex align-items-center w-auto">
-                                    <img src="../assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;">
-                                    <!-- <span class="d-none d-lg-block">MediQ</span> -->
+                                <a href="#" class="logo d-flex align-items-center w-auto">
+                                    <img src="../assets/images/logos/eduwide-logo.png" alt="EduWide" style="max-height:130px;">
                                 </a>
-                            </div><!-- End Logo -->
+                            </div>
 
                             <div class="card mb-2">
                                 <div class="card-body">
-                                    <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Create Former Student Account</h5>
-                                        <!-- <p class="text-center small">Enter your username & password to login</p> -->
+                                    <div class="pt-4 pb-2 text-center">
+                                        <h5 class="card-title fs-4 mb-0">Create Former Student Account</h5>
                                     </div>
 
-                                    <form action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
+                                    <!-- ✅ Form: normal POST -->
+                                    <form id="signup-form" action="register.php" method="POST" class="row g-3 needs-validation" novalidate>
 
+                                        <!-- Full Name -->
                                         <div class="col-12">
-                                         <label for="name" class="form-label">Name</label>
+                                            <label for="name" class="form-label">Full Name</label>
                                             <input type="text" class="form-control" id="name" name="username" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter the name
-                                            </div>
+                                            <div class="invalid-feedback">Please enter your name.</div>
                                         </div>
 
+                                        <!-- Registration ID -->
                                         <div class="col-12">
-                                         <label for="reg_id" class="form-label">Registration ID</label>
-                                            <input type="text" class="form-control" id="reg_id" name="reg_id" placeholder="e.g : GAL/IT/20xx/xxxx" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter your Registration ID
-                                            </div>
+                                            <label for="reg_id" class="form-label">Registration ID</label>
+                                            <input type="text" class="form-control" id="reg_id" name="reg_id" placeholder="e.g., GAL/IT/20xx/xxxx" required>
+                                            <div class="invalid-feedback">Please enter your registration ID.</div>
                                         </div>
 
+                                        <!-- NIC Number -->
                                         <div class="col-12">
-                                         <label for="nicNumber" class="form-label">NIC Number</label>
-                                              <input type="text" class="form-control" id="nicNumber" name="nic" placeholder="" oninput="this.value = this.value.toUpperCase(); validateNic(this);" required>
-                                            <div class="invalid-feedback" style="font-size:14px;" id="nicErrorMessage">
-                                                Please Enter the NIC number
-                                            </div>
+                                            <label for="nicNumber" class="form-label">NIC Number</label>
+                                            <input type="text" class="form-control" id="nicNumber" name="nic" oninput="this.value = this.value.toUpperCase();" required>
+                                            <div class="invalid-feedback">Please enter your NIC number.</div>
                                         </div>
 
+                                        <!-- Email -->
                                         <div class="col-12">
-                                          <label for="email" class="form-label">Email</label>
-                                          <input type="email" class="form-control" id="email" name="email" required>
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Enter the email address
-                                            </div>
+                                            <label for="email" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                            <div class="invalid-feedback">Please enter a valid email address.</div>
                                         </div>
 
-                                        <!--div class="col-12">
-                                          <label for="photo" class="form-label">Profile Picture</label>
-                                          <input type="file" class="form-control form-control-sm" id="pro_photo" name="pro_photo">
-                                            <div class="invalid-feedback" style="font-size:14px" id="">
-                                                Please Upload Profile Picture
-                                            </div>
-                                        </div-->
-
-
+                                        <!-- Mobile -->
                                         <div class="col-12">
-                                          <label for="mobileNumber" class="form-label">Mobile Number</label>
-                                              <div class="input-group">
+                                            <label for="mobileNumber" class="form-label">Mobile Number</label>
+                                            <div class="input-group">
                                                 <span class="input-group-text">+94</span>
-                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" oninput="validateMobile(this)" required>
-                                                <div class="invalid-feedback" style="font-size:14px;" id="numberErrorMessage">
-                                                    Please enter the mobile number
-                                                </div>
+                                                <input type="tel" class="form-control" id="mobileNumber" name="mobile" placeholder="712345678" required>
                                             </div>
+                                            <div class="invalid-feedback">Please enter your mobile number.</div>
                                         </div>
 
+                                        <!-- Course -->
+                                        <div class="col-12">
+                                            <label for="course" class="form-label">Select Your Course</label>
+                                            <select name="course" id="course" class="form-select" required>
+                                                <option value="">-- Select Course --</option>
+                                                <?php
+                                                $query = "SELECT id, name FROM hnd_courses ORDER BY name ASC";
+                                                $result = mysqli_query($conn, $query);
+                                                if ($result && mysqli_num_rows($result) > 0) {
+                                                    while ($row = mysqli_fetch_assoc($result)) {
+                                                        echo '<option value="' . htmlspecialchars($row['id']) . '">' . htmlspecialchars($row['name']) . '</option>';
+                                                    }
+                                                } else {
+                                                    echo '<option value="">No courses found</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                            <div class="invalid-feedback">Please select your course.</div>
+                                        </div>
+
+                                        <!-- Batch Year -->
                                         <div class="col-12">
                                             <label for="year" class="form-label">Select Batch Year</label>
-                                            <select class="form-control" id="year" name="study_year" required>
+                                            <select class="form-select" id="year" name="study_year" required>
                                                 <option value="" disabled selected>-- Select Year --</option>
                                             </select>
-                                            <div class="invalid-feedback" style="font-size:14px;">
-                                                Please Select Your Academic Year
-                                            </div>
+                                            <div class="invalid-feedback">Please select your batch year.</div>
                                         </div>
 
                                         <script>
-                                            // Get the current year
-                                            let currentYear = new Date().getFullYear();
-                                            let startYear = 2000;
-                                            let endYear = currentYear + 2; // Two years ahead
-
-                                            let yearSelect = document.getElementById("year");
-
-                                            // Populate the dropdown with years
-                                            for (let year = startYear; year <= endYear; year++) {
-                                                let option = document.createElement("option");
+                                            const currentYear = new Date().getFullYear();
+                                            const yearSelect = document.getElementById("year");
+                                            for (let year = 2000; year <= currentYear + 2; year++) {
+                                                const option = document.createElement("option");
                                                 option.value = year;
                                                 option.textContent = year;
                                                 yearSelect.appendChild(option);
                                             }
                                         </script>
 
+                                        <!-- Current Status -->
                                         <div class="col-12">
-                                            <label class="form-label">Are you Fulltime:</label> <br>
-                                            <input type="radio" name="nowstatus" value="study" id="studyRadio" required> <label for="studyRadio">Still Study</label>
-                                            &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <input type="radio" name="nowstatus" value="work" id="workRadio" required> <label for="workRadio">Work</label>
-
-                                            &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <input type="radio" name="nowstatus" value="intern" id="workRadio" required> <label for="workRadio">Intern</label>
-
-                                            &nbsp;&nbsp;&nbsp;&nbsp;
-                                            <input type="radio" name="nowstatus" value="free" id="workRadio" required> <label for="workRadio">Free</label>
+                                            <label class="form-label">Current Status:</label><br>
+                                            <label><input type="radio" name="nowstatus" value="study" required> Still Studying</label>&nbsp;&nbsp;
+                                            <label><input type="radio" name="nowstatus" value="work"> Working</label>&nbsp;&nbsp;
+                                            <label><input type="radio" name="nowstatus" value="intern"> Intern</label>&nbsp;&nbsp;
+                                            <label><input type="radio" name="nowstatus" value="free"> Free</label>
+                                            <div class="invalid-feedback d-block">Please select your current status.</div>
                                         </div>
 
+                                        <!-- Password -->
                                         <div class="col-12">
-                                          <label for="password" class="form-label">Password</label>
+                                            <label for="password" class="form-label">Password</label>
                                             <div class="input-group">
                                                 <input type="password" class="form-control" id="password" name="password" required>
-                                                <span class="input-group-text" id="inputGroupPrepend">
-                                                    <i class="password-toggle-icon1 bx bxs-show" onclick="togglePasswordVisibility('password', 'password-toggle-icon1')"></i>
+                                                <span class="input-group-text">
+                                                    <i class="bx bxs-show" id="togglePassword" style="cursor:pointer;"></i>
                                                 </span>
-                                                <div class="invalid-feedback" style="font-size:14px;" id="">
-                                                    Please enter password
-                                                </div>
                                             </div>
+                                            <div class="invalid-feedback">Please enter your password.</div>
                                         </div>
 
-                                        <!--div class="col-12">
-                                          <div class="form-check">
-                                            <input class="form-check-input" name="terms" type="checkbox" value="" id="acceptTerms" required>
-                                            <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>
-                                            <div class="invalid-feedback">You must agree before submitting.</div>
-                                          </div>
-                                        </div-->
-                                        <div class="col-12">
-                                          <button class="btn btn-primary w-100" type="submit"
-                                           data-bs-toggle="modal" data-bs-target="#confirmSubmitModal">Create Account</button>
-                                        </div>
+                                        <script>
+                                            document.getElementById('togglePassword').addEventListener('click', function() {
+                                                const passwordInput = document.getElementById('password');
+                                                passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+                                                this.classList.toggle('bxs-show');
+                                                this.classList.toggle('bxs-hide');
+                                            });
+                                        </script>
 
                                         <div class="col-12">
-                                          <p class="small mb-0">Create Students account? <a href="../pages-signup.php">Click</a></p>
-                                           <p class="small mb-0">Create Lecture account? <a href="../lectures/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Create Admin account? <a href="../admin/pages-signup.php">Click</a></p>
-                                          <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
+                                            <button class="btn btn-primary w-100" type="submit">Create Account</button>
                                         </div>
-                                      </form>
+
+                                        <div class="col-12 text-center">
+                                            <p class="small mb-0">Already have an account? <a href="../index.php">Log in</a></p>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
 
-                            <?php include_once ("../includes/footer3.php") ?>
-
+                            <?php include_once("../includes/footer3.php"); ?>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-    </main><!-- End #main -->
+    </main>
 
- 
-   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // On form submit
-            $("#signup-form").submit(function(event) {
-                event.preventDefault(); // Prevent form submission
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up-short"></i>
+    </a>
 
-                $.ajax({
-                    url: "register.php", // Send form data to register.php
-                    type: "POST",
-                    data: $(this).serialize(), // Serialize the form data
-                    dataType: "json", // Expect JSON response
-                    success: function(response) {
-                        let popupAlert = $("#popup-alert");
-
-                        // Set the message class and text based on the response status
-                        if (response.status === "success") {
-                            popupAlert.removeClass("alert-error").addClass("alert-success").html(response.message);
-                        } else {
-                            popupAlert.removeClass("alert-success").addClass("alert-error").html(response.message);
-                        }
-
-                        // Show the alert
-                        popupAlert.show();
-
-                        // Hide the alert after 10 seconds
-                        setTimeout(function() {
-                            popupAlert.fadeOut();
-                        }, 1000);
-                    },
-                    error: function(xhr, status, error) {
-                        alert("AJAX Error: " + xhr.responseText); // Handle AJAX error
-                    }
-                });
-            });
-        });
-    </script>
-
-
-
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-    <?php include_once ("../includes/js-links-inc.php") ?>
-
+    <?php include_once("../includes/js-links-inc.php"); ?>
 </body>
-
 </html>
