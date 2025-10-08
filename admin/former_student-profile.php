@@ -84,6 +84,20 @@ $stmt->execute();
 $certifications = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Fetch course name from hnd_courses
+$course_name = '';
+if (!empty($student['course_id'])) {
+    $course_sql = "SELECT name FROM hnd_courses WHERE id = ?";
+    $stmt = $conn->prepare($course_sql);
+    $stmt->bind_param("i", $student['course_id']);
+    $stmt->execute();
+    $course_result = $stmt->get_result();
+    $course_row = $course_result->fetch_assoc();
+    $course_name = $course_row['name'] ?? '';
+    $stmt->close();
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -317,11 +331,16 @@ $stmt->close();
                         <div class="card-body">
                             <div class="container">
                                 <h3 class="card-title"><?= htmlspecialchars($student['username']) ?> Profile</h3>
+                                
 
                                 <!-- Profile Header -->
                                 <div class="profile-header">
                                     <img src="../oddstudents/<?= htmlspecialchars($student['profile_picture']) ?>" alt="Profile Picture">
                                     <h2 class="mt-2"><?= htmlspecialchars($student['username']) ?></h2>
+                                    <?php if (!empty($course_name)): ?>
+    <p class="text-primary fw-bold mt-2">Course: <?= htmlspecialchars($course_name) ?></p>
+<?php endif; ?>
+
 
                                     <?php if (!empty($summary)): ?>
                                         <p class="text-muted"><?= nl2br(htmlspecialchars($summary)) ?></p>

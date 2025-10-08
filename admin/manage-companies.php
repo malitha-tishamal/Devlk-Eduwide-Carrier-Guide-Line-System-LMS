@@ -92,7 +92,7 @@ $result = $conn->query($sql);
                                         while ($row = $result->fetch_assoc()) {
                                             echo "<tr>";
                                             echo "<td>" . $row['id'] . "</td>";
-                                            echo "<td><img src='../companies/" . $row["profile_picture"] . "' alt='Profile' width='50'></td>";
+                                            echo "<td><img src='../companies/" . $row["profile_picture"] . "' alt='Profile' width='120' height='120'></td>";
                                             echo "<td>" . $row['username'] . "</td> ";
                                             echo "<td>" . $row['address'] . "</td>";
                                             echo "<td>" . $row['email'] . "</td>";
