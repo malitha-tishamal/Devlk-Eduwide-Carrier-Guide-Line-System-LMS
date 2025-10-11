@@ -1,85 +1,60 @@
 <?php
-require_once "../includes/db-conn.php";
+session_start();
+require_once '../includes/db-conn.php';
 
-// Approve user
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+$PRIMARY_ADMIN_ID = 1; // Main Admin Protected
+
+function redirect($msg = '') {
+    header("Location: manage-admins.php" . ($msg ? "?msg=" . urlencode($msg) : ""));
+    exit();
+}
+
+// Approve Admin
 if (isset($_GET['approve_id'])) {
-    $user_id = $_GET['approve_id'];
-    $sql = "UPDATE admins SET status = 'approved' WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-admins.php?message=User approved successfully!&msg_type=success");
-        } else {
-            header("Location: manage-admins.php?message=Error approving user.&msg_type=danger");
-        }
-        $stmt->close();
-    }
+    $id = (int)$_GET['approve_id'];
+    if ($id === $PRIMARY_ADMIN_ID) redirect("Cannot modify primary admin.");
+    $stmt = $conn->prepare("UPDATE admins SET status = 'approved' WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    redirect("Admin approved successfully.");
 }
 
-// Disable user
+// Disable Admin
 if (isset($_GET['disable_id'])) {
-    $user_id = $_GET['disable_id'];
-    $sql = "UPDATE admins SET status = 'disabled' WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-admins.php?message=User disabled successfully!&msg_type=success");
-        } else {
-            header("Location: manage-admins.php?message=Error disabling user.&msg_type=danger");
-        }
-        $stmt->close();
-    }
+    $id = (int)$_GET['disable_id'];
+    if ($id === $PRIMARY_ADMIN_ID) redirect("Cannot disable primary admin.");
+    $stmt = $conn->prepare("UPDATE admins SET status = 'disabled' WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    redirect("Admin disabled successfully.");
 }
 
-// Delete user
+// Delete Admin
 if (isset($_GET['delete_id'])) {
-    $user_id = $_GET['delete_id'];
-    $sql = "DELETE FROM admins WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-admins.php?message=User deleted successfully!&msg_type=success");
-        } else {
-            header("Location: manage-admins.php?message=Error deleting user.&msg_type=danger");
-        }
-        $stmt->close();
-    }
+    $id = (int)$_GET['delete_id'];
+    if ($id === $PRIMARY_ADMIN_ID) redirect("Cannot delete primary admin.");
+    $stmt = $conn->prepare("DELETE FROM admins WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    redirect("Admin deleted successfully.");
 }
 
-
-
-// Check for the appropriate action (approve, disable, delete)
-if (isset($_GET['approve_id'])) {
-    $userId = $_GET['approve_id'];
-    // Your code to approve the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-admins.php");
-    exit();
+// Reset Admin Password
+if (isset($_GET['reset_id'])) {
+    $id = (int)$_GET['reset_id'];
+    if ($id === $PRIMARY_ADMIN_ID) redirect("Cannot reset primary admin password here.");
+    $newPassword = password_hash('00000000', PASSWORD_DEFAULT);
+    $stmt = $conn->prepare("UPDATE admins SET password = ? WHERE id = ?");
+    $stmt->bind_param("si", $newPassword, $id);
+    $stmt->execute();
+    redirect("Password reset to default (00000000).");
 }
 
-if (isset($_GET['disable_id'])) {
-    $userId = $_GET['disable_id'];
-    // Your code to disable the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-admins.php");
-    exit();
-}
-
-if (isset($_GET['delete_id'])) {
-    $userId = $_GET['delete_id'];
-    // Your code to delete the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-admins.php");
-    exit();
-}
-
-
-
-$conn->close();
+// Default redirect
+redirect();
 ?>

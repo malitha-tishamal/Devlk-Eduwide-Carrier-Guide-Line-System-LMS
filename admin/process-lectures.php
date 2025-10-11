@@ -3,12 +3,10 @@ require_once "../includes/db-conn.php";
 
 // Approve user
 if (isset($_GET['approve_id'])) {
-    $user_id = $_GET['approve_id'];
+    $user_id = intval($_GET['approve_id']);
     $sql = "UPDATE lectures SET status = 'approved' WHERE id = ?";
-    
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $user_id);
-        
         if ($stmt->execute()) {
             header("Location: manage-lectures.php?message=User approved successfully!&msg_type=success");
         } else {
@@ -16,16 +14,15 @@ if (isset($_GET['approve_id'])) {
         }
         $stmt->close();
     }
+    exit();
 }
 
 // Disable user
 if (isset($_GET['disable_id'])) {
-    $user_id = $_GET['disable_id'];
+    $user_id = intval($_GET['disable_id']);
     $sql = "UPDATE lectures SET status = 'disabled' WHERE id = ?";
-    
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $user_id);
-        
         if ($stmt->execute()) {
             header("Location: manage-lectures.php?message=User disabled successfully!&msg_type=success");
         } else {
@@ -33,16 +30,15 @@ if (isset($_GET['disable_id'])) {
         }
         $stmt->close();
     }
+    exit();
 }
 
 // Delete user
 if (isset($_GET['delete_id'])) {
-    $user_id = $_GET['delete_id'];
+    $user_id = intval($_GET['delete_id']);
     $sql = "DELETE FROM lectures WHERE id = ?";
-    
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $user_id);
-        
         if ($stmt->execute()) {
             header("Location: manage-lectures.php?message=User deleted successfully!&msg_type=success");
         } else {
@@ -50,36 +46,25 @@ if (isset($_GET['delete_id'])) {
         }
         $stmt->close();
     }
-}
-
-
-
-// Check for the appropriate action (approve, disable, delete)
-if (isset($_GET['approve_id'])) {
-    $userId = $_GET['approve_id'];
-    // Your code to approve the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-lectures.php");
     exit();
 }
 
-if (isset($_GET['disable_id'])) {
-    $userId = $_GET['disable_id'];
-    // Your code to disable the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-lectures.php");
+// Reset user password
+if (isset($_GET['reset_id'])) {
+    $user_id = intval($_GET['reset_id']);
+    $newPassword = password_hash('00000000', PASSWORD_DEFAULT);
+    $sql = "UPDATE lectures SET password = ? WHERE id = ?";
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("si", $newPassword, $user_id);
+        if ($stmt->execute()) {
+            header("Location: manage-lectures.php?message=Password reset to 00000000 successfully!&msg_type=info");
+        } else {
+            header("Location: manage-lectures.php?message=Error resetting password.&msg_type=danger");
+        }
+        $stmt->close();
+    }
     exit();
 }
-
-if (isset($_GET['delete_id'])) {
-    $userId = $_GET['delete_id'];
-    // Your code to delete the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-lectures.php");
-    exit();
-}
-
-
 
 $conn->close();
 ?>
