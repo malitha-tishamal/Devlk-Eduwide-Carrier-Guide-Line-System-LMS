@@ -68,6 +68,12 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-projects-skills.php">
+                <i class="bi bi-folder"></i><span>Your Projects and Skills</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link collapsed" href="user-profile.php">
                 <i class="bi bi-person-circle"></i> <span>Profile</span>
             </a>

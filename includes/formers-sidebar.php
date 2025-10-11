@@ -45,6 +45,12 @@
             </a>
         </li>
 
+         <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-projects-skills.php">
+                <i class="bi bi-folder"></i><span>Your Projects and Skills</span>
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link collapsed" href="logout.php">
                 <i class="bi bi-box-arrow-right"></i> <span>Log Out</span>

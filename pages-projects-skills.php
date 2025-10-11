@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../includes/db-conn.php';
+require_once 'includes/db-conn.php';
 
 // Enable detailed error reporting (remove on production)
 //ini_set('display_errors', 1);
@@ -8,15 +8,15 @@ require_once '../includes/db-conn.php';
 //error_reporting(E_ALL);
 
 // Check login
-if (!isset($_SESSION['former_student_id'])) {
-    header("Location: ../index.php");
+if (!isset($_SESSION['student_id'])) {
+    header("Location: index.php");
     exit();
 }
 
-$student_id = $_SESSION['former_student_id'];
+$student_id = $_SESSION['student_id'];
 
-// Fetch student info
-$stmt = $conn->prepare("SELECT * FROM former_students WHERE id=?");
+// Fetch student info - CHANGED: former_students to active_students
+$stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $student = $stmt->get_result()->fetch_assoc();
@@ -33,10 +33,10 @@ $skills_sql = "
 ";
 $skills_result = $conn->query($skills_sql);
 
-// Fetch already added skills with IDs for removal
+// Fetch already added skills with IDs for removal - CHANGED: former_student_skills to active_student_skills
 $added_skills_stmt = $conn->prepare("
     SELECT s.id, s.skill_name, s.category 
-    FROM former_student_skills fs 
+    FROM active_student_skills fs 
     JOIN (
         SELECT id, skill_name, 'IT' AS category FROM it_student_skills
         UNION ALL
@@ -78,14 +78,15 @@ if (isset($_POST['submit_skills'])) {
                 continue; // Skip if skill doesn't exist
             }
             
-            // Check if student already has this skill
-            $check = $conn->prepare("SELECT id FROM former_student_skills WHERE student_id=? AND skill_id=?");
+            // Check if student already has this skill - CHANGED: former_student_skills to active_student_skills
+            $check = $conn->prepare("SELECT id FROM active_student_skills WHERE student_id=? AND skill_id=?");
             $check->bind_param("ii", $student_id, $skill_id);
             $check->execute();
             $check_result = $check->get_result();
             
             if ($check_result->num_rows == 0) {
-                $stmt = $conn->prepare("INSERT INTO former_student_skills (student_id, skill_id) VALUES (?, ?)");
+                // CHANGED: former_student_skills to active_student_skills
+                $stmt = $conn->prepare("INSERT INTO active_student_skills (student_id, skill_id) VALUES (?, ?)");
                 $stmt->bind_param("ii", $student_id, $skill_id);
                 if ($stmt->execute()) {
                     $added_count++;
@@ -105,10 +106,10 @@ if (isset($_POST['submit_skills'])) {
     }
 }
 
-// Handle skill removal
+// Handle skill removal - CHANGED: former_student_skills to active_student_skills
 if (isset($_POST['remove_skill'])) {
     $skill_id_to_remove = $_POST['skill_id'];
-    $stmt = $conn->prepare("DELETE FROM former_student_skills WHERE student_id=? AND skill_id=?");
+    $stmt = $conn->prepare("DELETE FROM active_student_skills WHERE student_id=? AND skill_id=?");
     $stmt->bind_param("ii", $student_id, $skill_id_to_remove);
     if ($stmt->execute()) {
         $skills_success = "Skill removed successfully!";
@@ -149,22 +150,23 @@ if (isset($_POST['submit_project'])) {
         if ($end_date && strtotime($end_date) < strtotime($start_date)) {
             $project_error = "End date cannot be before start date!";
         } else {
-            $stmt = $conn->prepare("INSERT INTO former_student_projects (student_id, title, description, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            // CHANGED: former_student_projects to active_student_projects
+            $stmt = $conn->prepare("INSERT INTO active_student_projects (student_id, title, description, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
             $stmt->bind_param("issss", $student_id, $title, $description, $start_date, $end_date);
             if ($stmt->execute()) {
                 $project_id = $stmt->insert_id;
                 
-                // Insert project links
+                // Insert project links - CHANGED: former_student_project_links to active_student_project_links
                 if (!empty($links)) {
                     foreach ($links as $link) {
-                        $link_stmt = $conn->prepare("INSERT INTO former_student_project_links (project_id, link_type, link_url) VALUES (?, ?, ?)");
+                        $link_stmt = $conn->prepare("INSERT INTO active_student_project_links (project_id, link_type, link_url) VALUES (?, ?, ?)");
                         $link_stmt->bind_param("iss", $project_id, $link['type'], $link['url']);
                         $link_stmt->execute();
                         $link_stmt->close();
                     }
                 }
                 
-                $upload_dir = "../uploads/projects/";
+                $upload_dir = "uploads/projects/";
                 if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
                 if (!empty($_FILES['project_images']['name'][0])) {
@@ -187,7 +189,8 @@ if (isset($_POST['submit_project'])) {
 
                         $new_name = uniqid("project_") . ".$ext";
                         if (move_uploaded_file($tmp, $upload_dir . $new_name)) {
-                            $img_stmt = $conn->prepare("INSERT INTO former_student_project_photos (project_id, image_path) VALUES (?, ?)");
+                            // CHANGED: former_student_project_photos to active_student_project_photos
+                            $img_stmt = $conn->prepare("INSERT INTO active_student_project_photos (project_id, image_path) VALUES (?, ?)");
                             $path = "uploads/projects/" . $new_name;
                             $img_stmt->bind_param("is", $project_id, $path);
                             $img_stmt->execute();
@@ -207,37 +210,37 @@ if (isset($_POST['submit_project'])) {
     }
 }
 
-// Handle project deletion
+// Handle project deletion - CHANGED: All table names to active_student_*
 if (isset($_POST['delete_project'])) {
     $project_id_to_delete = $_POST['project_id'];
     
     // First delete project photos
-    $img_stmt = $conn->prepare("SELECT image_path FROM former_student_project_photos WHERE project_id=?");
+    $img_stmt = $conn->prepare("SELECT image_path FROM active_student_project_photos WHERE project_id=?");
     $img_stmt->bind_param("i", $project_id_to_delete);
     $img_stmt->execute();
     $img_result = $img_stmt->get_result();
     
     while ($img = $img_result->fetch_assoc()) {
-        if (file_exists('../' . $img['image_path'])) {
-            unlink('../' . $img['image_path']);
+        if (file_exists('' . $img['image_path'])) {
+            unlink('' . $img['image_path']);
         }
     }
     $img_stmt->close();
     
     // Delete photo records
-    $delete_img_stmt = $conn->prepare("DELETE FROM former_student_project_photos WHERE project_id=?");
+    $delete_img_stmt = $conn->prepare("DELETE FROM active_student_project_photos WHERE project_id=?");
     $delete_img_stmt->bind_param("i", $project_id_to_delete);
     $delete_img_stmt->execute();
     $delete_img_stmt->close();
     
     // Delete project links
-    $delete_links_stmt = $conn->prepare("DELETE FROM former_student_project_links WHERE project_id=?");
+    $delete_links_stmt = $conn->prepare("DELETE FROM active_student_project_links WHERE project_id=?");
     $delete_links_stmt->bind_param("i", $project_id_to_delete);
     $delete_links_stmt->execute();
     $delete_links_stmt->close();
     
     // Delete project
-    $delete_stmt = $conn->prepare("DELETE FROM former_student_projects WHERE id=? AND student_id=?");
+    $delete_stmt = $conn->prepare("DELETE FROM active_student_projects WHERE id=? AND student_id=?");
     $delete_stmt->bind_param("ii", $project_id_to_delete, $student_id);
     if ($delete_stmt->execute()) {
         $project_success = "Project deleted successfully!";
@@ -249,12 +252,12 @@ if (isset($_POST['delete_project'])) {
     exit();
 }
 
-// Fetch student's projects with image count and links
+// Fetch student's projects with image count and links - CHANGED: All table names to active_student_*
 $projects_stmt = $conn->prepare("
     SELECT p.*, COUNT(DISTINCT pp.id) as image_count, COUNT(DISTINCT pl.id) as link_count
-    FROM former_student_projects p 
-    LEFT JOIN former_student_project_photos pp ON p.id = pp.project_id 
-    LEFT JOIN former_student_project_links pl ON p.id = pl.project_id 
+    FROM active_student_projects p 
+    LEFT JOIN active_student_project_photos pp ON p.id = pp.project_id 
+    LEFT JOIN active_student_project_links pl ON p.id = pl.project_id 
     WHERE p.student_id=? 
     GROUP BY p.id 
     ORDER BY p.created_at DESC
@@ -271,7 +274,7 @@ $projects_stmt->close();
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($student['username']) ?> - Skills & Projects</title>
-<?php include_once("../includes/css-links-inc.php"); ?>
+<?php include_once("includes/css-links-inc.php"); ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root {
@@ -496,8 +499,8 @@ $projects_stmt->close();
 </style>
 </head>
 <body>
-<?php include_once("../includes/header.php"); ?>
-<?php include_once("../includes/formers-sidebar.php"); ?>
+<?php include_once("includes/header.php"); ?>
+<?php include_once("includes/students-sidebar.php"); ?>
 
 <main id="main" class="main">
     <div class="pagetitle">
@@ -774,7 +777,7 @@ $projects_stmt->close();
                                 
                                 <!-- Project Links Display -->
                                 <?php
-                                $links_stmt = $conn->prepare("SELECT * FROM former_student_project_links WHERE project_id=?");
+                                $links_stmt = $conn->prepare("SELECT * FROM active_student_project_links WHERE project_id=?");
                                 $links_stmt->bind_param("i", $project['id']);
                                 $links_stmt->execute();
                                 $links_result = $links_stmt->get_result();
@@ -802,7 +805,7 @@ $projects_stmt->close();
 
                                 <!-- Project Images -->
                                 <?php
-                                $photos_stmt = $conn->prepare("SELECT * FROM former_student_project_photos WHERE project_id=?");
+                                $photos_stmt = $conn->prepare("SELECT * FROM active_student_project_photos WHERE project_id=?");
                                 $photos_stmt->bind_param("i", $project['id']);
                                 $photos_stmt->execute();
                                 $photos_result = $photos_stmt->get_result();
@@ -810,11 +813,11 @@ $projects_stmt->close();
                                 <?php if($photos_result->num_rows > 0): ?>
                                     <div class="mt-3">
                                         <?php while($photo = $photos_result->fetch_assoc()): ?>
-                                            <img src="../<?= htmlspecialchars($photo['image_path']) ?>" 
+                                            <img src="<?= htmlspecialchars($photo['image_path']) ?>" 
                                                  class="project-photo" 
                                                  data-bs-toggle="modal" 
                                                  data-bs-target="#imageModal"
-                                                 data-img="../<?= htmlspecialchars($photo['image_path']) ?>"
+                                                 data-img="<?= htmlspecialchars($photo['image_path']) ?>"
                                                  title="Click to view larger">
                                         <?php endwhile; ?>
                                     </div>
@@ -850,8 +853,8 @@ $projects_stmt->close();
     </div>
 </div>
 
-<?php include_once("../includes/footer.php"); ?>
-<?php include_once("../includes/js-links-inc.php"); ?>
+<?php include_once("includes/footer.php"); ?>
+<?php include_once("includes/js-links-inc.php"); ?>
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){
