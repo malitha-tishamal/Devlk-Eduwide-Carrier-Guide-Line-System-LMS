@@ -73,7 +73,13 @@
                 </li>
                 <li>
                     <a href="manage-students.php">
-                        <i class="bi bi-circle"></i> <span>Manage Students</span>
+                        <i class="bi bi-circle"></i> <span>Manage Students Accounts</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="students-skills.php">
+                        <i class="bi bi-circle"></i> <span>Students Skills</span>
                     </a>
                 </li>
             </ul>

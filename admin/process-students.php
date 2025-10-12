@@ -1,82 +1,75 @@
 <?php
+session_start();
 require_once "../includes/db-conn.php";
 
-// Approve user
-if (isset($_GET['approve_id'])) {
-    $user_id = $_GET['approve_id'];
-    $sql = "UPDATE students SET status = 'approved' WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-students.php?message=User approved successfully!&msg_type=success");
-        } else {
-            header("Location: manage-students.php?message=Error approving user.&msg_type=danger");
-        }
-        $stmt->close();
-    }
+// Helper function to redirect with a session message
+function redirectWithMsg($msg, $type = 'success') {
+    $_SESSION['msg'] = "<div class='alert alert-$type alert-dismissible fade show' role='alert'>
+                            $msg
+                            <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                        </div>";
+    header("Location: manage-students.php");
+    exit();
 }
 
-// Disable user
+// ====== APPROVE USER ======
+if (isset($_GET['approve_id'])) {
+    $user_id = intval($_GET['approve_id']);
+    $sql = "UPDATE students SET status = 'active' WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    if ($stmt->execute()) {
+        redirectWithMsg("User approved successfully!", "success");
+    } else {
+        redirectWithMsg("Error approving user.", "danger");
+    }
+    $stmt->close();
+}
+
+// ====== DISABLE USER ======
 if (isset($_GET['disable_id'])) {
-    $user_id = $_GET['disable_id'];
+    $user_id = intval($_GET['disable_id']);
     $sql = "UPDATE students SET status = 'disabled' WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-students.php?message=User disabled successfully!&msg_type=success");
-        } else {
-            header("Location: manage-students.php?message=Error disabling user.&msg_type=danger");
-        }
-        $stmt->close();
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    if ($stmt->execute()) {
+        redirectWithMsg("User disabled successfully!", "warning");
+    } else {
+        redirectWithMsg("Error disabling user.", "danger");
     }
+    $stmt->close();
 }
 
-// Delete user
+// ====== DELETE USER ======
 if (isset($_GET['delete_id'])) {
-    $user_id = $_GET['delete_id'];
+    $user_id = intval($_GET['delete_id']);
     $sql = "DELETE FROM students WHERE id = ?";
-    
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $user_id);
-        
-        if ($stmt->execute()) {
-            header("Location: manage-students.php?message=User deleted successfully!&msg_type=success");
-        } else {
-            header("Location: manage-students.php?message=Error deleting user.&msg_type=danger");
-        }
-        $stmt->close();
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    if ($stmt->execute()) {
+        redirectWithMsg("User deleted successfully!", "success");
+    } else {
+        redirectWithMsg("Error deleting user.", "danger");
     }
+    $stmt->close();
 }
 
+// ====== RESET PASSWORD ======
+if (isset($_GET['reset_id'])) {
+    $user_id = intval($_GET['reset_id']);
+    $new_password = password_hash('00000000', PASSWORD_DEFAULT);
 
+    $sql = "UPDATE students SET password = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $new_password, $user_id);
 
-// Check for the appropriate action (approve, disable, delete)
-if (isset($_GET['approve_id'])) {
-    $userId = $_GET['approve_id'];
-    // Your code to approve the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-students.php");
-    exit();
+    if ($stmt->execute()) {
+        redirectWithMsg("Password reset successfully to <b>00000000</b>.", "info");
+    } else {
+        redirectWithMsg("Error resetting password.", "danger");
+    }
+    $stmt->close();
 }
 
-if (isset($_GET['disable_id'])) {
-    $userId = $_GET['disable_id'];
-    // Your code to disable the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-students.php");
-    exit();
-}
-
-if (isset($_GET['delete_id'])) {
-    $userId = $_GET['delete_id'];
-    // Your code to delete the user...
-    // After success, redirect back to the previous page with a refresh
-    header("Location: manage-students.php");
-    exit();
-}
 $conn->close();
 ?>
