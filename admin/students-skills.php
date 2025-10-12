@@ -2,15 +2,19 @@
 session_start();
 require_once '../includes/db-conn.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Redirect if not logged in
-if (!isset($_SESSION['company_id'])) {
+if (!isset($_SESSION['admin_id'])) {
     header("Location: ../index.php");
     exit();
 }
 
-// Fetch user details
-$user_id = $_SESSION['company_id'];
-$sql = "SELECT * FROM companies WHERE id = ?";
+// Fetch logged-in admin user details
+$user_id = $_SESSION['admin_id'];
+$sql = "SELECT * FROM admins WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -22,27 +26,146 @@ $stmt->close();
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
+$course_id = isset($_GET['course_id']) ? $_GET['course_id'] : '';
+$skills = isset($_GET['skills']) ? (is_array($_GET['skills']) ? $_GET['skills'] : [$_GET['skills']]) : [];
 
-// Build the SQL query with filters
-$sql = "SELECT * FROM students WHERE 1";
+// Build SQL query with filters for student listing
+$sql = "SELECT DISTINCT s.*, c.name AS course_name 
+        FROM students s 
+        LEFT JOIN hnd_courses c ON s.course_id = c.id 
+        WHERE s.status != 'deleted'";
 
-// Apply search filter if provided
+$params = [];
+$types = '';
+
+// Apply filters
 if ($search !== '') {
-    $sql .= " AND (username LIKE '%$search%' OR reg_id LIKE '%$search%')";
+    $sql .= " AND (s.username LIKE ? OR s.reg_id LIKE ? OR s.email LIKE ?)";
+    $search_term = "%$search%";
+    $params = array_merge($params, [$search_term, $search_term, $search_term]);
+    $types .= 'sss';
 }
 
-// Apply study year filter if provided
 if ($study_year !== '') {
-    $sql .= " AND study_year = '$study_year'";
+    $sql .= " AND s.study_year = ?";
+    $params[] = $study_year;
+    $types .= 's';
 }
 
-// Apply status filter if provided
 if ($status !== '') {
-    $sql .= " AND status = '$status'";
+    $sql .= " AND s.status = ?";
+    $params[] = $status;
+    $types .= 's';
 }
 
-$result = $conn->query($sql);
+if ($course_id !== '') {
+    $sql .= " AND s.course_id = ?";
+    $params[] = $course_id;
+    $types .= 'i';
+}
+
+// Skills filter
+if (!empty($skills)) {
+    $placeholders = str_repeat('?,', count($skills) - 1) . '?';
+    $sql .= " AND s.id IN (
+        SELECT DISTINCT ass.student_id 
+        FROM active_student_skills ass 
+        WHERE ass.skill_id IN ($placeholders)
+    )";
+    $params = array_merge($params, $skills);
+    $types .= str_repeat('i', count($skills));
+}
+
+// Add ordering
+$sql .= " ORDER BY s.username ASC";
+
+// Prepare and execute the query
+$stmt = $conn->prepare($sql);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
 $total_students = $result->num_rows;
+$stmt->close();
+
+// Fetch all courses for dropdown
+$courses = $conn->query("SELECT id, name FROM hnd_courses ORDER BY name ASC");
+
+// Fetch all skills for filter from multiple tables
+$all_skills = $conn->query("
+    SELECT id, skill_name, 'IT' AS category FROM it_student_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Accountancy' AS category FROM hnd_accountancy_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Agriculture' AS category FROM hnd_agriculture_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Building Services' AS category FROM hnd_building_services_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Business Admin' AS category FROM hnd_business_admin_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'English' AS category FROM hnd_english_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Food Tech' AS category FROM hnd_food_tech_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Management' AS category FROM hnd_management_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Mechanical' AS category FROM hnd_mechanical_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'Quantity Survey' AS category FROM hnd_quantity_survey_skills WHERE skill_name != ''
+    UNION
+    SELECT id, skill_name, 'THM' AS category FROM hnd_thm_skills WHERE skill_name != ''
+    ORDER BY category, skill_name
+");
+
+// Fetch selected skills info for display
+$selected_skills_info = [];
+if (!empty($skills)) {
+    $skill_ids_str = implode(',', array_map('intval', $skills));
+    $selected_skills_query = $conn->query("
+        SELECT id, skill_name, category FROM (
+            SELECT id, skill_name, 'IT' AS category FROM it_student_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Accountancy' AS category FROM hnd_accountancy_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Agriculture' AS category FROM hnd_agriculture_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Building Services' AS category FROM hnd_building_services_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Business Admin' AS category FROM hnd_business_admin_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'English' AS category FROM hnd_english_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Food Tech' AS category FROM hnd_food_tech_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Management' AS category FROM hnd_management_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Mechanical' AS category FROM hnd_mechanical_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'Quantity Survey' AS category FROM hnd_quantity_survey_skills WHERE skill_name != ''
+            UNION
+            SELECT id, skill_name, 'THM' AS category FROM hnd_thm_skills WHERE skill_name != ''
+        ) AS all_skills
+        WHERE id IN ($skill_ids_str)
+    ");
+    
+    if ($selected_skills_query) {
+        while ($row = $selected_skills_query->fetch_assoc()) {
+            $selected_skills_info[] = $row;
+        }
+    }
+}
+
+// Status options for display
+$statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' => 'Rejected'];
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +177,8 @@ $total_students = $result->num_rows;
     <title>Active Students - EduWide</title>
 
     <?php include_once("../includes/css-links-inc.php"); ?>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         :root {
             --primary-color: #4361ee;
@@ -83,8 +208,8 @@ $total_students = $result->num_rows;
         }
 
         .student-avatar {
-            width: 180px;
-            height: 180px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--primary-color);
@@ -135,7 +260,7 @@ $total_students = $result->num_rows;
         }
 
         .stat-number {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: var(--primary-color);
             margin-bottom: 2px;
@@ -398,14 +523,134 @@ $total_students = $result->num_rows;
             padding: 10px;
         }
 
+        /* Select2 Custom Styles */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            min-height: 42px;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 2px 8px;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 4px;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--primary-color);
+        }
+
+        .skills-filter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .selected-skills-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .selected-skill-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .remove-skill {
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 2px;
+        }
+
+        .remove-skill:hover {
+            color: #ff6b6b;
+        }
+
+        .filter-tag {
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .results-count {
+            background: var(--success-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clear-filter {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+
+        .clear-filter:hover {
+            color: #ff6b6b;
+        }
+
         @media (max-width: 768px) {
             .student-card .card-body {
                 padding: 20px;
             }
             
             .student-avatar {
-                width: 70px;
-                height: 70px;
+                width: 80px;
+                height: 80px;
             }
             
             .stats-container {
@@ -415,6 +660,23 @@ $total_students = $result->num_rows;
             .stats-overview {
                 grid-template-columns: 1fr;
             }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .skill-match-highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 2px 4px;
         }
     </style>
 </head>
@@ -422,7 +684,7 @@ $total_students = $result->num_rows;
 <body>
 
     <?php include_once("../includes/header.php") ?>
-    <?php include_once("../includes/company-sidebar.php") ?>
+    <?php include_once("../includes/sadmin-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
@@ -444,27 +706,35 @@ $total_students = $result->num_rows;
                         <div class="overview-card">
                             <i class="fas fa-users overview-icon"></i>
                             <div class="overview-number"><?= $total_students ?></div>
-                            <div class="overview-label">Total Students</div>
+                            <div class="overview-label">Filtered Students</div>
                         </div>
                         <div class="overview-card">
                             <i class="fas fa-check-circle overview-icon"></i>
                             <div class="overview-number">
                                 <?php
-                                $approved_count = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'approved'")->fetch_assoc()['count'];
+                                $approved_count = 0;
+                                $count_result = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'approved'");
+                                if ($count_result) {
+                                    $approved_count = $count_result->fetch_assoc()['count'];
+                                }
                                 echo $approved_count;
                                 ?>
                             </div>
-                            <div class="overview-label">Approved Students</div>
+                            <div class="overview-label">Approved</div>
                         </div>
                         <div class="overview-card">
                             <i class="fas fa-clock overview-icon"></i>
                             <div class="overview-number">
                                 <?php
-                                $pending_count = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'pending'")->fetch_assoc()['count'];
+                                $pending_count = 0;
+                                $count_result = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'pending'");
+                                if ($count_result) {
+                                    $pending_count = $count_result->fetch_assoc()['count'];
+                                }
                                 echo $pending_count;
                                 ?>
                             </div>
-                            <div class="overview-label">Pending Approval</div>
+                            <div class="overview-label">Pending</div>
                         </div>
                     </div>
 
@@ -472,13 +742,13 @@ $total_students = $result->num_rows;
                     <div class="card filters-card">
                         <div class="card-body">
                             <h4 class="section-title">
-                                <i class="fas fa-filter"></i>Filter Students
+                                <i class="fas fa-filter"></i> Filter Students
                             </h4>
-                            <form method="GET" action="">
+                            <form method="GET" action="" id="filterForm">
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label class="form-label">Search</label>
-                                        <input type="text" name="search" class="form-control" placeholder="Name or Reg ID" value="<?= htmlspecialchars($search) ?>">
+                                        <input type="text" name="search" class="form-control" placeholder="Name, Reg ID or Email" value="<?= htmlspecialchars($search) ?>">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label">Study Year</label>
@@ -498,7 +768,6 @@ $total_students = $result->num_rows;
                                         <select name="status" class="form-select">
                                             <option value="">All Status</option>
                                             <?php
-                                            $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' => 'Rejected'];
                                             foreach ($statusOptions as $value => $label) {
                                                 $selected = ($status === $value) ? 'selected' : '';
                                                 echo "<option value=\"$value\" $selected>$label</option>";
@@ -506,10 +775,68 @@ $total_students = $result->num_rows;
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="col-md-3 d-flex align-items-end">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="fas fa-search me-2"></i>Apply Filters
-                                        </button>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Course</label>
+                                        <select name="course_id" class="form-select">
+                                            <option value="">All Courses</option>
+                                            <?php 
+                                            if ($courses) {
+                                                while ($course = $courses->fetch_assoc()): 
+                                            ?>
+                                                <option value="<?= $course['id'] ?>" <?= ($course_id == $course['id']) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($course['name']) ?>
+                                                </option>
+                                            <?php 
+                                                endwhile; 
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <!-- Skills Filter -->
+                                    <div class="col-12">
+                                        <div class="skills-filter-section">
+                                            <label class="form-label"><strong>Skills Filter</strong></label>
+                                            <select class="form-control" id="skillsSelect" name="skills[]" multiple="multiple" style="width: 100%">
+                                                <?php 
+                                                if ($all_skills) {
+                                                    while ($skill = $all_skills->fetch_assoc()): 
+                                                ?>
+                                                    <option value="<?= $skill['id'] ?>" 
+                                                        <?= in_array($skill['id'], $skills) ? 'selected' : '' ?>>
+                                                        <?= htmlspecialchars($skill['skill_name']) ?> 
+                                                        <small class="text-muted">(<?= $skill['category'] ?>)</small>
+                                                    </option>
+                                                <?php 
+                                                    endwhile; 
+                                                }
+                                                ?>
+                                            </select>
+                                            
+                                            <!-- Selected Skills Display -->
+                                            <?php if (!empty($selected_skills_info)): ?>
+                                                <div class="selected-skills-badges mt-3">
+                                                    <small class="text-muted">Selected Skills:</small>
+                                                    <?php foreach ($selected_skills_info as $skill_info): ?>
+                                                        <span class="selected-skill-badge">
+                                                            <?= htmlspecialchars($skill_info['skill_name']) ?> (<?= $skill_info['category'] ?>)
+                                                            <span class="remove-skill" data-skill-id="<?= $skill_info['id'] ?>">×</span>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-search me-2"></i>Apply Filters
+                                            </button>
+                                            <a href="?" class="btn btn-outline-secondary">
+                                                <i class="fas fa-times me-2"></i>Clear All
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -522,145 +849,236 @@ $total_students = $result->num_rows;
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="section-title">
-                                <i class="fas fa-user-graduate"></i>Student Profiles
-                            </h4>
+                            <!-- Active Filters and Results Count -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="section-title mb-0">
+                                    <i class="fas fa-user-graduate"></i>Student Profiles
+                                </h4>
+                                <div class="results-count">
+                                    <i class="fas fa-users me-1"></i>
+                                    <?= $total_students ?> Student<?= $total_students != 1 ? 's' : '' ?> Found
+                                </div>
+                            </div>
 
-                            <?php if ($result->num_rows > 0): ?>
-                                <div class="row">
-                                    <?php while ($student = $result->fetch_assoc()): 
-                                        // Fetch projects count for this student
-                                        $projects_count = $conn->query("SELECT COUNT(*) as count FROM active_student_projects WHERE student_id = " . $student['id'])->fetch_assoc()['count'];
-                                        
-                                        // Fetch actual skills for this student
-                                        $skills_sql = "
-                                            SELECT s.skill_name, s.category 
-                                            FROM active_student_skills a 
-                                            JOIN (
-                                                SELECT id, skill_name, 'IT' AS category FROM it_student_skills
-                                                UNION ALL
-                                                SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills
-                                            ) s ON a.skill_id = s.id
-                                            WHERE a.student_id = ?
-                                            ORDER BY s.category, s.skill_name
-                                            LIMIT 8
-                                        ";
-                                        $skills_stmt = $conn->prepare($skills_sql);
-                                        $skills_stmt->bind_param("i", $student['id']);
-                                        $skills_stmt->execute();
-                                        $skills_result = $skills_stmt->get_result();
-                                        $skills = $skills_result->fetch_all(MYSQLI_ASSOC);
-                                        $skills_stmt->close();
-                                        
-                                        $skills_count = count($skills);
+                            <!-- Active Filters -->
+                            <?php if ($search || $study_year || $status || $course_id || !empty($skills)): ?>
+                                <div class="active-filters">
+                                    <strong>Active Filters:</strong>
+                                    <?php if ($search): ?>
+                                        <span class="filter-badge">
+                                            Search: "<?= htmlspecialchars($search) ?>"
+                                            <a href="?" class="clear-filter" onclick="removeFilter('search')">×</a>
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if ($study_year): ?>
+                                        <span class="filter-badge">
+                                            Year: <?= $study_year ?>
+                                            <a href="?" class="clear-filter" onclick="removeFilter('study_year')">×</a>
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if ($status): ?>
+                                        <span class="filter-badge">
+                                            Status: <?= $statusOptions[$status] ?>
+                                            <a href="?" class="clear-filter" onclick="removeFilter('status')">×</a>
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php if ($course_id): 
+                                        $course_name = '';
+                                        $course_query = $conn->query("SELECT name FROM hnd_courses WHERE id = $course_id");
+                                        if ($course_query && $course_query->num_rows > 0) {
+                                            $course_name = $course_query->fetch_assoc()['name'];
+                                        }
                                     ?>
-                                        <div class="col-xl-4 col-lg-6 col-md-6">
-                                            <div class="card student-card">
-                                                <div class="card-body">
-                                                    <div class="card-header-section">
-                                                        <span class="student-id">ID: <?= $student['id'] ?></span>
-                                                        <img src="../<?= htmlspecialchars($student['profile_picture']) ?>" 
-                                                             alt="<?= htmlspecialchars($student['username']) ?>" 
-                                                             class="student-avatar"
-                                                             onerror="this.src='../uploads/profile_pictures/default.png'">
-                                                        <h5 class="student-name"><?= htmlspecialchars($student['username']) ?></h5>
-                                                        <div class="student-reg-id"><?= htmlspecialchars($student['reg_id']) ?></div>
-                                                        <div class="d-flex justify-content-center">
-                                                            <span class="status-badge status-<?= $student['status'] ?>">
-                                                                <?= $statusOptions[$student['status']] ?? ucfirst($student['status']) ?>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Stats -->
-                                                    <div class="stats-container">
-                                                        <div class="stat-item">
-                                                            <span class="stat-number"><?= $projects_count ?></span>
-                                                            <span class="stat-label">Projects</span>
-                                                        </div>
-                                                        <div class="stat-item">
-                                                            <span class="stat-number"><?= $skills_count ?></span>
-                                                            <span class="stat-label">Total Skills</span>
-                                                        </div>
-                                                        <div class="stat-item">
-                                                            <span class="stat-number"><?= htmlspecialchars($student['study_year']) ?></span>
-                                                            <span class="stat-label">Study Year</span>
-                                                        </div>
-                                                        <div class="stat-item">
-                                                            <span class="stat-number"><?= htmlspecialchars($student['nic']) ?></span>
-                                                            <span class="stat-label">NIC</span>
-                                                        </div>
-                                                    </div>
+                                        <?php if ($course_name): ?>
+                                            <span class="filter-badge">
+                                                Course: <?= htmlspecialchars($course_name) ?>
+                                                <a href="?" class="clear-filter" onclick="removeFilter('course_id')">×</a>
+                                            </span>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if (!empty($skills)): ?>
+                                        <span class="filter-badge">
+                                            Skills: <?= count($skills) ?> selected
+                                            <a href="?" class="clear-filter" onclick="removeFilter('skills')">×</a>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
 
-                                                    <!-- Skills Section -->
-                                                    <div class="skills-section">
-                                                        <div class="skills-label">
-                                                            <i class="fas fa-code me-1"></i>Key Skills
-                                                        </div>
-                                                        <div class="skills-container">
-                                                            <?php if (!empty($skills)): ?>
-                                                                <?php foreach ($skills as $skill): ?>
-                                                                    <span class="skill-badge">
-                                                                        <?= htmlspecialchars($skill['skill_name']) ?>
-                                                                        <span class="skill-category"><?= $skill['category'] ?></span>
-                                                                    </span>
-                                                                <?php endforeach; ?>
-                                                            <?php else: ?>
-                                                                <div class="no-skills">No skills added yet</div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
+                            <!-- Loading Spinner -->
+                            <div class="loading-spinner" id="loadingSpinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading students...</p>
+                            </div>
 
-                                                    <!-- Contact Info -->
-                                                    <div class="contact-info">
-                                                        <!-- Email -->
-                                                        <div class="contact-item">
-                                                            <div class="contact-icon">
-                                                                <i class="fas fa-envelope"></i>
-                                                            </div>
-                                                            <div class="contact-details">
-                                                                <div class="contact-label">Email</div>
-                                                                <a href="mailto:<?= htmlspecialchars($student['email']) ?>" class="contact-value contact-link">
-                                                                    <?= htmlspecialchars($student['email']) ?>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                        <!-- Mobile -->
-                                                        <div class="contact-item">
-                                                            <div class="contact-icon">
-                                                                <i class="fas fa-phone"></i>
-                                                            </div>
-                                                            <div class="contact-details">
-                                                                <div class="contact-label">Mobile</div>
-                                                                <a href="tel:<?= htmlspecialchars($student['mobile']) ?>" class="contact-value contact-link">
-                                                                    <?= htmlspecialchars($student['mobile']) ?>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                            <!-- Students Grid -->
+                            <div id="studentsGrid">
+                                <?php if ($result && $result->num_rows > 0): ?>
+                                    <div class="row">
+                                        <?php while ($student = $result->fetch_assoc()): 
+                                            // Fetch projects count for this student
+                                            $projects_count = 0;
+                                            $projects_query = $conn->query("SELECT COUNT(*) as count FROM active_student_projects WHERE student_id = " . $student['id']);
+                                            if ($projects_query) {
+                                                $projects_count = $projects_query->fetch_assoc()['count'];
+                                            }
 
-                                                    <!-- Action Buttons -->
-                                                    <div class="action-buttons">
-                                                        <a href="student-profile.php?student_id=<?= $student['id'] ?>" class="btn btn-profile">
-                                                            <i class="fas fa-eye me-1"></i>View Full Profile
-                                                        </a>
+                                            // Fetch actual skills for this student (all tables)
+                                            $student_skills = [];
+                                            $skills_sql = "
+                                                SELECT s.skill_name, s.category 
+                                                FROM active_student_skills a
+                                                JOIN (
+                                                    SELECT id, skill_name, 'IT' AS category FROM it_student_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Accountancy' AS category FROM hnd_accountancy_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Agriculture' AS category FROM hnd_agriculture_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Building Services' AS category FROM hnd_building_services_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Business Admin' AS category FROM hnd_business_admin_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'English' AS category FROM hnd_english_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Food Tech' AS category FROM hnd_food_tech_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Management' AS category FROM hnd_management_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Mechanical' AS category FROM hnd_mechanical_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'Quantity Survey' AS category FROM hnd_quantity_survey_skills WHERE skill_name != ''
+                                                    UNION ALL
+                                                    SELECT id, skill_name, 'THM' AS category FROM hnd_thm_skills WHERE skill_name != ''
+                                                ) s ON a.skill_id = s.id
+                                                WHERE a.student_id = ?
+                                                ORDER BY s.category, s.skill_name
+                                                LIMIT 8
+                                            ";
+                                            $skills_stmt = $conn->prepare($skills_sql);
+                                            if ($skills_stmt) {
+                                                $skills_stmt->bind_param("i", $student['id']);
+                                                $skills_stmt->execute();
+                                                $skills_result = $skills_stmt->get_result();
+                                                $student_skills = $skills_result->fetch_all(MYSQLI_ASSOC);
+                                                $skills_stmt->close();
+                                            }
+
+                                            $skills_count = count($student_skills);
+                                        ?>
+                                            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                                                <div class="card student-card">
+                                                    <div class="card-body">
+                                                        <div class="card-header-section">
+                                                            <span class="student-id">ID: <?= $student['id'] ?></span>
+                                                            <img src="../<?= htmlspecialchars($student['profile_picture'] ?: 'uploads/profile_pictures/default.png') ?>" 
+                                                                 alt="<?= htmlspecialchars($student['username']) ?>" 
+                                                                 class="student-avatar"
+                                                                 onerror="this.src='../uploads/profile_pictures/default.png'">
+                                                            <h5 class="student-name"><?= htmlspecialchars($student['username']) ?></h5>
+                                                            <div class="student-reg-id"><?= htmlspecialchars($student['reg_id']) ?></div>
+                                                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                                                <span class="status-badge status-<?= $student['status'] ?>">
+                                                                    <?= $statusOptions[$student['status']] ?? ucfirst($student['status']) ?>
+                                                                </span>
+                                                                <?php if ($student['course_name']): ?>
+                                                                    <span class="badge bg-light text-dark"><?= htmlspecialchars($student['course_name']) ?></span>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Stats -->
+                                                        <div class="stats-container">
+                                                            <div class="stat-item">
+                                                                <span class="stat-number"><?= $projects_count ?></span>
+                                                                <span class="stat-label">Projects</span>
+                                                            </div>
+                                                            <div class="stat-item">
+                                                                <span class="stat-number"><?= $skills_count ?></span>
+                                                                <span class="stat-label">Skills</span>
+                                                            </div>
+                                                            <div class="stat-item">
+                                                                <span class="stat-number"><?= htmlspecialchars($student['study_year']) ?></span>
+                                                                <span class="stat-label">Study Year</span>
+                                                            </div>
+                                                            <div class="stat-item">
+                                                                <span class="stat-number"><?= htmlspecialchars($student['nic']) ?></span>
+                                                                <span class="stat-label">NIC</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Skills Section -->
+                                                        <div class="skills-section">
+                                                            <div class="skills-label">
+                                                                <i class="fas fa-code me-1"></i>Key Skills
+                                                                <?php if ($skills_count > 8): ?>
+                                                                    <small class="text-muted">(Showing 8 of <?= $skills_count ?>)</small>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <div class="skills-container">
+                                                                <?php if (!empty($student_skills)): ?>
+                                                                    <?php foreach ($student_skills as $skill): ?>
+                                                                        <span class="skill-badge">
+                                                                            <?= htmlspecialchars($skill['skill_name']) ?>
+                                                                            <span class="skill-category"><?= $skill['category'] ?></span>
+                                                                        </span>
+                                                                    <?php endforeach; ?>
+                                                                <?php else: ?>
+                                                                    <div class="no-skills">No skills added yet</div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Contact Info -->
+                                                        <div class="contact-info">
+                                                            <div class="contact-item">
+                                                                <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                                                                <div class="contact-details">
+                                                                    <div class="contact-label">Email</div>
+                                                                    <a href="mailto:<?= htmlspecialchars($student['email']) ?>" class="contact-value contact-link">
+                                                                        <?= htmlspecialchars($student['email']) ?>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                            <div class="contact-item">
+                                                                <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                                                                <div class="contact-details">
+                                                                    <div class="contact-label">Mobile</div>
+                                                                    <a href="tel:<?= htmlspecialchars($student['mobile']) ?>" class="contact-value contact-link">
+                                                                        <?= htmlspecialchars($student['mobile']) ?>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Action Buttons -->
+                                                        <div class="action-buttons">
+                                                            <a href="student-profile.php?student_id=<?= $student['id'] ?>" class="btn btn-profile">
+                                                                <i class="fas fa-eye me-1"></i>View Full Profile
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <?php endwhile; ?>
-                                </div>
-                            <?php else: ?>
-                                <div class="empty-state">
-                                    <i class="fas fa-user-graduate"></i>
-                                    <h5>No Students Found</h5>
-                                    <p class="text-muted">No active students match your current filters. Try adjusting your search criteria.</p>
-                                    <a href="?" class="btn btn-primary mt-3">
-                                        <i class="fas fa-refresh me-2"></i>Clear Filters
-                                    </a>
-                                </div>
-                            <?php endif; ?>
+                                        <?php endwhile; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="empty-state">
+                                        <i class="fas fa-user-graduate"></i>
+                                        <h5>No Students Found</h5>
+                                        <p class="text-muted">No active students match your current filters. Try adjusting your search criteria.</p>
+                                        <a href="?" class="btn btn-primary mt-3">
+                                            <i class="fas fa-refresh me-2"></i>Clear Filters
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -672,8 +1090,44 @@ $total_students = $result->num_rows;
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <?php include_once("../includes/js-links-inc.php") ?>
 
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2 for skills
+            $('#skillsSelect').select2({
+                placeholder: "Select skills to filter...",
+                allowClear: true,
+                width: '100%',
+                closeOnSelect: false
+            });
+
+            // Remove skill badge functionality
+            document.querySelectorAll('.remove-skill').forEach(button => {
+                button.addEventListener('click', function() {
+                    const skillId = this.getAttribute('data-skill-id');
+                    const select = document.querySelector('#skillsSelect');
+                    const option = select.querySelector(`option[value="${skillId}"]`);
+                    
+                    if (option) {
+                        option.selected = false;
+                    }
+                    
+                    // Trigger change event to update Select2
+                    $(select).trigger('change');
+                    
+                    // Submit the form
+                    document.getElementById('filterForm').submit();
+                });
+            });
+
+            // Auto-submit form when skills are changed (optional)
+            $('#skillsSelect').on('change', function() {
+                // You can enable auto-submit if desired
+                // document.getElementById('filterForm').submit();
+            });
+
             // Add smooth hover effects
             const studentCards = document.querySelectorAll('.student-card');
             studentCards.forEach(card => {
@@ -706,7 +1160,36 @@ $total_students = $result->num_rows;
                 }
             });
 
-            console.log('Active students page loaded with <?= $result->num_rows ?> students');
+            console.log('Active students page loaded with <?= $total_students ?> students');
+        });
+
+        // Function to remove specific filter
+        function removeFilter(filterName) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filterName);
+            window.location.href = url.toString();
+        }
+
+        // Function to quickly filter by a single skill
+        function filterBySkill(skillId, skillName) {
+            const select = document.querySelector('#skillsSelect');
+            const option = select.querySelector(`option[value="${skillId}"]`);
+            
+            if (option) {
+                // Clear existing selections and select only this skill
+                $(select).val(null).trigger('change');
+                option.selected = true;
+                $(select).trigger('change');
+                
+                // Submit the form
+                document.getElementById('filterForm').submit();
+            }
+        }
+
+        // Show loading spinner when form is submitted
+        document.getElementById('filterForm').addEventListener('submit', function() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('studentsGrid').style.opacity = '0.5';
         });
     </script>
 

@@ -87,24 +87,48 @@ $projects_result = $stmt->get_result();
 $projects = $projects_result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Fetch skills
+// Fetch skills from all relevant tables
 $skills_sql = "
     SELECT s.skill_name, s.category 
     FROM active_student_skills a 
     JOIN (
-        SELECT id, skill_name, 'IT' AS category FROM it_student_skills
+        SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills
         UNION ALL
         SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills
+        UNION ALL
+        SELECT id, skill_name, 'Accountancy' AS category FROM hnd_accountancy_skills
+        UNION ALL
+        SELECT id, skill_name, 'Agriculture' AS category FROM hnd_agriculture_skills
+        UNION ALL
+        SELECT id, skill_name, 'Building Services' AS category FROM hnd_building_services_skills
+        UNION ALL
+        SELECT id, skill_name, 'Business Admin' AS category FROM hnd_business_admin_skills
+        UNION ALL
+        SELECT id, skill_name, 'English' AS category FROM hnd_english_skills
+        UNION ALL
+        SELECT id, skill_name, 'Food Tech' AS category FROM hnd_food_tech_skills
+        UNION ALL
+        SELECT id, skill_name, 'Management' AS category FROM hnd_management_skills
+        UNION ALL
+        SELECT id, skill_name, 'Mechanical' AS category FROM hnd_mechanical_skills
+        UNION ALL
+        SELECT id, skill_name, 'Quantity Survey' AS category FROM hnd_quantity_survey_skills
+        UNION ALL
+        SELECT id, skill_name, 'THM' AS category FROM hnd_thm_skills
+        UNION ALL
+        SELECT id, skill_name, 'IT' AS category FROM it_student_skills
     ) s ON a.skill_id = s.id
     WHERE a.student_id = ?
     ORDER BY s.category, s.skill_name
 ";
+
 $stmt = $conn->prepare($skills_sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $skills_result = $stmt->get_result();
 $skills = $skills_result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
 
 // Fetch course name from hnd_courses
 $course_name = '';
