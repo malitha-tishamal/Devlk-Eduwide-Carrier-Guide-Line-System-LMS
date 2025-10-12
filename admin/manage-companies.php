@@ -8,18 +8,16 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Fetch user details
+// Fetch admin details
 $user_id = $_SESSION['admin_id'];
-$sql = "SELECT * FROM admins WHERE id = ?";
-$stmt = $conn->prepare($sql);
+$stmt = $conn->prepare("SELECT * FROM admins WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Fetch users from the database
-// SQL query to get data
+// Fetch companies
 $sql = "SELECT * FROM companies";
 $result = $conn->query($sql);
 ?>
@@ -30,41 +28,50 @@ $result = $conn->query($sql);
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
     <title>Companies Manage - EduWide</title>
-
     <?php include_once("../includes/css-links-inc.php"); ?>
 </head>
 
 <body>
 
     <?php include_once("../includes/header.php") ?>
-
     <?php include_once("../includes/sadmin-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Manage Admins</h1>
+            <h1>Manage Companies</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                     <li class="breadcrumb-item">Pages</li>
                     <li class="breadcrumb-item active">Manage Companies</li>
                 </ol>
             </nav>
         </div>
 
+        <!-- Flash message -->
+        <?php if (isset($_SESSION['flash_message'])): ?>
+            <div class="alert alert-<?= $_SESSION['flash_type'] ?? 'success' ?> alert-dismissible fade show" role="alert">
+                <?= htmlspecialchars($_SESSION['flash_message']) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php
+                unset($_SESSION['flash_message']);
+                unset($_SESSION['flash_type']);
+            ?>
+        <?php endif; ?>
+
         <section class="section">
             <div class="row">
                 <div class="col-lg-12">
+
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Companies Management</h5>
                             <p>Manage Companies here.</p>
 
-                            <!-- Table with user data -->
-                            <table class="table datatable">
-                                <thead class="align-middle text-center">
+                            <table class="table datatable table-bordered align-middle text-center">
+                                <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Profile Picture</th>
@@ -74,122 +81,116 @@ $result = $conn->query($sql);
                                         <th>Mobile</th>
                                         <th>Category</th>
                                         <th>Status</th>
-                                        <th></th>
-                                        <th>Action</th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="8" class="text-center"></th> <!-- Empty columns for alignment -->
-                                        <th class="text-center">Approve</th>
-                                        <th class="text-center">Disable</th>
-                                        <th class="text-center">Delete</th>
+                                        <th>Approve</th>
+                                        <th>Disable</th>
+                                        <th>Delete</th>
+                                        <th>Edit</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    if ($result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            echo "<tr>";
-                                            echo "<td>" . $row['id'] . "</td>";
-                                            echo "<td><img src='../companies/" . $row["profile_picture"] . "' alt='Profile' width='120' height='120'></td>";
-                                            echo "<td>" . $row['username'] . "</td> ";
-                                            echo "<td>" . $row['address'] . "</td>";
-                                            echo "<td>" . $row['email'] . "</td>";
-                                            echo "<td>" . $row['mobile'] . "</td>";
-                                            echo "<td>" . $row['category'] . "</td>";
-
-                                            // Status Column
-                                            echo "<td>";
+                                    <?php if ($result->num_rows > 0): ?>
+                                        <?php while ($row = $result->fetch_assoc()):
                                             $status = strtolower($row['status']);
-
-                                            if ($status === 'active' || $status === 'approved') {
-                                                echo "<span class='btn btn-success btn-sm w-100 text-center'>Approved</span>";
-                                            } elseif ($status === 'disabled') {
-                                                echo "<span class='btn btn-danger btn-sm w-100 text-center'>Disabled</span>";
-                                            } elseif ($status === 'pending') {
-                                                echo "<span class='btn btn-warning btn-sm w-100 text-center'>Pending</span>";
-                                            } else {
-                                                echo "<span class='btn btn-secondary btn-sm w-100 text-center'>" . ucfirst($row['status']) . "</span>";
-                                            }
-                                            echo "</td>";
-
-                                            // Action Buttons
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-success btn-sm w-100 approve-btn' data-id='" . $row['id'] . "'>Approve</button>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-warning btn-sm w-100 disable-btn' data-id='" . $row['id'] . "'>Disable</button>
-                                                  </td>";
-                                            echo "<td class='text-center'>
-                                                    <button class='btn btn-danger btn-sm w-100 delete-btn' data-id='" . $row['id'] . "'>Delete</button>
-                                                  </td>";
-
-                                            // Edit Profile Button
-                                            echo "<td class='text-center'>
-                                                    <a href='edit-company.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm w-100'>Edit</a>
-                                                  </td>";
-
-                                            echo "</tr>";
-                                        }
-                                    } else {
-                                        echo "<tr><td colspan='10' class='text-center'>No users found.</td></tr>";
-                                    }
-                                    ?>
+                                            $isApproved = ($status === 'active' || $status === 'approved');
+                                            $isDisabled = ($status === 'disabled');
+                                        ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($row['id']) ?></td>
+                                            <td>
+                                                <img src="../companies/<?= htmlspecialchars($row['profile_picture'] ?: 'default.png') ?>" 
+                                                     width="120" height="120" onerror="this.src='../companies/default.png'">
+                                            </td>
+                                            <td><?= htmlspecialchars($row['username']) ?></td>
+                                            <td><?= htmlspecialchars($row['address']) ?></td>
+                                            <td><?= htmlspecialchars($row['email']) ?></td>
+                                            <td><?= htmlspecialchars($row['mobile']) ?></td>
+                                            <td><?= htmlspecialchars($row['category']) ?></td>
+                                            <td>
+                                                <?php
+                                                    if ($isApproved) echo "<span class='btn btn-success btn-sm w-100'>Approved</span>";
+                                                    elseif ($isDisabled) echo "<span class='btn btn-danger btn-sm w-100'>Disabled</span>";
+                                                    elseif ($status === 'pending') echo "<span class='btn btn-warning btn-sm w-100'>Pending</span>";
+                                                    else echo "<span class='btn btn-secondary btn-sm w-100'>" . ucfirst(htmlspecialchars($row['status'])) . "</span>";
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-success btn-sm w-100 approve-btn" 
+                                                        data-id="<?= htmlspecialchars($row['id']) ?>" 
+                                                        <?= $isApproved ? 'disabled style="opacity:0.5;"' : '' ?>>
+                                                    Approve
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-warning btn-sm w-100 disable-btn" 
+                                                        data-id="<?= htmlspecialchars($row['id']) ?>" 
+                                                        <?= $isDisabled ? 'disabled style="opacity:0.5;"' : '' ?>>
+                                                    Disable
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger btn-sm w-100 delete-btn" 
+                                                        data-id="<?= htmlspecialchars($row['id']) ?>">
+                                                    Delete
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <a href="edit-company.php?id=<?= htmlspecialchars($row['id']) ?>" 
+                                                   class="btn btn-primary btn-sm w-100">Edit</a>
+                                            </td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="12" class="text-center">No companies found.</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
-
-
                             </table>
-                            <!-- End Table with user data -->
 
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
     </main>
 
     <?php include_once("../includes/footer.php") ?>
-
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
     <?php include_once("../includes/js-links-inc.php") ?>
-    <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', function () {
-        const approveButtons = document.querySelectorAll('.approve-btn');
-        const disableButtons = document.querySelectorAll('.disable-btn');
-        const deleteButtons = document.querySelectorAll('.delete-btn');
 
-        approveButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-companies.php?approve_id=${userId}`;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const approveButtons = document.querySelectorAll('.approve-btn');
+            const disableButtons = document.querySelectorAll('.disable-btn');
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+
+            approveButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-id');
+                    window.location.href = `process-companies.php?approve_id=${id}`;
+                });
+            });
+
+            disableButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-id');
+                    window.location.href = `process-companies.php?disable_id=${id}`;
+                });
+            });
+
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-id');
+                    if (confirm('Are you sure you want to delete this company?')) {
+                        window.location.href = `process-companies.php?delete_id=${id}`;
+                    }
+                });
             });
         });
-
-        disableButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                window.location.href = `process-companies.php?disable_id=${userId}`;
-            });
-        });
-
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-id');
-                if (confirm("Are you sure you want to delete this user?")) {
-                    window.location.href = `process-companies.php?delete_id=${userId}`;
-                }
-            });
-        });
-      });
     </script>
 
 </body>
-
 </html>
 
-<?php
-// Close database connection
-$conn->close();
-?>
+<?php $conn->close(); ?>

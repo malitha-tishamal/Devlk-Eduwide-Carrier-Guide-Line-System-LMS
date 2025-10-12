@@ -221,7 +221,7 @@ $result = $conn->query($sql);
                                                 <a href="edit-former_student.php?id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-primary btn-sm w-100">Edit</a>
                                             </td>
                                             <td>
-                                                <a href="former_student-profile.php?former_student_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-primary btn-sm w-100">Profile</a>
+                                                <a href="former-student-profile.php?former_student_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-primary btn-sm w-100">Profile</a>
                                             </td>
                                             <td>
                                                 <button class="btn btn-secondary btn-sm w-100 reset-btn" data-id="<?= htmlspecialchars($row['id']) ?>">Reset Password</button>

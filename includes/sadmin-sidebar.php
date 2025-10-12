@@ -97,7 +97,13 @@
                 </li>
                 <li>
                     <a href="manage-former-students-edu.php">
-                        <i class="bi bi-circle"></i> <span>Manage Former Students</span>
+                        <i class="bi bi-circle"></i> <span>Manage Former Students Skills</span>
+                    </a>
+                </li>
+    
+                <li>
+                    <a href="former-students-skills.php">
+                        <i class="bi bi-circle"></i> <span>Former Students Skills</span>
                     </a>
                 </li>
                 <!--li>

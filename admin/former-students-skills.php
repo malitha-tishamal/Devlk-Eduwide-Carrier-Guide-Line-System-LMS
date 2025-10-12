@@ -22,18 +22,21 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Fetch filtering parameters from GET request
+// Filter parameters for former students
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $study_year = isset($_GET['study_year']) ? $_GET['study_year'] : '';
-$status = isset($_GET['status']) ? $_GET['status'] : '';
+$nowstatus = isset($_GET['nowstatus']) ? $_GET['nowstatus'] : '';
 $course_id = isset($_GET['course_id']) ? $_GET['course_id'] : '';
 $skills = isset($_GET['skills']) ? (is_array($_GET['skills']) ? $_GET['skills'] : [$_GET['skills']]) : [];
 
-// Build SQL query with filters for student listing
+// Status options for former students
+$statusOptions = ['study' => 'Studying', 'work' => 'Working', 'intern' => 'Internship', 'free' => 'Available'];
+
+// Build SQL query for former students
 $sql = "SELECT DISTINCT s.*, c.name AS course_name 
-        FROM students s 
+        FROM former_students s 
         LEFT JOIN hnd_courses c ON s.course_id = c.id 
-        WHERE s.status != 'deleted'";
+        WHERE 1=1";
 
 $params = [];
 $types = '';
@@ -52,9 +55,9 @@ if ($study_year !== '') {
     $types .= 's';
 }
 
-if ($status !== '') {
-    $sql .= " AND s.status = ?";
-    $params[] = $status;
+if ($nowstatus !== '') {
+    $sql .= " AND s.nowstatus = ?";
+    $params[] = $nowstatus;
     $types .= 's';
 }
 
@@ -68,9 +71,9 @@ if ($course_id !== '') {
 if (!empty($skills)) {
     $placeholders = str_repeat('?,', count($skills) - 1) . '?';
     $sql .= " AND s.id IN (
-        SELECT DISTINCT ass.student_id 
-        FROM active_student_skills ass 
-        WHERE ass.skill_id IN ($placeholders)
+        SELECT DISTINCT fss.student_id 
+        FROM former_student_skills fss 
+        WHERE fss.skill_id IN ($placeholders)
     )";
     $params = array_merge($params, $skills);
     $types .= str_repeat('i', count($skills));
@@ -164,8 +167,12 @@ if (!empty($skills)) {
     }
 }
 
-// Status options for display
-$statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' => 'Rejected'];
+// Get counts for overview stats
+$former_count = $conn->query("SELECT COUNT(*) as count FROM former_students")->fetch_assoc()['count'];
+$work_count = $conn->query("SELECT COUNT(*) as count FROM former_students WHERE nowstatus = 'work'")->fetch_assoc()['count'];
+$study_count = $conn->query("SELECT COUNT(*) as count FROM former_students WHERE nowstatus = 'study'")->fetch_assoc()['count'];
+$intern_count = $conn->query("SELECT COUNT(*) as count FROM former_students WHERE nowstatus = 'intern'")->fetch_assoc()['count'];
+$free_count = $conn->query("SELECT COUNT(*) as count FROM former_students WHERE nowstatus = 'free'")->fetch_assoc()['count'];
 ?>
 
 <!DOCTYPE html>
@@ -174,7 +181,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Active Students - EduWide</title>
+    <title>Former Students - EduWide</title>
 
     <?php include_once("../includes/css-links-inc.php"); ?>
     <!-- Select2 CSS -->
@@ -380,17 +387,22 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
             text-transform: capitalize;
         }
 
-        .status-approved {
+        .status-work {
             background: #e8f5e8;
             color: #2e7d32;
         }
 
-        .status-pending {
+        .status-study {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-intern {
             background: #fff3e0;
             color: #ef6c00;
         }
 
-        .status-rejected {
+        .status-free {
             background: #fce4ec;
             color: #c2185b;
         }
@@ -587,18 +599,6 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
             color: #ff6b6b;
         }
 
-        .filter-tag {
-            background: #e9ecef;
-            border: 1px solid #dee2e6;
-            border-radius: 15px;
-            padding: 4px 12px;
-            font-size: 0.8rem;
-            margin: 2px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
         .results-count {
             background: var(--success-color);
             color: white;
@@ -671,13 +671,6 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
             text-align: center;
             padding: 20px;
         }
-
-        .skill-match-highlight {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 2px 4px;
-        }
     </style>
 </head>
 
@@ -688,12 +681,12 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Active Students</h1>
+            <h1>Former Students</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Talent Pool</li>
-                    <li class="breadcrumb-item active">Active Students</li>
+                    <li class="breadcrumb-item active">Former Students</li>
                 </ol>
             </nav>
         </div>
@@ -705,36 +698,23 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                     <div class="stats-overview">
                         <div class="overview-card">
                             <i class="fas fa-users overview-icon"></i>
-                            <div class="overview-number"><?= $total_students ?></div>
-                            <div class="overview-label">Filtered Students</div>
+                            <div class="overview-number"><?= $former_count ?></div>
+                            <div class="overview-label">Total Former Students</div>
                         </div>
                         <div class="overview-card">
-                            <i class="fas fa-check-circle overview-icon"></i>
-                            <div class="overview-number">
-                                <?php
-                                $approved_count = 0;
-                                $count_result = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'approved'");
-                                if ($count_result) {
-                                    $approved_count = $count_result->fetch_assoc()['count'];
-                                }
-                                echo $approved_count;
-                                ?>
-                            </div>
-                            <div class="overview-label">Approved</div>
+                            <i class="fas fa-briefcase overview-icon"></i>
+                            <div class="overview-number"><?= $work_count ?></div>
+                            <div class="overview-label">Currently Working</div>
                         </div>
                         <div class="overview-card">
-                            <i class="fas fa-clock overview-icon"></i>
-                            <div class="overview-number">
-                                <?php
-                                $pending_count = 0;
-                                $count_result = $conn->query("SELECT COUNT(*) as count FROM students WHERE status = 'pending'");
-                                if ($count_result) {
-                                    $pending_count = $count_result->fetch_assoc()['count'];
-                                }
-                                echo $pending_count;
-                                ?>
-                            </div>
-                            <div class="overview-label">Pending</div>
+                            <i class="fas fa-graduation-cap overview-icon"></i>
+                            <div class="overview-number"><?= $study_count ?></div>
+                            <div class="overview-label">Currently Studying</div>
+                        </div>
+                        <div class="overview-card">
+                            <i class="fas fa-user-clock overview-icon"></i>
+                            <div class="overview-number"><?= $intern_count + $free_count ?></div>
+                            <div class="overview-label">Available / Interns</div>
                         </div>
                     </div>
 
@@ -742,7 +722,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                     <div class="card filters-card">
                         <div class="card-body">
                             <h4 class="section-title">
-                                <i class="fas fa-filter"></i> Filter Students
+                                <i class="fas fa-filter"></i> Filter Former Students
                             </h4>
                             <form method="GET" action="" id="filterForm">
                                 <div class="row g-3">
@@ -756,7 +736,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                             <option value="">All Years</option>
                                             <?php
                                             $current_year = date("Y");
-                                            for ($year = 2022; $year <= $current_year + 2; $year++) {
+                                            for ($year = 2000; $year <= $current_year + 2; $year++) {
                                                 $selected = ($study_year == "$year") ? 'selected' : '';
                                                 echo "<option value='$year' $selected>Year $year</option>";
                                             }
@@ -764,12 +744,12 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Account Status</label>
-                                        <select name="status" class="form-select">
+                                        <label class="form-label">Current Status</label>
+                                        <select name="nowstatus" class="form-select">
                                             <option value="">All Status</option>
                                             <?php
                                             foreach ($statusOptions as $value => $label) {
-                                                $selected = ($status === $value) ? 'selected' : '';
+                                                $selected = ($nowstatus === $value) ? 'selected' : '';
                                                 echo "<option value=\"$value\" $selected>$label</option>";
                                             }
                                             ?>
@@ -849,10 +829,9 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <!-- Active Filters and Results Count -->
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="section-title mb-0">
-                                    <i class="fas fa-user-graduate"></i>Student Profiles
+                                    <i class="fas fa-briefcase"></i>Former Student Profiles
                                 </h4>
                                 <div class="results-count">
                                     <i class="fas fa-users me-1"></i>
@@ -861,7 +840,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                             </div>
 
                             <!-- Active Filters -->
-                            <?php if ($search || $study_year || $status || $course_id || !empty($skills)): ?>
+                            <?php if ($search || $study_year || $nowstatus || $course_id || !empty($skills)): ?>
                                 <div class="active-filters">
                                     <strong>Active Filters:</strong>
                                     <?php if ($search): ?>
@@ -876,10 +855,10 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                             <a href="?" class="clear-filter" onclick="removeFilter('study_year')">×</a>
                                         </span>
                                     <?php endif; ?>
-                                    <?php if ($status): ?>
+                                    <?php if ($nowstatus): ?>
                                         <span class="filter-badge">
-                                            Status: <?= $statusOptions[$status] ?>
-                                            <a href="?" class="clear-filter" onclick="removeFilter('status')">×</a>
+                                            Status: <?= $statusOptions[$nowstatus] ?>
+                                            <a href="?" class="clear-filter" onclick="removeFilter('nowstatus')">×</a>
                                         </span>
                                     <?php endif; ?>
                                     <?php if ($course_id): 
@@ -920,16 +899,16 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                         <?php while ($student = $result->fetch_assoc()): 
                                             // Fetch projects count for this student
                                             $projects_count = 0;
-                                            $projects_query = $conn->query("SELECT COUNT(*) as count FROM active_student_projects WHERE student_id = " . $student['id']);
+                                            $projects_query = $conn->query("SELECT COUNT(*) as count FROM former_student_projects WHERE student_id = " . $student['id']);
                                             if ($projects_query) {
                                                 $projects_count = $projects_query->fetch_assoc()['count'];
                                             }
 
-                                            // Fetch actual skills for this student (all tables)
+                                            // Fetch actual skills for this student
                                             $student_skills = [];
                                             $skills_sql = "
                                                 SELECT s.skill_name, s.category 
-                                                FROM active_student_skills a
+                                                FROM former_student_skills fs
                                                 JOIN (
                                                     SELECT id, skill_name, 'IT' AS category FROM it_student_skills WHERE skill_name != ''
                                                     UNION ALL
@@ -956,8 +935,8 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                                     SELECT id, skill_name, 'Quantity Survey' AS category FROM hnd_quantity_survey_skills WHERE skill_name != ''
                                                     UNION ALL
                                                     SELECT id, skill_name, 'THM' AS category FROM hnd_thm_skills WHERE skill_name != ''
-                                                ) s ON a.skill_id = s.id
-                                                WHERE a.student_id = ?
+                                                ) s ON fs.skill_id = s.id
+                                                WHERE fs.student_id = ?
                                                 ORDER BY s.category, s.skill_name
                                                 LIMIT 20
                                             ";
@@ -977,15 +956,15 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                                     <div class="card-body">
                                                         <div class="card-header-section">
                                                             <span class="student-id">ID: <?= $student['id'] ?></span>
-                                                            <img src="../<?= htmlspecialchars($student['profile_picture'] ?: 'uploads/profile_pictures/default.png') ?>" 
+                                                            <img src="../oddstudents/<?= htmlspecialchars($student['profile_picture']) ?>" 
                                                                  alt="<?= htmlspecialchars($student['username']) ?>" 
                                                                  class="student-avatar"
                                                                  onerror="this.src='../uploads/profile_pictures/default.png'">
                                                             <h5 class="student-name"><?= htmlspecialchars($student['username']) ?></h5>
                                                             <div class="student-reg-id"><?= htmlspecialchars($student['reg_id']) ?></div>
                                                             <div class="d-flex justify-content-center align-items-center gap-2">
-                                                                <span class="status-badge status-<?= $student['status'] ?>">
-                                                                    <?= $statusOptions[$student['status']] ?? ucfirst($student['status']) ?>
+                                                                <span class="status-badge status-<?= $student['nowstatus'] ?>">
+                                                                    <?= $statusOptions[$student['nowstatus']] ?? ucfirst($student['nowstatus']) ?>
                                                                 </span>
                                                                 <?php if ($student['course_name']): ?>
                                                                     <span class="badge bg-light text-dark"><?= htmlspecialchars($student['course_name']) ?></span>
@@ -1059,7 +1038,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
 
                                                         <!-- Action Buttons -->
                                                         <div class="action-buttons">
-                                                            <a href="student-profile.php?student_id=<?= $student['id'] ?>" class="btn btn-profile">
+                                                            <a href="former-student-profile.php?former_student_id=<?= $student['id'] ?>" class="btn btn-profile">
                                                                 <i class="fas fa-eye me-1"></i>View Full Profile
                                                             </a>
                                                         </div>
@@ -1070,9 +1049,9 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                                     </div>
                                 <?php else: ?>
                                     <div class="empty-state">
-                                        <i class="fas fa-user-graduate"></i>
-                                        <h5>No Students Found</h5>
-                                        <p class="text-muted">No active students match your current filters. Try adjusting your search criteria.</p>
+                                        <i class="fas fa-briefcase"></i>
+                                        <h5>No Former Students Found</h5>
+                                        <p class="text-muted">No former students match your current filters. Try adjusting your search criteria.</p>
                                         <a href="?" class="btn btn-primary mt-3">
                                             <i class="fas fa-refresh me-2"></i>Clear Filters
                                         </a>
@@ -1122,12 +1101,6 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                 });
             });
 
-            // Auto-submit form when skills are changed (optional)
-            $('#skillsSelect').on('change', function() {
-                // You can enable auto-submit if desired
-                // document.getElementById('filterForm').submit();
-            });
-
             // Add smooth hover effects
             const studentCards = document.querySelectorAll('.student-card');
             studentCards.forEach(card => {
@@ -1160,7 +1133,7 @@ $statusOptions = ['approved' => 'Approved', 'pending' => 'Pending', 'rejected' =
                 }
             });
 
-            console.log('Active students page loaded with <?= $total_students ?> students');
+            console.log('Former students page loaded with <?= $total_students ?> students');
         });
 
         // Function to remove specific filter
