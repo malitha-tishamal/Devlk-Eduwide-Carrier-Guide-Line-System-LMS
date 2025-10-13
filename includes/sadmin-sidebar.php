@@ -20,7 +20,7 @@
                 </li>
                 <li>
                     <a href="manage-admins.php">
-                        <i class="bi bi-circle"></i> <span>Manage Admin</span>
+                        <i class="bi bi-circle"></i> <span>Manage Admin Accounts</span>
                     </a>
                 </li>
             </ul>
@@ -38,10 +38,10 @@
                 </li>
                 <li>
                     <a href="manage-lectures.php">
-                        <i class="bi bi-circle"></i> <span>Manage Lectures</span>
+                        <i class="bi bi-circle"></i> <span>Manage Lectures Accounts</span>
                     </a>
                 </li>
-                <li>
+                <!--li>
                     <a href="pages-assign-subject.php">
                         <i class="bi bi-circle"></i> <span>Assign Subjects</span>
                     </a>
@@ -57,7 +57,7 @@
                     <a href="pages-assignments-manage.php">
                         <i class="bi bi-circle"></i> <span>Manage Assign Details</span>
                     </a>
-                </li>
+                </li-->
             </ul>
         </li>
 
@@ -126,7 +126,7 @@
                 </li>
                 <li>
                     <a href="manage-companies.php">
-                        <i class="bi bi-circle"></i> <span>Manage Companies</span>
+                        <i class="bi bi-circle"></i> <span>Manage Companies Accounts</span>
                     </a>
                 </li>
             </ul>
@@ -137,11 +137,13 @@
                 <i class="bi bi-person-bounding-box"></i> <span>Skills</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="skill-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                <li>
+
+                 <li>
                     <a href="pages-skills.php">
-                        <i class="bi bi-circle"></i> <span>Manage Course Content</span>
+                        <i class="bi bi-circle"></i> <span>Manage Skills</span>
                     </a>
                 </li>
+                
             </ul>
         </li>
 
@@ -152,13 +154,13 @@
             <ul id="course-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                 <li>
                     <a href="pages-courses.php">
-                        <i class="bi bi-circle"></i> <span>Manage Skills</span>
+                        <i class="bi bi-circle"></i> <span>Manage Course Content</span>
                     </a>
                 </li>
             </ul>
         </li>
 
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#admins-nav" role="button">
                 <i class="bi bi-bookmark-dash"></i> <span>Marks Enter</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -184,9 +186,9 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li-->
 
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#marks-nav" role="button">
                 <i class="bi bi-bar-chart"></i> <span>Marks Details</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -200,9 +202,9 @@
                     <a href="pages-courses.php">
                         <i class="bi bi-circle"></i> <span>Analyze</span>
                     </a>
-                </li-->
+                </li>
             </ul>
-        </li>
+        </li-->
 
         <!--li class="nav-item">
             <a class="nav-link collapsed" href="pages-marks.php.php">
