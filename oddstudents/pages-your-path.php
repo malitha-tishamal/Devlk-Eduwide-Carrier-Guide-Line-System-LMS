@@ -785,34 +785,32 @@ $stmt->close();
                                             </div>
 
                                             <script>
-                                                document.querySelectorAll('.delete-btn').forEach(function (button) {
-                                                    button.addEventListener('click', function () {
-                                                        var educationId = this.getAttribute('data-id');
+document.querySelectorAll('.delete-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var educationId = this.getAttribute('data-id');
 
-                                                        if (confirm('Are you sure you want to delete this education record?')) {
-                                                            var xhr = new XMLHttpRequest();
-                                                            xhr.open('POST', 'delete_education.php', true);
-                                                            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                            xhr.onload = function () {
-                                                                if (xhr.status === 200) {
-                                                                    var response = JSON.parse(xhr.responseText);
-                                                                    if (response.status === 'success') {
-                                                                        alert(response.message);
-                                                                        // Remove the card or section from the DOM
-                                                                        document.getElementById('education-' + educationId).remove();
-                                                                        location.reload();
-                                                                    } else {
-                                                                        alert(response.message);
-                                                                    }
-                                                                } else {
-                                                                    alert('An error occurred while deleting the record.');
-                                                                }
-                                                            };
-                                                            xhr.send('education_id=' + educationId); 
-                                                        }
-                                                    });
-                                                });
-                                                </script>
+        if (!confirm('Are you sure you want to delete this education record?')) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'delete_education.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                alert(response.message);
+                if (response.status === 'success') {
+                    // Reload the page to reflect the deletion
+                    location.reload();
+                }
+            } else {
+                alert('An error occurred while deleting the record.');
+            }
+        };
+        xhr.send('education_id=' + educationId);
+    });
+});
+</script>
+
 
                                             
 

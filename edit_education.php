@@ -74,12 +74,12 @@ if (isset($_GET['id'])) {
                         <div class="card-body pt-3">
                         <div class="container my-5">
                             <h3>Edit Education</h3>
-                            <form action="save_education.php" method="POST">
+                            <form action="update_education.php" method="POST">
                                 <input type="hidden" name="education_id" value="<?php echo $row['id']; ?>">
 
                                 <div class="mb-3">
-                                    <label for="school" class="form-label">School</label>
-                                    <input type="text" class="form-control w-75" id="school" name="school" value="<?php echo htmlspecialchars($row['school']); ?>">
+                                    <label for="school" class="form-label">School*</label>
+                                    <input type="text" class="form-control w-75" id="school" name="school" value="<?php echo htmlspecialchars($row['school']); ?>" required>
                                 </div>
                                 
                                 <div class="mb-3">
@@ -92,34 +92,53 @@ if (isset($_GET['id'])) {
                                     <input type="text" class="form-control w-75" id="field" name="field" value="<?php echo htmlspecialchars($row['field_of_study']); ?>">
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <label for="start_month" class="form-label">Start Month</label>
-                                    <input type="text" class="form-control w-75" id="start_month" name="start_month" value="<?php echo htmlspecialchars($row['start_month']); ?>">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="start_month" class="form-label">Start Month</label>
+                                        <select class="form-select" id="start_month" name="start_month">
+                                            <option value="">--Month--</option>
+                                            <?php
+                                            $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                                            foreach ($months as $month) {
+                                                $selected = ($row['start_month'] == $month) ? 'selected' : '';
+                                                echo "<option value='$month' $selected>$month</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="start_year" class="form-label">Start Year</label>
+                                        <input type="number" class="form-control" id="start_year" name="start_year" value="<?php echo $row['start_year']; ?>" min="1900" max="2030">
+                                    </div>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <label for="start_year" class="form-label">Start Year</label>
-                                    <input type="number" class="form-control w-75" id="start_year" name="start_year" value="<?php echo $row['start_year']; ?>" >
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="end_month" class="form-label">End Month</label>
-                                    <input type="text" class="form-control w-75" id="end_month" name="end_month" value="<?php echo htmlspecialchars($row['end_month']); ?>" >
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="end_year" class="form-label">End Year</label>
-                                    <input type="number" class="form-control w-75" id="end_year" name="end_year" value="<?php echo $row['end_year']; ?>">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="end_month" class="form-label">End Month</label>
+                                        <select class="form-select" id="end_month" name="end_month">
+                                            <option value="">--Month--</option>
+                                            <?php
+                                            foreach ($months as $month) {
+                                                $selected = ($row['end_month'] == $month) ? 'selected' : '';
+                                                echo "<option value='$month' $selected>$month</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="end_year" class="form-label">End Year</label>
+                                        <input type="number" class="form-control" id="end_year" name="end_year" value="<?php echo $row['end_year']; ?>" min="1900" max="2030">
+                                    </div>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="grade" class="form-label">Grade</label>
-                                    <input type="text" class="form-control w-75" id="grade" name="grade" value="<?php echo htmlspecialchars($row['grade']); ?>" >
+                                    <input type="text" class="form-control w-75" id="grade" name="grade" value="<?php echo htmlspecialchars($row['grade']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="activities" class="form-label">Activities & Societies</label>
-                                    <input type="text" class="form-control w-75" id="activities" name="activities" value="<?php echo htmlspecialchars($row['activities']); ?>" >
+                                    <input type="text" class="form-control w-75" id="activities" name="activities" value="<?php echo htmlspecialchars($row['activities']); ?>">
                                 </div>
                                 
                                 <div class="mb-3">
@@ -127,7 +146,8 @@ if (isset($_GET['id'])) {
                                     <textarea class="form-control w-75" id="description" name="description" rows="3"><?php echo htmlspecialchars($row['description']); ?></textarea>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="submit" class="btn btn-primary">Update Education</button>
+                                <a href="students-profile.php" class="btn btn-secondary">Cancel</a>
                             </form>
                         </div>
                     </div>
@@ -137,7 +157,7 @@ if (isset($_GET['id'])) {
     </section>
 </main>
 
-                    <?php include_once ("includes/footer4.php") ?>
+    <?php include_once ("includes/footer4.php") ?>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <?php include_once ("includes/js-links-inc.php") ?>
 </body>
