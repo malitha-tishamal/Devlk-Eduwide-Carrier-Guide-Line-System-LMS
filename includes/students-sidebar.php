@@ -2,7 +2,7 @@
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
 
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link" href="pages-home.php">
                 <i class="bi bi-house-door"></i> <span>Home</span>
             </a>
@@ -21,7 +21,7 @@
             </ul>
         </li-->
 
-        <li class="nav-item">
+        <!--li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#admins-nav" role="button">
                 <i class="bi bi-bookmark-dash"></i> <span>My Marks</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
@@ -47,7 +47,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li-->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="pages-achievements.php">

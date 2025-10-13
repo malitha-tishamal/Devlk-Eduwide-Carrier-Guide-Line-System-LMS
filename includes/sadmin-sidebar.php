@@ -133,13 +133,26 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link collapsed" data-bs-toggle="collapse" href="#skill-nav" role="button">
+                <i class="bi bi-person-bounding-box"></i> <span>Skills</span> <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="skill-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="pages-skills.php">
+                        <i class="bi bi-circle"></i> <span>Manage Course Content</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#course-nav" role="button">
                 <i class="bi bi-book"></i> <span>Course Content</span> <i class="bi bi-chevron-down ms-auto"></i>
             </a>
             <ul id="course-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                 <li>
                     <a href="pages-courses.php">
-                        <i class="bi bi-circle"></i> <span>Manage Course Content</span>
+                        <i class="bi bi-circle"></i> <span>Manage Skills</span>
                     </a>
                 </li>
             </ul>

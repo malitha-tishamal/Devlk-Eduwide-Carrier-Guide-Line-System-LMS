@@ -328,6 +328,57 @@ $total_skills = $skills_result->num_rows;
     white-space: nowrap;
 }
 
+/* Search Bar Styles */
+.search-container {
+    position: relative;
+    max-width: 300px;
+}
+
+.search-input {
+    padding-left: 40px;
+    border-radius: 25px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 5;
+}
+
+.quick-search-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.quick-search-btn {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.quick-search-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
 /* Loading overlay */
 .loading-overlay {
     display: none;
@@ -364,6 +415,15 @@ $total_skills = $skills_result->num_rows;
     .category-filter {
         max-width: 150px;
     }
+    
+    .search-container {
+        max-width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .quick-search-buttons {
+        justify-content: center;
+    }
 }
 
 /* Hover effects */
@@ -377,6 +437,18 @@ $total_skills = $skills_result->num_rows;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
+}
+
+/* Highlight search results */
+.highlight {
+    background-color: #fff3cd !important;
+    border-left: 4px solid var(--warning-color) !important;
+}
+
+.current-highlight {
+    background-color: #d1ecf1 !important;
+    border-left: 4px solid var(--success-color) !important;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -464,6 +536,40 @@ $total_skills = $skills_result->num_rows;
                         <!-- Alert Messages -->
                         <div id="alertContainer"></div>
 
+                        <!-- Search Section -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="search-container">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="idSearch" class="form-control search-input" placeholder="Search by ID (e.g., 1, 5, 10...)">
+                                </div>
+                                <div class="quick-search-buttons">
+                                    <small class="text-muted me-2">Quick Search:</small>
+                                    <button class="quick-search-btn" data-id="1">ID: 1</button>
+                                    <button class="quick-search-btn" data-id="5">ID: 5</button>
+                                    <button class="quick-search-btn" data-id="10">ID: 10</button>
+                                    <button class="quick-search-btn" data-id="25">ID: 25</button>
+                                    <button class="quick-search-btn" data-id="50">ID: 50</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="d-flex justify-content-end align-items-center gap-2">
+                                    <span id="searchResults" class="text-muted small"></span>
+                                    <button id="clearSearch" class="btn btn-sm btn-outline-secondary" style="display: none;">
+                                        <i class="fas fa-times me-1"></i>Clear
+                                    </button>
+                                    <div class="nav-buttons">
+                                        <button id="prevResult" class="btn btn-sm btn-outline-primary" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button id="nextResult" class="btn btn-sm btn-outline-primary" disabled>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <table id="skillsTable" class="table table-hover" style="width:100%">
                             <thead>
                                 <tr>
@@ -476,8 +582,8 @@ $total_skills = $skills_result->num_rows;
                             </thead>
                             <tbody>
                                 <?php while ($row = $skills_result->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= $row['id'] ?></td>
+                                <tr data-id="<?= $row['id'] ?>">
+                                    <td class="skill-id"><?= $row['id'] ?></td>
                                     <td>
                                         <strong><?= htmlspecialchars($row['skill_name']) ?></strong>
                                     </td>
@@ -711,9 +817,167 @@ $(document).ready(function() {
         }
     });
 
+    // Search functionality
+    let currentSearchResults = [];
+    let currentHighlightIndex = -1;
+
+    // ID Search function
+    function searchById(searchId) {
+        // Remove previous highlights
+        $('.highlight').removeClass('highlight');
+        $('.current-highlight').removeClass('current-highlight');
+        
+        // Reset navigation
+        currentSearchResults = [];
+        currentHighlightIndex = -1;
+        
+        if (!searchId.trim()) {
+            $('#searchResults').text('');
+            $('#clearSearch').hide();
+            $('#prevResult').prop('disabled', true);
+            $('#nextResult').prop('disabled', true);
+            return;
+        }
+
+        // Search in the table
+        const searchTerms = searchId.split(',').map(term => term.trim()).filter(term => term);
+        let results = [];
+
+        searchTerms.forEach(term => {
+            // Search in ID column (column 0)
+            table.column(0).nodes().each(function(node, index) {
+                const rowId = table.cell(node, 0).data();
+                if (rowId.toString().includes(term)) {
+                    const row = table.row(node);
+                    results.push({
+                        row: row,
+                        node: node,
+                        index: index
+                    });
+                }
+            });
+        });
+
+        // Remove duplicates
+        currentSearchResults = [...new Map(results.map(item => [item.node, item])).values()];
+        
+        if (currentSearchResults.length > 0) {
+            // Highlight all results
+            currentSearchResults.forEach(result => {
+                $(result.node).addClass('highlight');
+            });
+            
+            // Show first result
+            showResult(0);
+            
+            // Update search results info
+            $('#searchResults').text(`Found ${currentSearchResults.length} result(s)`);
+            $('#clearSearch').show();
+        } else {
+            $('#searchResults').text('No results found');
+            $('#clearSearch').show();
+            $('#prevResult').prop('disabled', true);
+            $('#nextResult').prop('disabled', true);
+        }
+    }
+
+    function showResult(index) {
+        if (currentSearchResults.length === 0) return;
+        
+        // Remove current highlight
+        $('.current-highlight').removeClass('current-highlight');
+        
+        // Set new index
+        currentHighlightIndex = index;
+        
+        // Add current highlight
+        const currentResult = currentSearchResults[currentHighlightIndex];
+        $(currentResult.node).addClass('current-highlight');
+        
+        // Scroll to the highlighted row
+        $('html, body').animate({
+            scrollTop: $(currentResult.node).offset().top - 100
+        }, 500);
+        
+        // Update navigation buttons
+        $('#prevResult').prop('disabled', currentHighlightIndex === 0);
+        $('#nextResult').prop('disabled', currentHighlightIndex === currentSearchResults.length - 1);
+        
+        // Update search results text
+        $('#searchResults').text(`Found ${currentSearchResults.length} result(s) - Showing ${currentHighlightIndex + 1} of ${currentSearchResults.length}`);
+    }
+
+    // Event handlers for search
+    $('#idSearch').on('input', function() {
+        searchById($(this).val());
+    });
+
+    // Quick search buttons
+    $('.quick-search-btn').on('click', function() {
+        const searchId = $(this).data('id');
+        $('#idSearch').val(searchId);
+        searchById(searchId);
+    });
+
+    // Clear search
+    $('#clearSearch').on('click', function() {
+        $('#idSearch').val('');
+        $('.highlight').removeClass('highlight');
+        $('.current-highlight').removeClass('current-highlight');
+        $('#searchResults').text('');
+        $(this).hide();
+        $('#prevResult').prop('disabled', true);
+        $('#nextResult').prop('disabled', true);
+        currentSearchResults = [];
+        currentHighlightIndex = -1;
+    });
+
+    // Navigation buttons
+    $('#prevResult').on('click', function() {
+        if (currentHighlightIndex > 0) {
+            showResult(currentHighlightIndex - 1);
+        }
+    });
+
+    $('#nextResult').on('click', function() {
+        if (currentHighlightIndex < currentSearchResults.length - 1) {
+            showResult(currentHighlightIndex + 1);
+        }
+    });
+
+    // Keyboard navigation
+    $(document).on('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                $('#idSearch').focus();
+                return;
+            }
+        }
+        
+        if ($('#idSearch').is(':focus') && currentSearchResults.length > 0) {
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    // Shift+Enter - previous result
+                    if (currentHighlightIndex > 0) {
+                        showResult(currentHighlightIndex - 1);
+                    }
+                } else {
+                    // Enter - next result
+                    if (currentHighlightIndex < currentSearchResults.length - 1) {
+                        showResult(currentHighlightIndex + 1);
+                    }
+                }
+                e.preventDefault();
+            }
+        }
+    });
+
     // Category filter
     $('#categoryFilter').on('change', function() {
         table.column(2).search(this.value).draw();
+        // Clear search when category changes
+        $('#clearSearch').click();
     });
 
     // Show alert message
@@ -886,6 +1150,9 @@ $(document).ready(function() {
     console.log('Skills Management loaded with <?= $total_skills ?> skills across <?= count($categoryMap) ?> categories');
 });
 </script>
+<?php include_once("../includes/footer.php") ?>
+    <?php include_once("../includes/js-links-inc.php") ?>
+
 </body>
 </html>
 <?php $conn->close(); ?>
