@@ -36,7 +36,9 @@ if ($_SESSION['login_attempts'] >= 3) {
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
-    $tables = ['admins', 'lectures', 'students', 'former_students', 'companies'];
+
+    // ✅ Order changed: former_students comes before students
+    $tables = ['admins', 'lectures', 'former_students', 'students', 'companies'];
 
     foreach ($tables as $table) {
         $sql = "SELECT * FROM $table WHERE email = ?";
@@ -72,15 +74,6 @@ if (isset($_POST['submit'])) {
                     header("Location: lectures/index.php");
                     exit();
 
-                } elseif ($table == 'students' && $user['status'] == 'approved') {
-                    $_SESSION['student_id'] = $user['id'];
-                    $_SESSION['success_message'] = "Welcome Student!";
-                    $update = $conn->prepare("UPDATE students SET last_login = ? WHERE id = ?");
-                    $update->bind_param("si", $current_time, $user['id']);
-                    $update->execute();
-                    header("Location: user-profile.php");
-                    exit();
-
                 } elseif ($table == 'former_students' && $user['status'] == 'approved') {
                     $_SESSION['former_student_id'] = $user['id'];
                     $_SESSION['success_message'] = "Welcome Former Student!";
@@ -88,6 +81,15 @@ if (isset($_POST['submit'])) {
                     $update->bind_param("si", $current_time, $user['id']);
                     $update->execute();
                     header("Location: oddstudents/index.php");
+                    exit();
+
+                } elseif ($table == 'students' && $user['status'] == 'approved') {
+                    $_SESSION['student_id'] = $user['id'];
+                    $_SESSION['success_message'] = "Welcome Student!";
+                    $update = $conn->prepare("UPDATE students SET last_login = ? WHERE id = ?");
+                    $update->bind_param("si", $current_time, $user['id']);
+                    $update->execute();
+                    header("Location: user-profile.php");
                     exit();
 
                 } elseif ($table == 'companies' && $user['status'] == 'approved') {

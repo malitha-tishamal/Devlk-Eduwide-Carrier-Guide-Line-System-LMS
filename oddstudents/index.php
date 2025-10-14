@@ -52,6 +52,7 @@ SELECT
     fs.github, 
     fs.linkedin, 
     fs.blog,
+    fs.study_year,
     fs.course_id,
     hc.name as course_name,
     e.school, 
@@ -122,6 +123,47 @@ $result = $stmt->get_result();
 
 $suggestions = [];
 while ($row = $result->fetch_assoc()) {
+    // Fetch skills for this person
+    $skills_sql = "
+        SELECT s.skill_name, s.category
+        FROM former_student_skills fss
+        JOIN (
+            SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills
+            UNION ALL
+            SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Accountancy' AS category FROM hnd_accountancy_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Agriculture' AS category FROM hnd_agriculture_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Building Services' AS category FROM hnd_building_services_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Business Admin' AS category FROM hnd_business_admin_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND English' AS category FROM hnd_english_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Food Tech' AS category FROM hnd_food_tech_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Management' AS category FROM hnd_management_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Mechanical' AS category FROM hnd_mechanical_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND Quantity Survey' AS category FROM hnd_quantity_survey_skills
+            UNION ALL
+            SELECT id, skill_name, 'HND THM' AS category FROM hnd_thm_skills
+            UNION ALL
+            SELECT id, skill_name, 'IT' AS category FROM it_student_skills
+        ) s ON fss.skill_id = s.id
+        WHERE fss.student_id = ?
+        ORDER BY s.category, s.skill_name
+    ";
+    $skills_stmt = $conn->prepare($skills_sql);
+    $skills_stmt->bind_param("i", $row['id']);
+    $skills_stmt->execute();
+    $skills_result = $skills_stmt->get_result();
+    $row['skills'] = $skills_result->fetch_all(MYSQLI_ASSOC);
+    $skills_stmt->close();
+    
     $suggestions[] = $row;
 }
 $stmt->close();
@@ -137,9 +179,9 @@ if (empty($suggestions) && $current_user_course_id) {
         fs.github, 
         fs.linkedin, 
         fs.blog,
+        fs.study_year,
         fs.course_id,
         hc.name as course_name,
-        fs.study_year,
         (SELECT school FROM education WHERE user_id = fs.id ORDER BY id DESC LIMIT 1) as school,
         (SELECT field_of_study FROM education WHERE user_id = fs.id ORDER BY id DESC LIMIT 1) as course,
         (SELECT company FROM experiences WHERE user_id = fs.id ORDER BY id DESC LIMIT 1) as job_company,
@@ -151,7 +193,7 @@ if (empty($suggestions) && $current_user_course_id) {
     WHERE 
         fs.id != ? AND fs.status = 'approved' AND fs.course_id = ?
     ORDER BY RAND()
-    LIMIT 10
+    LIMIT 100
     ";
     
     $fallback_stmt = $conn->prepare($fallback_query);
@@ -160,6 +202,47 @@ if (empty($suggestions) && $current_user_course_id) {
     $fallback_result = $fallback_stmt->get_result();
     
     while ($row = $fallback_result->fetch_assoc()) {
+        // Fetch skills for fallback suggestions too
+        $skills_sql = "
+            SELECT s.skill_name, s.category
+            FROM former_student_skills fss
+            JOIN (
+                SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills
+                UNION ALL
+                SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Accountancy' AS category FROM hnd_accountancy_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Agriculture' AS category FROM hnd_agriculture_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Building Services' AS category FROM hnd_building_services_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Business Admin' AS category FROM hnd_business_admin_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND English' AS category FROM hnd_english_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Food Tech' AS category FROM hnd_food_tech_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Management' AS category FROM hnd_management_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Mechanical' AS category FROM hnd_mechanical_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND Quantity Survey' AS category FROM hnd_quantity_survey_skills
+                UNION ALL
+                SELECT id, skill_name, 'HND THM' AS category FROM hnd_thm_skills
+                UNION ALL
+                SELECT id, skill_name, 'IT' AS category FROM it_student_skills
+            ) s ON fss.skill_id = s.id
+            WHERE fss.student_id = ?
+            ORDER BY s.category, s.skill_name
+        ";
+        $skills_stmt = $conn->prepare($skills_sql);
+        $skills_stmt->bind_param("i", $row['id']);
+        $skills_stmt->execute();
+        $skills_result = $skills_stmt->get_result();
+        $row['skills'] = $skills_result->fetch_all(MYSQLI_ASSOC);
+        $skills_stmt->close();
+        
         $suggestions[] = $row;
     }
     $fallback_stmt->close();
@@ -180,11 +263,11 @@ if (empty($suggestions) && $current_user_course_id) {
             background: #fff;
             border-radius: 15px;
             padding: 20px;
-            width: 400px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
             border: 1px solid #e9ecef;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .modern-card:hover {
@@ -274,6 +357,42 @@ if (empty($suggestions) && $current_user_course_id) {
             color: #6c757d;
             margin-bottom: 15px;
         }
+
+        /* Skills Section Styles */
+        .skills-container {
+            margin: 15px 0;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            margin: 2px;
+            margin-bottom: 5px;
+        }
+
+        .no-skills {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .skills-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .more-skills-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -345,6 +464,28 @@ if (empty($suggestions) && $current_user_course_id) {
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Skills Display -->
+                            <?php if (!empty($person['skills'])): ?>
+                                <div class="skills-container">
+                                    <div class="skills-title">
+                                        <i class="fas fa-code me-1"></i>Skills
+                                    </div>
+                                    <div class="skills-list">
+                                        <?php 
+                                        // Show only first 5 skills
+                                        $displaySkills = array_slice($person['skills'], 0, 5);
+                                        foreach ($displaySkills as $skill): ?>
+                                            <span class="skill-tag"><?= htmlspecialchars($skill['skill_name']) ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php if (count($person['skills']) > 5): ?>
+                                        <div class="more-skills-text">
+                                            View profile to see all <?= count($person['skills']) ?> skills
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
 
                             <div class="edu-work-container mb-3">
                                 <?php if (!empty($person['job_role'])): ?>
