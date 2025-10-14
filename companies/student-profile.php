@@ -2,23 +2,14 @@
 require_once '../includes/db-conn.php';
 session_start();
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-// Ensure student_id is passed in URL
+// Get student ID from URL
 if (!isset($_GET['student_id'])) {
     echo "Invalid profile!";
     exit();
 }
 
-$student_id = intval($_GET['student_id']);
-
-// Fetch logged-in company user details
-$user_id = $_SESSION['company_id'] ?? null;
-if (!$user_id) {
-    echo "Unauthorized access!";
-    exit();
-}
-
+// Fetch user details
+$user_id = $_SESSION['company_id'];
 $sql = "SELECT * FROM companies WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -26,6 +17,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
+
+$student_id = intval($_GET['student_id']);
 
 // Fetch student basic info
 $sql = "SELECT * FROM students WHERE id = ?";
@@ -36,7 +29,7 @@ $result = $stmt->get_result();
 $student = $result->fetch_assoc();
 $stmt->close();
 
-if (!$student) {
+if (!$student) { 
     echo "Profile not found.";
     exit();
 }
@@ -47,6 +40,34 @@ $stmt = $conn->prepare($edu_sql);
 $stmt->bind_param("i", $student_id);
 $stmt->execute();
 $education = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Fetch work experience
+$work_sql = "SELECT * FROM students_experiences WHERE user_id = ? ORDER BY start_year DESC, start_month DESC";
+$stmt = $conn->prepare($work_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$experiences = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Fetch summary
+$summary_sql = "SELECT summary FROM students_summaries WHERE user_id = ?";
+$stmt = $conn->prepare($summary_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$summary_result = $stmt->get_result();
+$summary_row = $summary_result->fetch_assoc();
+$summary = $summary_row['summary'] ?? '';
+$stmt->close();
+
+// Fetch about section
+$about_sql = "SELECT about_text FROM students_about WHERE user_id = ?";
+$stmt = $conn->prepare($about_sql);
+$stmt->bind_param("i", $student_id);
+$stmt->execute();
+$about_result = $stmt->get_result();
+$about_row = $about_result->fetch_assoc();
+$about = $about_row['about_text'] ?? '';
 $stmt->close();
 
 // Fetch achievements
@@ -84,29 +105,43 @@ $projects_result = $stmt->get_result();
 $projects = $projects_result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Fetch skills - FIXED BASED ON TABLE STRUCTURE
+// Fetch skills from all relevant tables
 $skills_sql = "
-    SELECT 
-        iss.skill_name,
-        'IT' as category
-    FROM active_student_skills ass
-    JOIN it_student_skills iss ON ass.skill_id = iss.id
-    WHERE ass.student_id = ?
-    
-    UNION ALL
-    
-    SELECT 
-        es.skill_name,
-        'Engineering' as category
-    FROM active_student_skills ass
-    JOIN engineering_skills es ON ass.skill_id = es.id
-    WHERE ass.student_id = ?
-    
-    ORDER BY category, skill_name
+    SELECT s.skill_name, s.category
+    FROM active_student_skills a
+    JOIN (
+        SELECT id, skill_name, 'Business Finance' AS category FROM business_finance_skills
+        UNION ALL
+        SELECT id, skill_name, 'Engineering' AS category FROM engineering_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Accountancy' AS category FROM hnd_accountancy_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Agriculture' AS category FROM hnd_agriculture_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Building Services' AS category FROM hnd_building_services_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Business Admin' AS category FROM hnd_business_admin_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND English' AS category FROM hnd_english_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Food Tech' AS category FROM hnd_food_tech_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Management' AS category FROM hnd_management_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Mechanical' AS category FROM hnd_mechanical_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND Quantity Survey' AS category FROM hnd_quantity_survey_skills
+        UNION ALL
+        SELECT id, skill_name, 'HND THM' AS category FROM hnd_thm_skills
+        UNION ALL
+        SELECT id, skill_name, 'IT' AS category FROM it_student_skills
+    ) s ON a.skill_id = s.id
+    WHERE a.student_id = ?
+    ORDER BY s.category, s.skill_name
 ";
 
 $stmt = $conn->prepare($skills_sql);
-$stmt->bind_param("ii", $student_id, $student_id);
+$stmt->bind_param("i", $student_id);
 $stmt->execute();
 $skills_result = $stmt->get_result();
 $skills = $skills_result->fetch_all(MYSQLI_ASSOC);
@@ -124,8 +159,6 @@ if (!empty($student['course_id'])) {
     $course_name = $course_row['name'] ?? '';
     $stmt->close();
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -344,14 +377,14 @@ if (!empty($student['course_id'])) {
             font-weight: 500;
         }
 
-        .status-approved {
+        .status-active {
             background: #d4edda;
             color: #155724;
         }
 
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .contact-info {
@@ -443,6 +476,64 @@ if (!empty($student['course_id'])) {
             font-weight: bold;
             font-size: 0.9rem;
         }
+
+        /* Experience Section Specific Styles */
+        .experience-description {
+            border-left: 3px solid #4361ee;
+            background: #f8f9fa !important;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .experience-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0073b1;
+            margin-bottom: 5px;
+        }
+
+        .experience-company {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .experience-details {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .experience-location,
+        .experience-dates {
+            margin-right: 20px;
+        }
+
+        .experience-footer {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888;
+        }
+
+        .experience-type {
+            font-weight: bold;
+            color: #4361ee;
+        }
+
+        .experience-source {
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -456,7 +547,7 @@ if (!empty($student['course_id'])) {
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item"><a href="manage-students.php">Active Students</a></li>
+                    <li class="breadcrumb-item"><a href="manage-students.php">Manage Students</a></li>
                     <li class="breadcrumb-item active">Profile</li>
                 </ol>
             </nav>
@@ -486,7 +577,7 @@ if (!empty($student['course_id'])) {
                                 <?php endif; ?>
                                 
                                 <!-- Status Badge -->
-                                <span class="status-badge <?= $student['status'] == 'approved' ? 'status-approved' : 'status-pending' ?>">
+                                <span class="status-badge <?= $student['status'] == 'active' ? 'status-active' : 'status-inactive' ?>">
                                     <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i>
                                     <?= ucfirst($student['status']) ?>
                                 </span>
@@ -526,6 +617,12 @@ if (!empty($student['course_id'])) {
                                     </div>
                                     <div class="col-6 mb-3">
                                         <div class="stats-card">
+                                            <div class="stats-number"><?= count($experiences) ?></div>
+                                            <div class="stats-label">Experience</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="stats-card">
                                             <div class="stats-number"><?= count($achievements) ?></div>
                                             <div class="stats-label">Achievements</div>
                                         </div>
@@ -536,7 +633,7 @@ if (!empty($student['course_id'])) {
                                             <div class="stats-label">Certifications</div>
                                         </div>
                                     </div>
-                                    <div class="col-6 mb-3">
+                                    <div class="col-6">
                                         <div class="stats-card">
                                             <div class="stats-number"><?= count($projects) ?></div>
                                             <div class="stats-label">Projects</div>
@@ -548,16 +645,6 @@ if (!empty($student['course_id'])) {
                                             <div class="stats-label">Skills</div>
                                         </div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="stats-card">
-                                            <div class="stats-number">
-                                                <?= $student['status'] == 'approved' ? 
-                                                    '<i class="fas fa-check text-success"></i>' : 
-                                                    '<i class="fas fa-clock text-warning"></i>' ?>
-                                            </div>
-                                            <div class="stats-label">Status</div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -567,11 +654,23 @@ if (!empty($student['course_id'])) {
                     <div class="row">
                         <!-- Left Column - Personal Info -->
                         <div class="col-lg-4">
+                            <!-- About Me Section -->
+                            <?php if (!empty($about)): ?>
+                                <div class="section-card">
+                                    <div class="card-body">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-user-circle"></i>About Me
+                                        </h4>
+                                        <p class="lead"><?= nl2br(htmlspecialchars($about)) ?></p>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
                             <!-- Personal Information -->
                             <div class="section-card">
                                 <div class="card-body">
                                     <h4 class="section-title">
-                                        <i class="fas fa-user-circle"></i>Personal Information
+                                        <i class="fas fa-info-circle"></i>Personal Information
                                     </h4>
                                     <div class="info-item">
                                         <span class="info-label">Student ID:</span>
@@ -589,16 +688,54 @@ if (!empty($student['course_id'])) {
                                         <span class="info-label">NIC:</span>
                                         <span class="info-value"><?= htmlspecialchars($student['nic']) ?></span>
                                     </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Study Year:</span>
-                                        <span class="info-value"><?= htmlspecialchars($student['study_year']) ?></span>
-                                    </div>
                                     <?php if (!empty($course_name)): ?>
                                         <div class="info-item">
                                             <span class="info-label">Course:</span>
                                             <span class="info-value"><?= htmlspecialchars($course_name) ?></span>
                                         </div>
                                     <?php endif; ?>
+                                    <div class="info-item">
+                                        <span class="info-label">Current Status:</span>
+                                        <span class="info-value"><?= ucfirst(htmlspecialchars($student['nowstatus'] ?? 'N/A')) ?></span>
+                                    </div>
+                                    
+                                    <!-- Contact Information -->
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="text-primary mb-3">
+                                            <i class="fas fa-address-book me-2"></i>Contact Information
+                                        </h6>
+                                        <?php if (!empty($student['email'])): ?>
+                                            <div class="info-item">
+                                                <span class="info-label">Email:</span>
+                                                <span class="info-value"><?= htmlspecialchars($student['email']) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($student['mobile'])): ?>
+                                            <div class="info-item">
+                                                <span class="info-label">Mobile:</span>
+                                                <span class="info-value"><?= htmlspecialchars($student['mobile']) ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Account Information -->
+                                    <div class="mt-4 pt-3 border-top">
+                                        <h6 class="text-muted mb-3">Account Information</h6>
+                                        <div class="info-item">
+                                            <span class="info-label">Last Login:</span>
+                                            <span class="info-value">
+                                                <?= $student['last_login'] ? 
+                                                    date('M j, Y g:i A', strtotime($student['last_login'])) : 
+                                                    'Never' ?>
+                                            </span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Member Since:</span>
+                                            <span class="info-value">
+                                                <?= date('M j, Y', strtotime($student['created_at'])) ?>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -633,80 +770,106 @@ if (!empty($student['course_id'])) {
                                     <?php endif; ?>
                                 </div>
                             </div>
-
-                            <!-- Contact Information -->
-                            <div class="section-card">
-                                <div class="card-body">
-                                    <h4 class="section-title">
-                                        <i class="fas fa-address-book"></i>Contact Information
-                                    </h4>
-                                    <?php if (!empty($student['email'])): ?>
-                                        <div class="contact-info">
-                                            <i class="fas fa-envelope"></i>
-                                            <span><?= htmlspecialchars($student['email']) ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if (!empty($student['mobile'])): ?>
-                                        <div class="contact-info">
-                                            <i class="fas fa-phone"></i>
-                                            <span><?= htmlspecialchars($student['mobile']) ?></span>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <!-- Account Information -->
-                                    <div class="mt-4 pt-3 border-top">
-                                        <h6 class="text-muted mb-3">Account Information</h6>
-                                        <div class="info-item">
-                                            <span class="info-label">Last Login:</span>
-                                            <span class="info-value">
-                                                <?= $student['last_login'] ? 
-                                                    date('M j, Y g:i A', strtotime($student['last_login'])) : 
-                                                    'Never' ?>
-                                            </span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Member Since:</span>
-                                            <span class="info-value">
-                                                <?= date('M j, Y', strtotime($student['created_at'])) ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Right Column - Education & Activities -->
                         <div class="col-lg-8">
-                            <!-- Education -->
-                            <div class="section-card">
-                                <div class="card-body">
-                                    <h4 class="section-title">
-                                        <i class="fas fa-graduation-cap"></i>Education History
-                                    </h4>
-                                    <?php if (!empty($education)): ?>
-                                        <div class="timeline">
-                                            <?php foreach ($education as $edu): ?>
-                                                <div class="timeline-item">
-                                                    <h5 class="mb-1 text-primary"><?= htmlspecialchars($edu['school']) ?></h5>
-                                                    <p class="mb-1 fw-bold"><?= htmlspecialchars($edu['degree']) ?> in <?= htmlspecialchars($edu['field_of_study']) ?></p>
-                                                    <p class="mb-2 text-muted">
-                                                        <i class="far fa-calendar me-1"></i>
-                                                        <?= htmlspecialchars($edu['start_month']) ?> <?= htmlspecialchars($edu['start_year']) ?> - 
-                                                        <?= htmlspecialchars($edu['end_month']) ?> <?= htmlspecialchars($edu['end_year']) ?>
-                                                    </p>
-                                                    <?php if (!empty($edu['description'])): ?>
-                                                        <p class="mb-0"><?= nl2br(htmlspecialchars($edu['description'])) ?></p>
-                                                    <?php endif; ?>
+                            <!-- Education and Work Experience Section -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="section-card">
+                                        <div class="card-body">
+                                            <h4 class="section-title">
+                                                <i class="fas fa-graduation-cap"></i>Education
+                                            </h4>
+                                            <?php if (!empty($education)): ?>
+                                                <div class="timeline">
+                                                    <?php foreach ($education as $edu): ?>
+                                                        <div class="timeline-item">
+                                                            <h5 class="mb-1 text-primary"><?= htmlspecialchars($edu['school']) ?></h5>
+                                                            <p class="mb-1 fw-bold"><?= htmlspecialchars($edu['degree']) ?> in <?= htmlspecialchars($edu['field_of_study']) ?></p>
+                                                            <p class="mb-2 text-muted">
+                                                                <i class="far fa-calendar me-1"></i>
+                                                                <?= htmlspecialchars($edu['start_month']) ?> <?= htmlspecialchars($edu['start_year']) ?> - 
+                                                                <?= htmlspecialchars($edu['end_month']) ?> <?= htmlspecialchars($edu['end_year']) ?>
+                                                            </p>
+                                                            <?php if (!empty($edu['grade'])): ?>
+                                                                <p class="mb-1"><strong>Grade:</strong> <?= htmlspecialchars($edu['grade']) ?></p>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($edu['activities'])): ?>
+                                                                <p class="mb-1"><strong>Activities:</strong> <?= htmlspecialchars($edu['activities']) ?></p>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($edu['description'])): ?>
+                                                                <p class="mb-0"><?= nl2br(htmlspecialchars($edu['description'])) ?></p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php endforeach; ?>
                                                 </div>
-                                            <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <div class="empty-state">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                    <h5>No Education History</h5>
+                                                    <p>No education information has been added yet.</p>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
-                                    <?php else: ?>
-                                        <div class="empty-state">
-                                            <i class="fas fa-graduation-cap"></i>
-                                            <h5>No Education History</h5>
-                                            <p>No education information has been added yet.</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="section-card">
+                                        <div class="card-body">
+                                            <h4 class="section-title">
+                                                <i class="fas fa-briefcase"></i>Work Experience
+                                            </h4>
+                                            <?php if (!empty($experiences)): ?>
+                                                <div class="timeline">
+                                                    <?php foreach ($experiences as $exp): 
+                                                        $end_date = $exp['currently_working'] ? 'Present' : $exp['end_month'] . ' ' . $exp['end_year'];
+                                                    ?>
+                                                        <div class="timeline-item">
+                                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                <h5 class="text-primary mb-1"><?= htmlspecialchars($exp['title']) ?></h5>
+                                                                <span class="badge bg-primary"><?= htmlspecialchars($exp['employment_type']) ?></span>
+                                                            </div>
+                                                            <p class="mb-1 fw-bold text-dark">
+                                                                <i class="fas fa-building me-2"></i><?= htmlspecialchars($exp['company']) ?>
+                                                            </p>
+                                                            <?php if (!empty($exp['location'])): ?>
+                                                                <p class="mb-1 text-muted">
+                                                                    <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($exp['location']) ?>
+                                                                </p>
+                                                            <?php endif; ?>
+                                                            <p class="mb-2 text-muted">
+                                                                <i class="far fa-calendar me-1"></i>
+                                                                <?= htmlspecialchars($exp['start_month']) ?> <?= htmlspecialchars($exp['start_year']) ?> - 
+                                                                <?= $end_date ?>
+                                                            </p>
+                                                            <?php if (!empty($exp['description'])): ?>
+                                                                <div class="experience-description mt-2 p-3 bg-light rounded">
+                                                                    <p class="mb-0"><?= nl2br(htmlspecialchars($exp['description'])) ?></p>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                            <?php if (!empty($exp['job_source'])): ?>
+                                                                <p class="mt-2 mb-0">
+                                                                    <small class="text-muted">
+                                                                        <i class="fas fa-info-circle me-1"></i>
+                                                                        Source: <?= htmlspecialchars($exp['job_source']) ?>
+                                                                    </small>
+                                                                </p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="empty-state">
+                                                    <i class="fas fa-briefcase"></i>
+                                                    <h5>No Work Experience</h5>
+                                                    <p>No work experience has been added yet.</p>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
 
@@ -873,20 +1036,22 @@ if (!empty($student['course_id'])) {
                                             <?php foreach ($achievements as $ach): ?>
                                                 <div class="col-md-6 mb-3">
                                                     <div class="achievement-card">
+                                                        <?php if (!empty($ach['image_path']) && file_exists('../' . $ach['image_path'])): ?>
+                                                            <img src="../<?= htmlspecialchars($ach['image_path']) ?>" 
+                                                                 class="card-img-top" 
+                                                                 alt="Achievement Image" 
+                                                                 style="height: 200px; object-fit: cover;">
+                                                        <?php else: ?>
+                                                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                                                <i class="fas fa-trophy fa-3x text-warning"></i>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <div class="card-body">
                                                             <h5 class="card-title"><?= htmlspecialchars($ach['event_title']) ?></h5>
-                                                            <p class="card-text mb-1">
-                                                                <strong>Event:</strong> <?= htmlspecialchars($ach['event_name']) ?>
-                                                            </p>
-                                                            <p class="card-text mb-1">
-                                                                <strong>Organized by:</strong> <?= htmlspecialchars($ach['organized_by']) ?>
-                                                            </p>
-                                                            <p class="card-text mb-2">
-                                                                <strong>Date:</strong> <?= date('M j, Y', strtotime($ach['event_date'])) ?>
-                                                            </p>
-                                                            <?php if (!empty($ach['event_description'])): ?>
-                                                                <p class="card-text"><?= nl2br(htmlspecialchars($ach['event_description'])) ?></p>
-                                                            <?php endif; ?>
+                                                            <p class="card-text"><strong>Event:</strong> <?= htmlspecialchars($ach['event_name']) ?></p>
+                                                            <p class="card-text"><strong>Organized by:</strong> <?= htmlspecialchars($ach['organized_by']) ?></p>
+                                                            <p class="card-text"><strong>Date:</strong> <?= date('M j, Y', strtotime($ach['event_date'])) ?></p>
+                                                            <p class="card-text"><?= nl2br(htmlspecialchars($ach['event_description'])) ?></p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -907,25 +1072,27 @@ if (!empty($student['course_id'])) {
                                             <?php foreach ($certifications as $cert): ?>
                                                 <div class="col-md-6 mb-3">
                                                     <div class="certification-card">
+                                                        <?php if (!empty($cert['image_path']) && file_exists('../' . $cert['image_path'])): ?>
+                                                            <img src="../<?= htmlspecialchars($cert['image_path']) ?>" 
+                                                                 class="card-img-top" 
+                                                                 alt="Certification Image" 
+                                                                 style="height: 200px; object-fit: cover;">
+                                                        <?php else: ?>
+                                                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                                                <i class="fas fa-certificate fa-3x text-warning"></i>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <div class="card-body">
                                                             <h5 class="card-title"><?= htmlspecialchars($cert['certification_name']) ?></h5>
-                                                            <p class="card-text mb-1">
-                                                                <strong>Issued by:</strong> <?= htmlspecialchars($cert['issued_by']) ?>
-                                                            </p>
-                                                            <p class="card-text mb-1">
-                                                                <strong>Date:</strong> <?= date('M j, Y', strtotime($cert['date'])) ?>
-                                                            </p>
+                                                            <p class="card-text"><strong>Issued by:</strong> <?= htmlspecialchars($cert['issued_by']) ?></p>
+                                                            <p class="card-text"><strong>Date:</strong> <?= date('M j, Y', strtotime($cert['date'])) ?></p>
                                                             <?php if (!empty($cert['link'])): ?>
-                                                                <p class="card-text mb-2">
+                                                                <p class="card-text">
                                                                     <strong>Link:</strong> 
-                                                                    <a href="<?= htmlspecialchars($cert['link']) ?>" target="_blank" class="text-decoration-none">
-                                                                        View Certificate
-                                                                    </a>
+                                                                    <a href="<?= htmlspecialchars($cert['link']) ?>" target="_blank" class="text-decoration-none">View Certificate</a>
                                                                 </p>
                                                             <?php endif; ?>
-                                                            <?php if (!empty($cert['certification_description'])): ?>
-                                                                <p class="card-text"><?= nl2br(htmlspecialchars($cert['certification_description'])) ?></p>
-                                                            <?php endif; ?>
+                                                            <p class="card-text"><?= nl2br(htmlspecialchars($cert['certification_description'])) ?></p>
                                                         </div>
                                                     </div>
                                                 </div>

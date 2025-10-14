@@ -113,7 +113,7 @@ if (!$experience) {
             </div>
 
             <button type="submit" class="btn btn-primary">Update Experience</button>
-            <a href="students-profile.php" class="btn btn-secondary">Cancel</a>
+            <a href="pages-your-path.php" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 
