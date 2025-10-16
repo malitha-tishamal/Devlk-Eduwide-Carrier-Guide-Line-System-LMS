@@ -1,13 +1,17 @@
 <?php
 session_start();
 require_once '../includes/db-conn.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     // Collect and sanitize form data
-    $company_name = trim($_POST['name']);
+    $company_name = trim($_POST['username']); // Make sure names match your form inputs
     $address = trim($_POST['adress']);
     $email = trim($_POST['email']);
-    $category = $_POST['category'];
+    $category = trim($_POST['category']);
     $mobile = trim($_POST['mobile']);
     $password = $_POST['password'];
 
@@ -42,11 +46,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->close();
 
+    // Check if category exists in hnd_course_categories, if not insert it
+    $stmtCat = $conn->prepare("SELECT id FROM hnd_course_categories WHERE category_name = ?");
+    $stmtCat->bind_param("s", $category);
+    $stmtCat->execute();
+    $stmtCat->store_result();
+
+    if ($stmtCat->num_rows === 0) {
+        // Insert new category
+        $stmtInsertCat = $conn->prepare("INSERT INTO hnd_course_categories (category_name) VALUES (?)");
+        $stmtInsertCat->bind_param("s", $category);
+        $stmtInsertCat->execute();
+        $stmtInsertCat->close();
+    }
+    $stmtCat->close();
+
     // Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Insert into database
-    $insert = $conn->prepare("INSERT INTO companies (name, address, email, category, mobile, password) VALUES (?, ?, ?, ?, ?, ?)");
+    // Insert company data
+    $insert = $conn->prepare("INSERT INTO companies (username, address, email, category, mobile, password) VALUES (?, ?, ?, ?, ?, ?)");
     $insert->bind_param("ssssss", $company_name, $address, $email, $category, $mobile, $hashed_password);
 
     if ($insert->execute()) {
@@ -62,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     header("Location: pages-signup.php");
     exit();
+
 } else {
     $_SESSION['status'] = 'error';
     $_SESSION['message'] = 'Invalid request.';

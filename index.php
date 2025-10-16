@@ -74,7 +74,7 @@
 
                                     <form action="login-process.php" method="POST" class="row g-3 needs-validation" novalidate>
                                         <div class="col-12">
-                                            <label for="yourUsername" class="form-label">Username</label>
+                                            <label for="yourUsername" class="form-label">Email</label>
                                             <div class="input-group has-validation">
                                                 <span class="input-group-text" id="inputGroupPrepend">@</span>
                                                 <input type="text" name="email" class="form-control" id="yourUsername" required>
