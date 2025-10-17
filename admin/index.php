@@ -232,7 +232,7 @@ $former_students = mysqli_fetch_all($result, MYSQLI_ASSOC);
                                         <div class="col-md-4 col-lg-3">                                             
                                             <div class="card mini-card shadow-lg">                                                 
                                                 <div class="d-flex align-items-center p-2">                                                     
-                                                    <img src="../companies/<?php echo $compny['profile_picture']; ?>" alt="Profile Picture"
+                                                    <img src="../companies/<?php echo $company['profile_picture']; ?>" alt="Profile Picture"
                                                          class="rounded-circle me-2"
                                                          style="width: 50px; height: 50px; object-fit: cover;"
                                                          onerror="this.onerror=null;this.src='../companies/uploads/profile_pictures/default.png';">                                                     

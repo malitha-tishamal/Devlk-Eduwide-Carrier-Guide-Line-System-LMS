@@ -146,6 +146,12 @@
                 
             </ul>
         </li>
+    
+         <li class="nav-item">
+            <a class="nav-link collapsed" href="pages-reports.php">
+                <i class="bi bi-flag"></i> <span>Reports</span>
+            </a>
+        </li>
 
         <li class="nav-item">
             <a class="nav-link collapsed" data-bs-toggle="collapse" href="#course-nav" role="button">
@@ -221,6 +227,18 @@
         <li class="nav-item">
             <a class="nav-link collapsed" href="logout.php">
                 <i class="bi bi-box-arrow-right"></i> <span>Log Out</span>
+            </a>
+        </li>
+        
+ 
+    
+    <li class="nav-item">
+            
+        </li>
+
+         <li class="nav-item">
+            <a class="nav-link collapsed" href="https://malithatishamal.42web.io">
+                <i class="bi bi-code-square"></i> <span>Developer<br>About Me</span>
             </a>
         </li>
 

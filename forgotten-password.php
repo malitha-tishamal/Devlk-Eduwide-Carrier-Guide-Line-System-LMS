@@ -1,70 +1,91 @@
+<?php
+require_once 'includes/db-conn.php';
+session_start();
+
+if (isset($_POST['submit'])) {
+    $email = trim($_POST['email']);
+
+    // ✅ Check if email exists in any table
+    $tables = ['admins', 'lectures', 'former_students', 'students', 'companies'];
+    $emailExists = false;
+
+    foreach ($tables as $table) {
+        $stmt = $conn->prepare("SELECT email FROM $table WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $emailExists = true;
+            $stmt->close();
+            break;
+        }
+        $stmt->close();
+    }
+
+    if ($emailExists) {
+        // ✅ Create token and expiration time
+        $token = bin2hex(random_bytes(32));
+        $expires_at = date("Y-m-d H:i:s", strtotime("+1 hour"));
+
+        // ✅ Store in password_resets table
+        $stmt = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $email, $token, $expires_at);
+        $stmt->execute();
+        $stmt->close();
+
+        // ✅ Create reset link
+        $reset_link = "https://eduwide.42web.io/reset-password.php?token=" . $token;
+
+        // ✅ Send email (works only if mail() is supported)
+        $subject = "Eduwide Password Reset Link";
+        $message = "Hello,\n\nClick the link below to reset your password:\n$reset_link\n\nThis link expires in 1 hour.\n\n- Eduwide Team";
+        $headers = "From: no-reply@eduwide.42web.io";
+
+        if (mail($email, $subject, $message, $headers)) {
+            $_SESSION['success_message'] = "Password reset link sent to your email!";
+        } else {
+            $_SESSION['error_message'] = "Failed to send email. (Free hosting may block mail())";
+        }
+    } else {
+        $_SESSION['error_message'] = "Email not found in the system.";
+    }
+
+    header("Location: forgot-password.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-    <title>Forgotten Password - MediQ</title>
-    <meta content="" name="description">
-    <meta content="" name="keywords">
-
-    <?php include_once ("includes/css-links-inc.php"); ?>
-
+  <meta charset="UTF-8">
+  <title>Forgot Password - Eduwide</title>
+  <link rel="icon" href="assets/images/logos/favicon.png">
+  <?php include_once("includes/css-links-inc.php"); ?>
 </head>
-
 <body>
+  <main>
+    <div class="container">
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="col-lg-4 col-md-6 card p-4">
+          <h5 class="text-center mb-3">Forgot Password</h5>
 
-    <main>
-        <div class="container">
-            <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-                            <div class="d-flex justify-content-center py-4">
-                                <a href="index.php" class="logo d-flex align-items-center w-auto">
-                                    <img src="assets/images/logos/mediq-logo.png" alt="" style="max-height:130px;">
-                                </a>
-                            </div><!-- End Logo -->
+          <?php if (isset($_SESSION['success_message'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?></div>
+          <?php elseif (isset($_SESSION['error_message'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?></div>
+          <?php endif; ?>
 
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Forgotten Password</h5>
-                                    </div>
-
-                                    <form action="" method="POST" class="row g-3 needs-validation" novalidate>
-                                        <div class="col-12">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" required>
-                                            <div class="invalid-feedback">Please enter a valid email adddress!</div>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <p class="small mb-0" style="font-size:14px;"><a href="index.php">Back to Login page</a>
-                                        </div>
-
-                                        <div class="col-12 mt-3">
-                                            <input type="submit" class="btn btn-primary w-100" value="Send Email">
-                                        </div>
-                                    </form>
-
-                                </div>
-                            </div>
-
-                            <?php include_once ("includes/footer2.php") ?>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+          <form method="POST">
+            <div class="mb-3">
+              <label>Enter Your Email</label>
+              <input type="email" name="email" class="form-control" required>
+            </div>
+            <button type="submit" name="submit" class="btn btn-primary w-100">Send Reset Link</button>
+          </form>
         </div>
-    </main> 
-
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-    <?php include_once ("includes/js-links-inc.php") ?>  
-
+      </section>
+    </div>
+  </main>
 </body>
-
 </html>

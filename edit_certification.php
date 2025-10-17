@@ -18,6 +18,7 @@ $stmt->close();
 
 $certification_id = $_GET['id'];
 
+
 // Get certification data
 $stmt = $conn->prepare("SELECT * FROM students_certifications WHERE id = ? AND student_id = ?");
 $stmt->bind_param("ii", $certification_id, $current_user_id);

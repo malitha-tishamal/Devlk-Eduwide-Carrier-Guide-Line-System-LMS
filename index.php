@@ -136,15 +136,32 @@
                                         </div>
 
 
-                                         <div class="col-12">
-                                             <p class="small mb-0">Create Admin account? <a href="admin/pages-signup.php">Click</a></p>
-                                             <p class="small mb-0">Create Lecture account? <a href="../lectures/pages-signup.php">Click</a></p>
-                                          
-                                          <p class="small mb-0">Create Former Students account? <a href="oddstudents/pages-signup.php">Click</a></p>
-                                             <p class="small mb-0" style="font-size:14px;">Create Active Student Account? <a href="pages-signup.php">Click</a></p>
-                                           
-                                          <p class="small mb-0" style="font-size:14px;">Are you Company ? <a href="companies/pages-signup.php">Create an account</a></p>
-                                        </div>
+                                        <div class="col-12 text-center mt-3">
+    <p class="small mb-1">
+        Create Admin account? <a href="admin/pages-signup.php" class="text-decoration-none">Click here</a>
+    </p>
+    <p class="small mb-1">
+        Create Lecture account? <a href="../lectures/pages-signup.php" class="text-decoration-none">Click here</a>
+    </p>
+    <p class="small mb-1">
+        Create Former Student account? <a href="oddstudents/pages-signup.php" class="text-decoration-none">Click here</a>
+    </p>
+    <p class="small mb-1">
+        Create Active Student account? <a href="pages-signup.php" class="text-decoration-none">Click here</a>
+    </p>
+    <p class="small mb-1">
+        Are you a Company? <a href="companies/pages-signup.php" class="text-decoration-none">Create an account</a>
+    </p>
+    <hr>
+    <p class="small mb-1">
+        <a href="forgot-password.php" class="text-decoration-none">Forgot Password?</a>
+    </p>
+    <p class="small mb-0">
+        <a href="pages-report.php" class="text-decoration-none">Report an Issue</a>
+    </p>
+</div>
+
+
 
                                     </form>
                                 </div>
