@@ -63,8 +63,8 @@
                 <i class="bi bi-box-arrow-right"></i> <span>Log Out</span>
             </a>
         </li>
-
-        <li class="nav-item">
+    
+    <li class="nav-item">
             
         </li>
 

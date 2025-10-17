@@ -7,15 +7,6 @@ if (!isset($_SESSION['former_student_id'])) {
     exit();
 }
 
-ini_set('display_errors', 0);
-ini_set('display_startup_errors', 0);
-error_reporting(0);
-
-// Optionally log errors to a file for debugging
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error_log.txt'); // Path to your log file
-
-
 $current_user_id = $_SESSION['former_student_id'];
 
 // Get current user details including course information

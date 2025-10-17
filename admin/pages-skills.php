@@ -1150,7 +1150,7 @@ $(document).ready(function() {
     console.log('Skills Management loaded with <?= $total_skills ?> skills across <?= count($categoryMap) ?> categories');
 });
 </script>
-<?php include_once("../includes/footer.php") ?>
+    <?php include_once("../includes/footer.php") ?>
     <?php include_once("../includes/js-links-inc.php") ?>
 
 </body>

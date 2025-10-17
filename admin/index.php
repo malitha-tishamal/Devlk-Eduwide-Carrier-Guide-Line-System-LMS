@@ -2,6 +2,10 @@
 session_start(); 
 require_once '../includes/db-conn.php';  
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Redirect if not logged in 
 if (!isset($_SESSION['admin_id'])) {     
     header("Location: ../index.php");     

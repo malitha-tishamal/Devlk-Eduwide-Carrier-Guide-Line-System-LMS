@@ -677,7 +677,7 @@ $free_count = $conn->query("SELECT COUNT(*) as count FROM former_students WHERE 
 <body>
 
     <?php include_once("../includes/header.php") ?>
-    <?php include_once("../includes/sadmin-sidebar.php") ?>
+    <?php include_once("../includes/company-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">

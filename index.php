@@ -141,7 +141,7 @@
         Create Admin account? <a href="admin/pages-signup.php" class="text-decoration-none">Click here</a>
     </p>
     <p class="small mb-1">
-        Create Lecture account? <a href="../lectures/pages-signup.php" class="text-decoration-none">Click here</a>
+        Create Lecture account? <a href="lectures/pages-signup.php" class="text-decoration-none">Click here</a>
     </p>
     <p class="small mb-1">
         Create Former Student account? <a href="oddstudents/pages-signup.php" class="text-decoration-none">Click here</a>

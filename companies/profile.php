@@ -298,7 +298,7 @@ $stmt->close();
 
     <?php include_once("../includes/header.php") ?>
 
-    <?php include_once("../includes/formers-sidebar.php") ?>
+    <?php include_once("../includes/company-sidebar.php") ?>
 
     <main id="main" class="main">
         <div class="pagetitle">

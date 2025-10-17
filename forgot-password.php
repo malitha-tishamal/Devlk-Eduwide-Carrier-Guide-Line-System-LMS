@@ -38,7 +38,7 @@ if (isset($_POST['submit'])) {
         $stmt->execute();
 
         // Create reset link
-        $reset_link = "http://yourdomain.com/reset-password.php?token=$token";
+        $reset_link = "https://eduwide.42web.io/reset-password.php?token=$token";
 
         // (Optional) send email — for now, just show it on screen
         $_SESSION['success_message'] = "Password reset link: <a href='$reset_link' target='_blank'>$reset_link</a><br>Valid for 30 minutes.";
@@ -67,6 +67,7 @@ if (isset($_POST['submit'])) {
   <main>
     <div class="container">
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+         <img src="assets/images/logos/eduwide-logo.png" alt="" style="max-height:130px;"><br>
         <div class="col-lg-4 col-md-6 card p-4">
           <h5 class="text-center mb-3">Forgot Password</h5>
 
@@ -85,7 +86,13 @@ if (isset($_POST['submit'])) {
             <p class="small mt-3 text-center"><a href="index.php">Back to Login</a></p>
           </form>
         </div>
+        <?php include_once ("includes/footer2.php") ?>
+                  
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <?php include_once ("includes/js-links-inc.php") ?>
       </section>
+       
     </div>
   </main>
 </body>

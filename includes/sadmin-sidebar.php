@@ -147,7 +147,7 @@
             </ul>
         </li>
     
-         <li class="nav-item">
+    	 <li class="nav-item">
             <a class="nav-link collapsed" href="pages-reports.php">
                 <i class="bi bi-flag"></i> <span>Reports</span>
             </a>
@@ -229,7 +229,7 @@
                 <i class="bi bi-box-arrow-right"></i> <span>Log Out</span>
             </a>
         </li>
-        
+    	
  
     
     <li class="nav-item">
